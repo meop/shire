@@ -1,0 +1,26 @@
+import { type Cmd, CmdBase } from './cmd.ts'
+import { Fmt } from './serde.ts'
+
+export class SrvBase extends CmdBase implements Cmd {
+  constructor(scopes: Array<string>) {
+    super(scopes)
+    this.options = [
+      {
+        keys: ['-f', '--format'],
+        description: `print format <${
+          Object.keys(Fmt).map((k, i) => i === 0 ? k : `[${k}]`).join(', ')
+        }>`,
+      },
+    ]
+    this.switches = [
+      { keys: ['-d', '--debug'], description: 'client print debug' },
+      { keys: ['-g', '--grayscale'], description: 'client print skip color' },
+      { keys: ['-h', '--help'], description: 'client print help' },
+      { keys: ['-l', '--log'], description: 'server print log' },
+      { keys: ['-n', '--noop'], description: 'client run skip' },
+      { keys: ['-s', '--succinct'], description: 'client print skip' },
+      { keys: ['-t', '--trace'], description: 'client print trace' },
+      { keys: ['-y', '--yes'], description: 'client run skip prompt' },
+    ]
+  }
+}

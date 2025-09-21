@@ -1,0 +1,25 @@
+{
+  "name": "@meop/shire",
+  "version": "0.1.0",
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true,
+    "trailingCommas": "onlyMultiLine"
+  },
+  "imports": {
+    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.1"
+  },
+  "exports": {
+    "./cli": "./src/cli.ts",
+    "./cli/nu": "./src/cli/nu.ts",
+    "./cli/pwsh": "./src/cli/pwsh.ts",
+    "./cli/zsh": "./src/cli/zsh.ts",
+    "./cmd": "./src/cmd.ts",
+    "./ctx": "./src/ctx.ts",
+    "./env": "./src/env.ts",
+    "./path": "./src/path.ts",
+    "./serde": "./src/serde.ts",
+    "./srv": "./src/srv.ts",
+    "./sys": "./src/sys.ts"
+  }
+}

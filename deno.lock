@@ -1,0 +1,16 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@eemeli/yaml@^2.8.1": "2.8.1"
+  },
+  "jsr": {
+    "@eemeli/yaml@2.8.1": {
+      "integrity": "148adba3583caeb2b81ea06c8af8804e4548201a9e46bcdfa08c0afb8e78f446"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@eemeli/yaml@^2.8.1"
+    ]
+  }
+}
