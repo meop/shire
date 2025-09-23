@@ -1,11 +1,11 @@
 function () {
-  local major=0
-  local minor=0
+  local major=5
+  local minor=9
 
-  if [[ $SH_VER_MAJOR ]]; then
-    major=$SH_VER_MAJOR
-    if [[ $SH_VER_MINOR ]]; then
-      minor=$SH_VER_MINOR
+  if [[ $CLI_VER_MAJOR ]]; then
+    major=$CLI_VER_MAJOR
+    if [[ $CLI_VER_MINOR ]]; then
+      minor=$CLI_VER_MINOR
     fi
   fi
 

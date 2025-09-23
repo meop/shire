@@ -1,11 +1,11 @@
 & {
-  $major = 0
-  $minor = 0
+  $major = 7
+  $minor = 5
 
-  if ($SH_VER_MAJOR) {
-    $major = "${SH_VER_MAJOR}" -as [int]
-    if ($SH_VER_MINOR) {
-      $minor = "${SH_VER_MINOR}" -as [int]
+  if ($CLI_VER_MAJOR) {
+    $major = $CLI_VER_MAJOR -as [int]
+    if ($CLI_VER_MINOR) {
+      $minor = $CLI_VER_MINOR -as [int]
     }
   }
 

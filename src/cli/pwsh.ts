@@ -1,4 +1,5 @@
 import { type Cli, CliBase } from '../cli.ts'
+import { joinKey } from '../reg.ts'
 
 export class Powershell extends CliBase implements Cli {
   constructor() {
@@ -9,7 +10,7 @@ export class Powershell extends CliBase implements Cli {
     return `pwsh -noprofile -c ${value}`
   }
 
-  override async gatedFunc(name: string, lines: Promise<Array<string>>) {
+  override gatedFunc(name: string, lines: Array<string>) {
     return [
       '& {',
       `  $yn = ''`,
@@ -19,7 +20,7 @@ export class Powershell extends CliBase implements Cli {
       `    $yn = Read-Host "? ${name} [y, [n]]"`,
       '  }',
       `  if ($yn -ne 'n') {`,
-      ...(await lines),
+      ...lines,
       '  }',
       '}',
     ]
@@ -37,18 +38,15 @@ export class Powershell extends CliBase implements Cli {
     return 'Set-PSDebug -Trace 1'
   }
 
-  override async varArrSet(
-    name: Promise<string>,
-    values: Promise<Array<string>>,
-  ) {
-    return `$${await name} = ${`@( ${(await values).join(', ')} )`}`
+  override varSet(key: Array<string>, value: string) {
+    return `$${joinKey(...key)} = ${value}`
   }
 
-  override async varSet(name: Promise<string>, value: Promise<string>) {
-    return `$${await name} = ${await value}`
+  override varSetArr(key: Array<string>, values: Array<string>) {
+    return `$${joinKey(...key)} = ${`@( ${values.join(', ')} )`}`
   }
 
-  override async varUnset(name: Promise<string>) {
-    return `Remove-Variable ${await name} -ErrorAction SilentlyContinue`
+  override varUnset(key: Array<string>) {
+    return `Remove-Variable ${joinKey(...key)} -ErrorAction SilentlyContinue`
   }
 }

@@ -1,43 +1,44 @@
-import { buildFilePath, getFileContent } from './path.ts'
-
 export interface Cli {
   name: string
   extension: string
 
-  build(): Promise<string>
+  build(): string
 
-  fileLoad(parts: Promise<Array<string>>): Promise<Array<string>>
-  gatedFunc(name: string, lines: Promise<Array<string>>): Promise<Array<string>>
+  fileLoad(
+    parts: Array<string>,
+    urlResolver?: (specifier: string) => string,
+    urlResolverBase?: Array<string>,
+  ): Promise<string>
+  gatedFunc(name: string, lines: Array<string>): Array<string>
 
-  print(lines: Promise<string | Array<string>>): Promise<Array<string>>
-  printCmd(lines: Promise<string | Array<string>>): Promise<Array<string>>
-  printErr(lines: Promise<string | Array<string>>): Promise<Array<string>>
-  printInfo(lines: Promise<string | Array<string>>): Promise<Array<string>>
-  printSucc(lines: Promise<string | Array<string>>): Promise<Array<string>>
-  printWarn(lines: Promise<string | Array<string>>): Promise<Array<string>>
+  print(lines: string | Array<string>): Array<string>
+  printCmd(lines: string | Array<string>): Array<string>
+  printErr(lines: string | Array<string>): Array<string>
+  printInfo(lines: string | Array<string>): Array<string>
+  printSucc(lines: string | Array<string>): Array<string>
+  printWarn(lines: string | Array<string>): Array<string>
 
   toInner: (value: string) => string
   toOuter: (value: string) => string
 
   trace(): string
 
-  varArrSet(
-    name: Promise<string>,
-    values: Promise<Array<string>>,
-  ): Promise<string>
-  varSet(name: Promise<string>, value: Promise<string>): Promise<string>
-  varUnset(name: Promise<string>): Promise<string>
+  varSet(key: Array<string>, value: string): string
+  varSetArr(key: Array<string>, values: Array<string>): string
+  varUnset(key: Array<string>): string
 
-  with(lines: Promise<string | Array<string>>): Cli
+  verMajor(): number
+  verMinor(): number
+
+  with(lines: string | Array<string>): Cli
 }
 
-export async function toPrint(
+export function toPrint(
   client: Cli,
-  lines: Promise<string | Array<string>>,
+  lines: string | Array<string>,
   op: string,
 ) {
-  const _lines = await lines
-  return (typeof _lines === 'string' ? [_lines] : _lines).map(
+  return (typeof lines === 'string' ? [lines] : lines).map(
     (l) => `${op} ${client.toInner(l)}`,
   )
 }
@@ -46,61 +47,75 @@ export class CliBase implements Cli {
   name: string
   extension: string
 
-  dirPath: string
-  lineBuilders: Array<Promise<string | Array<string>>> = []
+  lines: Array<string | Array<string>> = []
 
   constructor(name: string, extension: string) {
     this.name = name
     this.extension = extension
-
-    this.dirPath = buildFilePath(import.meta.dirname ?? '', 'cli', this.name)
   }
 
-  async build() {
+  build() {
     const lines: Array<string> = []
-    for (const lineBuilder of this.lineBuilders) {
-      const line = await lineBuilder
+    for (const line of this.lines) {
       lines.push(...(typeof line === 'string' ? [line] : line))
       lines.push('')
     }
     return lines.join('\n')
   }
 
-  gatedFunc(
-    _name: string,
-    _lines: Promise<Array<string>>,
-  ): Promise<Array<string>> {
+  gatedFunc(_name: string, _lines: Array<string>): Array<string> {
     throw new Error('abstract')
   }
 
-  async fileLoad(parts: Promise<Array<string>>) {
-    const path = `${
-      buildFilePath(...[this.dirPath, ...(await parts)])
-    }.${this.extension}`
-    return [(await getFileContent(path)) ?? '']
+  async fileLoad(
+    parts: Array<string>,
+    urlResolver?: (specifier: string) => string,
+    urlResolverBase?: Array<string>,
+  ) {
+    let _path = [...(urlResolverBase ?? ['.']), 'cli', this.name, ...parts]
+      .join(
+        '/',
+      )
+    if (!_path.endsWith(`.${this.extension}`)) {
+      _path = `${_path}.${this.extension}`
+    }
+    const fetchPath = urlResolver
+      ? urlResolver(_path)
+      : import.meta.resolve(_path)
+    try {
+      const res = await fetch(fetchPath)
+      if (res.ok) {
+        return await res.text()
+      }
+    } catch (e: unknown) {
+      if (!(e instanceof TypeError)) {
+        throw e
+      }
+    }
+    return ''
   }
 
-  print(lines: Promise<string | Array<string>>) {
+  print(lines: string | Array<string>) {
     return toPrint(this, lines, 'opPrint')
   }
 
-  printCmd(lines: Promise<string | Array<string>>) {
+  printCmd(lines: string | Array<string>) {
     return toPrint(this, lines, 'opPrintCmd')
   }
 
-  printErr(lines: Promise<string | Array<string>>) {
+  printErr(lines: string | Array<string>) {
     return toPrint(this, lines, 'opPrintErr')
   }
 
-  printInfo(lines: Promise<string | Array<string>>) {
+  printInfo(lines: string | Array<string>) {
     return toPrint(this, lines, 'opPrintInfo')
   }
 
-  printSucc(lines: Promise<string | Array<string>>) {
+  printSucc(lines: string | Array<string>) {
     return toPrint(this, lines, 'opPrintSucc')
   }
 
-  printWarn(lines: Promise<string | Array<string>>) {
+  printWarn(lines: string | Array<string>) {
     return toPrint(this, lines, 'opPrintWarn')
   }
 
@@ -116,23 +131,28 @@ export class CliBase implements Cli {
     throw new Error('abstract')
   }
 
-  varArrSet(
-    _name: Promise<string>,
-    _values: Promise<Array<string>>,
-  ): Promise<string> {
+  varSet(_key: Array<string>, _value: string): string {
     throw new Error('abstract')
   }
 
-  varSet(_name: Promise<string>, _value: Promise<string>): Promise<string> {
+  varSetArr(_key: Array<string>, _values: Array<string>): string {
     throw new Error('abstract')
   }
 
-  varUnset(_name: Promise<string>): Promise<string> {
+  varUnset(_key: Array<string>): string {
     throw new Error('abstract')
   }
 
-  with(lines: Promise<string | Array<string>>) {
-    this.lineBuilders.push(lines)
+  verMajor(): number {
+    return 0
+  }
+
+  verMinor(): number {
+    return 0
+  }
+
+  with(lines: string | Array<string>) {
+    this.lines.push(lines)
     return this
   }
 }

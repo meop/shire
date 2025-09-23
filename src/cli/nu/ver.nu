@@ -1,11 +1,11 @@
 do {
   mut major = 0
-  mut minor = 0
+  mut minor = 107
 
-  if 'SYS_VER_MAJOR' in $env {
-    $major = $env.SYS_VER_MAJOR
-    if 'SYS_VER_MINOR' in $env {
-      $minor = $env.SYS_VER_MINOR
+  if 'CLI_VER_MAJOR' in $env {
+    $major = $env.CLI_VER_MAJOR | into int
+    if 'CLI_VER_MINOR' in $env {
+      $minor = $env.CLI_VER_MINOR | into int
     }
   }
 

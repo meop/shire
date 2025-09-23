@@ -1,32 +1,33 @@
-export const SPLIT_KEY = '_'
-export const SPLIT_VAL = ' '
+import { joinKey, joinVal, splitVal } from './reg.ts'
 
 export interface Env {
-  get(...key: Array<string>): string
-  set(value: string, ...key: Array<string>): void
-  append(value: string, ...key: Array<string>): void
-}
-
-export function toKey(...key: Array<string>) {
-  return key.join(SPLIT_KEY).toUpperCase()
+  store: { [key: string]: string | undefined }
+  get(key: Array<string>): string | undefined
+  getSplit(key: Array<string>): Array<string>
+  set(key: Array<string>, value: string): void
+  setAppend(key: Array<string>, value: string): void
 }
 
 export class EnvBase implements Env {
-  values: { [key: string]: string } = {}
+  store: { [key: string]: string | undefined } = {}
 
-  get(...key: Array<string>) {
-    return this.values[toKey(...key)]
+  get(key: Array<string>) {
+    return this.store[joinKey(...key)]
   }
 
-  set(value: string, ...key: Array<string>) {
-    this.values[toKey(...key)] = value
+  getSplit(key: Array<string>) {
+    return splitVal(this.get(key))
   }
 
-  append(value: string, ...key: Array<string>) {
-    if (this.values[toKey(...key)]) {
-      this.set(`${this.get(...key)}${SPLIT_VAL}${value}`, ...key)
+  set(key: Array<string>, value: string) {
+    this.store[joinKey(...key)] = value
+  }
+
+  setAppend(key: Array<string>, value: string) {
+    if (this.store[joinKey(...key)]) {
+      this.set(key, joinVal(...this.getSplit(key), value))
     } else {
-      this.set(value, ...key)
+      this.set(key, value)
     }
   }
 }

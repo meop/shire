@@ -1,4 +1,5 @@
 import { type Cli, CliBase } from '../cli.ts'
+import { joinKey } from '../reg.ts'
 
 export class Nushell extends CliBase implements Cli {
   constructor() {
@@ -9,7 +10,7 @@ export class Nushell extends CliBase implements Cli {
     return `nu --no-config-file -c ${value}`
   }
 
-  override async gatedFunc(name: string, lines: Promise<Array<string>>) {
+  override gatedFunc(name: string, lines: Array<string>) {
     return [
       'do {',
       '  try {',
@@ -20,10 +21,10 @@ export class Nushell extends CliBase implements Cli {
       `      $yn = input r#'? ${name} [y, [n]]: '#`,
       '    }',
       `    if $yn != 'n' {`,
-      ...(await lines),
+      ...lines,
       '    }',
       '  } catch { |e|',
-      `    if not (($e.msg | str downcase) == 'external command had a non-zero exit code') {`,
+      `    if not (($e.msg | str downcase) == 'i/o error') {`,
       '      throw $e',
       '    }',
       '  }',
@@ -43,18 +44,15 @@ export class Nushell extends CliBase implements Cli {
     return '' // no direct equivalent
   }
 
-  override async varArrSet(
-    name: Promise<string>,
-    values: Promise<Array<string>>,
-  ) {
-    return `$env.${await name} = [ ${(await values).join(', ')} ]`
+  override varSet(key: Array<string>, value: string) {
+    return `$env.${joinKey(...key)} = ${value}`
   }
 
-  override async varSet(name: Promise<string>, value: Promise<string>) {
-    return `$env.${await name} = ${await value}`
+  override varSetArr(key: Array<string>, values: Array<string>) {
+    return `$env.${joinKey(...key)} = [ ${values.join(', ')} ]`
   }
 
-  override async varUnset(name: Promise<string>) {
-    return `hide-env ${await name}`
+  override varUnset(key: Array<string>) {
+    return `hide-env ${joinKey(...key)}`
   }
 }

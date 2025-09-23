@@ -18,6 +18,7 @@
     "./ctx": "./src/ctx.ts",
     "./env": "./src/env.ts",
     "./path": "./src/path.ts",
+    "./reg": "./src/reg.ts",
     "./serde": "./src/serde.ts",
     "./srv": "./src/srv.ts",
     "./sys": "./src/sys.ts"

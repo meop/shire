@@ -4,18 +4,23 @@ import {
   getSysOsDeId,
   getSysOsId,
   getSysOsPlat,
+  type SysCpuArch,
+  type SysCpuVenId,
+  type SysOsDeId,
+  type SysOsId,
+  type SysOsPlat,
 } from './sys.ts'
 
 export type Ctx = {
   req_orig: string
   req_path: string
   req_srch: string
-  sys_cpu_arch?: string
-  sys_cpu_ven_id?: string
+  sys_cpu_arch?: SysCpuArch
+  sys_cpu_ven_id?: SysCpuVenId
   sys_host?: string
-  sys_os_de_id?: string
-  sys_os_id?: string
-  sys_os_plat?: string
+  sys_os_de_id?: SysOsDeId
+  sys_os_id?: SysOsId
+  sys_os_plat?: SysOsPlat
   sys_os_ver_id?: string
   sys_os_ver_code?: string
   sys_user?: string

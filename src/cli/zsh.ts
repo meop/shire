@@ -1,4 +1,5 @@
 import { type Cli, CliBase } from '../cli.ts'
+import { joinKey } from '../reg.ts'
 
 export class Zshell extends CliBase implements Cli {
   constructor() {
@@ -9,7 +10,7 @@ export class Zshell extends CliBase implements Cli {
     return `zsh --no-rcs -c ${value}`
   }
 
-  override async gatedFunc(name: string, lines: Promise<Array<string>>) {
+  override gatedFunc(name: string, lines: Array<string>) {
     return [
       'function () {',
       `  local yn=''`,
@@ -19,7 +20,7 @@ export class Zshell extends CliBase implements Cli {
       `    read "yn?? ${name} [y, [n]]: "`,
       '  fi',
       `  if [[ $yn != 'n' ]]; then`,
-      ...(await lines),
+      ...lines,
       '  fi',
       '}',
     ]
@@ -37,18 +38,15 @@ export class Zshell extends CliBase implements Cli {
     return 'set -x'
   }
 
-  override async varArrSet(
-    name: Promise<string>,
-    values: Promise<Array<string>>,
-  ) {
-    return `${await name}=( ${(await values).join(' ')} )`
+  override varSet(key: Array<string>, value: string) {
+    return `${joinKey(...key)}=${value}`
   }
 
-  override async varSet(name: Promise<string>, value: Promise<string>) {
-    return `${await name}=${await value}`
+  override varSetArr(key: Array<string>, values: Array<string>) {
+    return `${joinKey(...key)}=( ${values.join(' ')} )`
   }
 
-  override async varUnset(name: Promise<string>) {
-    return `unset ${await name}`
+  override varUnset(key: Array<string>) {
+    return `unset ${joinKey(...key)}`
   }
 }

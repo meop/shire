@@ -37,7 +37,7 @@ export function toExpandedParts(parts: Array<string>) {
   return _parts
 }
 
-export function toPrintHelp(command: Cmd) {
+export function toSerializable(command: Cmd) {
   const content: {
     id: string
     aliases?: string
@@ -102,20 +102,17 @@ export class CmdBase {
     this.scopes = scopes
   }
 
-  async help(client: Cli, environment: Env): Promise<string> {
-    const body = environment.get('help')
-      ? await client
-        .with(
-          client.printInfo(
-            Promise.resolve(
-              stringify(toPrintHelp(this), toFmt(environment.get('format'))),
-            ),
-          ),
-        )
-        .build()
-      : ''
+  help(client: Cli, environment: Env): string {
+    const body = client.with(
+      client.printInfo(
+        stringify(
+          toSerializable(this),
+          toFmt(environment.get(['format']) ?? ''),
+        ),
+      ),
+    ).build()
 
-    if (environment.get('log')) {
+    if (environment.get(['log'])) {
       console.log(body)
     }
 
@@ -123,7 +120,7 @@ export class CmdBase {
   }
 
   work(client: Cli, _context: Ctx, environment: Env): Promise<string> {
-    return this.help(client, environment)
+    return Promise.resolve(this.help(client, environment))
   }
 
   process(
@@ -138,42 +135,30 @@ export class CmdBase {
     const _environment = environment ? environment : new EnvBase()
 
     const loadCliEnv = (func: () => Promise<string>) => {
-      for (const [key, value] of Object.entries(_environment)) {
+      for (const [key, value] of Object.entries(_environment.store)) {
         _client = _client.with(
-          _client.varSet(
-            Promise.resolve(key),
-            Promise.resolve(_client.toInner(value)),
-          ),
+          _client.varSet([key], _client.toInner(value ?? '')),
         )
       }
 
-      if (_environment.get('debug')) {
+      if (_environment.get(['debug'])) {
         _client = _client.with(
           _client.print(
-            Promise.resolve(
-              stringify(
-                {
-                  debug: {
-                    context: _context,
-                    environment: _environment,
-                  },
-                },
-                toFmt(_environment.get('format')),
-              ),
-            ),
+            stringify({
+              debug: { context: _context, environment: _environment },
+            }, toFmt(_environment.get(['format']) ?? '')),
           ),
         )
       }
 
-      if (_environment.get('trace')) {
-        _client = _client.with(Promise.resolve(_client.trace()))
+      if (_environment.get(['trace'])) {
+        _client = _client.with(_client.trace())
       }
 
       return func()
     }
 
-    const toKeyParts = (key: string) =>
-      [...this.scopes, this.name, key].slice(1)
+    const toFullKey = (key: string) => [...this.scopes, this.name, key].slice(1)
 
     let partsIndex = 0
     let argumentIndex = 0
@@ -185,29 +170,28 @@ export class CmdBase {
         const _switch = this.switches.find((s) => s.keys.includes(part))
         if (_switch) {
           _environment.set(
-            '1',
-            ...toKeyParts(
+            toFullKey(
               _switch.keys.find((k) => k.startsWith('--'))?.split('--')[1] ??
                 '',
             ),
+            '1',
           )
-          if (_environment.get('help')) {
-            return loadCliEnv(() => this.help(_client, _environment))
-          }
           partsIndex += 1
           continue
         }
         const _option = this.options.find((o) => o.keys.includes(part))
         if (_option && partsIndex + 1 < _parts.length) {
           if (_parts[partsIndex + 1].startsWith('-')) {
-            return loadCliEnv(() => this.help(_client, _environment))
+            return loadCliEnv(() =>
+              Promise.resolve(this.help(_client, _environment))
+            )
           }
           _environment.set(
-            _parts[partsIndex + 1],
-            ...toKeyParts(
+            toFullKey(
               _option.keys.find((k) => k.startsWith('--'))?.split('--')[1] ??
                 '',
             ),
+            _parts[partsIndex + 1],
           )
           partsIndex += 2
           continue
@@ -231,14 +215,14 @@ export class CmdBase {
       if (this.arguments.length) {
         const allArgsFound = argumentIndex === this.arguments.length
         if (allArgsFound) {
-          _environment.append(
+          _environment.setAppend(
+            toFullKey(this.arguments[argumentIndex - 1].name),
             part,
-            ...toKeyParts(this.arguments[argumentIndex - 1].name),
           )
         } else {
           _environment.set(
+            toFullKey(this.arguments[argumentIndex].name),
             part,
-            ...toKeyParts(this.arguments[argumentIndex].name),
           )
         }
         if (!allArgsFound) {
@@ -248,14 +232,20 @@ export class CmdBase {
         continue
       }
 
-      return loadCliEnv(() => this.help(_client, _environment))
+      return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
     }
 
     while (argumentIndex < this.arguments.length) {
       if (this.arguments[argumentIndex].required) {
-        return loadCliEnv(() => this.help(_client, _environment))
+        return loadCliEnv(() =>
+          Promise.resolve(this.help(_client, _environment))
+        )
       }
       argumentIndex += 1
+    }
+
+    if (_environment.get(['help'])) {
+      return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
     }
 
     return loadCliEnv(() => this.work(_client, _context, _environment))
