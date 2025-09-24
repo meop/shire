@@ -30,7 +30,7 @@ export type CtxFilter = {
   [key: string]: CtxFilter | Array<string>
 }
 
-function getSp(usp: URLSearchParams, key: string) {
+function getSp(usp: URLSearchParams, key: string): string | undefined {
   return usp.has(key) ? (usp.get(key) ?? '') : undefined
 }
 
@@ -76,7 +76,7 @@ export function getCtx(request: Request): Ctx {
   }
 }
 
-export function withCtx(line: string, context: Ctx) {
+export function withCtx(line: string, context: Ctx): string {
   let l = line
   if (l.includes('{')) {
     const items = Object.keys(context).map(

@@ -6,11 +6,11 @@ export class Powershell extends CliBase implements Cli {
     super('pwsh', 'ps1')
   }
 
-  static execStr(value: string) {
+  static execStr(value: string): string {
     return `pwsh -noprofile -c ${value}`
   }
 
-  override gatedFunc(name: string, lines: Array<string>) {
+  override gatedFunc(name: string, lines: Array<string>): Array<string> {
     return [
       '& {',
       `  $yn = ''`,
@@ -26,27 +26,27 @@ export class Powershell extends CliBase implements Cli {
     ]
   }
 
-  override toInner(value: string) {
+  override toInner(value: string): string {
     return `'${value.replaceAll("'", "''")}'`
   }
 
-  override toOuter(value: string) {
+  override toOuter(value: string): string {
     return `'${value}'`
   }
 
-  override trace() {
+  override trace(): string {
     return 'Set-PSDebug -Trace 1'
   }
 
-  override varSet(key: Array<string>, value: string) {
+  override varSet(key: Array<string>, value: string): string {
     return `$${joinKey(...key)} = ${value}`
   }
 
-  override varSetArr(key: Array<string>, values: Array<string>) {
+  override varSetArr(key: Array<string>, values: Array<string>): string {
     return `$${joinKey(...key)} = ${`@( ${values.join(', ')} )`}`
   }
 
-  override varUnset(key: Array<string>) {
+  override varUnset(key: Array<string>): string {
     return `Remove-Variable ${joinKey(...key)} -ErrorAction SilentlyContinue`
   }
 }

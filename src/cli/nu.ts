@@ -6,11 +6,11 @@ export class Nushell extends CliBase implements Cli {
     super('nu', 'nu')
   }
 
-  static execStr(value: string) {
+  static execStr(value: string): string {
     return `nu --no-config-file -c ${value}`
   }
 
-  override gatedFunc(name: string, lines: Array<string>) {
+  override gatedFunc(name: string, lines: Array<string>): Array<string> {
     return [
       'do {',
       '  try {',
@@ -32,27 +32,27 @@ export class Nushell extends CliBase implements Cli {
     ]
   }
 
-  override toInner(value: string) {
+  override toInner(value: string): string {
     return `r#'${value}'#`
   }
 
-  override toOuter(value: string) {
+  override toOuter(value: string): string {
     return `\`${value}\``
   }
 
-  override trace() {
+  override trace(): string {
     return '' // no direct equivalent
   }
 
-  override varSet(key: Array<string>, value: string) {
+  override varSet(key: Array<string>, value: string): string {
     return `$env.${joinKey(...key)} = ${value}`
   }
 
-  override varSetArr(key: Array<string>, values: Array<string>) {
+  override varSetArr(key: Array<string>, values: Array<string>): string {
     return `$env.${joinKey(...key)} = [ ${values.join(', ')} ]`
   }
 
-  override varUnset(key: Array<string>) {
+  override varUnset(key: Array<string>): string {
     return `hide-env ${joinKey(...key)}`
   }
 }

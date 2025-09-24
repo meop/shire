@@ -23,7 +23,7 @@ export interface Cmd {
   ): Promise<string>
 }
 
-export function toExpandedParts(parts: Array<string>) {
+export function toExpandedParts(parts: Array<string>): Array<string> {
   const _parts: Array<string> = []
   for (const part of parts) {
     if (part.startsWith('-') && !part.startsWith('--')) {
@@ -37,7 +37,7 @@ export function toExpandedParts(parts: Array<string>) {
   return _parts
 }
 
-export function toSerializable(command: Cmd) {
+function toSerializable(command: Cmd) {
   const content: {
     id: string
     aliases?: string

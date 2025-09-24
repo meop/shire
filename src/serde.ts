@@ -5,14 +5,15 @@ export enum Fmt {
   json = 'json',
 }
 
-export function toFmt(input: string) {
+export function toFmt(input: string): Fmt {
   if (input === 'json') {
     return Fmt.json
   }
   return Fmt.yaml
 }
 
-export function parse(input: string, format: Fmt) {
+// deno-lint-ignore no-explicit-any
+export function parse(input: string, format: Fmt): any {
   if (!input) {
     return null
   }
@@ -25,7 +26,7 @@ export function parse(input: string, format: Fmt) {
   return input
 }
 
-export function stringify<T>(input: T, format: Fmt) {
+export function stringify<T>(input: T, format: Fmt): string {
   let output: string
   if (!input) {
     output = ''

@@ -37,7 +37,7 @@ export function toPrint(
   client: Cli,
   lines: string | Array<string>,
   op: string,
-) {
+): Array<string> {
   return (typeof lines === 'string' ? [lines] : lines).map(
     (l) => `${op} ${client.toInner(l)}`,
   )
@@ -54,7 +54,7 @@ export class CliBase implements Cli {
     this.extension = extension
   }
 
-  build() {
+  build(): string {
     const lines: Array<string> = []
     for (const line of this.lines) {
       lines.push(...(typeof line === 'string' ? [line] : line))
@@ -71,7 +71,7 @@ export class CliBase implements Cli {
     parts: Array<string>,
     urlResolver?: (specifier: string) => string,
     urlResolverBase?: Array<string>,
-  ) {
+  ): Promise<string> {
     let _path = [...(urlResolverBase ?? ['.']), 'cli', this.name, ...parts]
       .join(
         '/',
@@ -95,27 +95,27 @@ export class CliBase implements Cli {
     return ''
   }
 
-  print(lines: string | Array<string>) {
+  print(lines: string | Array<string>): Array<string> {
     return toPrint(this, lines, 'opPrint')
   }
 
-  printCmd(lines: string | Array<string>) {
+  printCmd(lines: string | Array<string>): Array<string> {
     return toPrint(this, lines, 'opPrintCmd')
   }
 
-  printErr(lines: string | Array<string>) {
+  printErr(lines: string | Array<string>): Array<string> {
     return toPrint(this, lines, 'opPrintErr')
   }
 
-  printInfo(lines: string | Array<string>) {
+  printInfo(lines: string | Array<string>): Array<string> {
     return toPrint(this, lines, 'opPrintInfo')
   }
 
-  printSucc(lines: string | Array<string>) {
+  printSucc(lines: string | Array<string>): Array<string> {
     return toPrint(this, lines, 'opPrintSucc')
   }
 
-  printWarn(lines: string | Array<string>) {
+  printWarn(lines: string | Array<string>): Array<string> {
     return toPrint(this, lines, 'opPrintWarn')
   }
 
@@ -151,7 +151,7 @@ export class CliBase implements Cli {
     return 0
   }
 
-  with(lines: string | Array<string>) {
+  with(lines: string | Array<string>): this {
     this.lines.push(lines)
     return this
   }

@@ -1,11 +1,11 @@
 import { promises as fs } from 'node:fs'
 import PATH from 'node:path'
 
-export function buildFilePath(...parts: Array<string>) {
+export function buildFilePath(...parts: Array<string>): string {
   return PATH.join(...parts)
 }
 
-export async function isPath(path: string) {
+export async function isPath(path: string): Promise<boolean> {
   try {
     await fs.stat(path)
     return true
@@ -14,7 +14,7 @@ export async function isPath(path: string) {
   }
 }
 
-export async function isDirPath(path: string) {
+export async function isDirPath(path: string): Promise<boolean> {
   try {
     return (await fs.stat(path)).isDirectory()
   } catch {
@@ -22,7 +22,7 @@ export async function isDirPath(path: string) {
   }
 }
 
-export async function isFilePath(path: string) {
+export async function isFilePath(path: string): Promise<boolean> {
   try {
     return (await fs.stat(path)).isFile()
   } catch {
@@ -30,7 +30,7 @@ export async function isFilePath(path: string) {
   }
 }
 
-export async function getFileContent(path: string) {
+export async function getFileContent(path: string): Promise<string | null> {
   if (!(await isFilePath(path))) {
     return null
   }
@@ -48,7 +48,7 @@ export async function getFilePaths(
     extension?: string
     filters?: Array<string>
   },
-) {
+): Promise<Array<string>> {
   if (!(await isDirPath(path))) {
     return []
   }
