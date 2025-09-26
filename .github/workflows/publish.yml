@@ -1,5 +1,5 @@
 ---
-name: publish
+name: Publish
 on:
   push:
     branches:
@@ -11,17 +11,17 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout (repo)
         uses: actions/checkout@v4
-      - name: setup
+      - name: Setup Deno
         uses: denolib/setup-deno@v2
         with:
           deno-version: vx.x.x
-      - name: print version
+      - name: Deno (version)
         run: deno --version
-      - name: run format
+      - name: Deno format (check)
         run: deno fmt --check
-      - name: run lint
+      - name: Deno lint
         run: deno lint
-      - name: publish to jsr
+      - name: Deno publish
         run: deno publish
