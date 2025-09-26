@@ -1,0 +1,27 @@
+---
+name: publish
+on:
+  push:
+    branches:
+      - main
+jobs:
+  publish:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: vx.x.x
+      - name: print version
+        run: deno --version
+      - name: run format
+        run: deno fmt --check
+      - name: run lint
+        run: deno lint
+      - name: publish to jsr
+        run: deno publish
