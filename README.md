@@ -2,4 +2,4 @@
 
 Shell Interface Renderer
 
-SSR shell CLI renderer
+This library parses http get requests and server side renderes shell script expressions for responses
