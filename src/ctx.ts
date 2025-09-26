@@ -11,29 +11,87 @@ import {
   type SysOsPlat,
 } from './sys.ts'
 
+/**
+ * This module contains components for building context implementations
+ * @module
+ */
+
+/**
+ * Context interface containing request and system information
+ */
 export type Ctx = {
+  /**
+   * Original request URL
+   */
   req_orig: string
+  /**
+   * Request path
+   */
   req_path: string
+  /**
+   * Request search parameters
+   */
   req_srch: string
+  /**
+   * System CPU architecture (optional)
+   */
   sys_cpu_arch?: SysCpuArch
+  /**
+   * System CPU vendor ID (optional)
+   */
   sys_cpu_ven_id?: SysCpuVenId
+  /**
+   * System host name (optional)
+   */
   sys_host?: string
+  /**
+   * System OS desktop environment ID (optional)
+   */
   sys_os_de_id?: SysOsDeId
+  /**
+   * System OS ID (optional)
+   */
   sys_os_id?: SysOsId
+  /**
+   * System OS platform (optional)
+   */
   sys_os_plat?: SysOsPlat
+  /**
+   * System OS version ID (optional)
+   */
   sys_os_ver_id?: string
+  /**
+   * System OS version code (optional)
+   */
   sys_os_ver_code?: string
+  /**
+   * System user name (optional)
+   */
   sys_user?: string
 }
 
+/**
+ * Context filter type for filtering context properties
+ */
 export type CtxFilter = {
   [key: string]: CtxFilter | Array<string>
 }
 
+/**
+ * Gets a search parameter value from URLSearchParams
+ * @param usp - URLSearchParams object
+ * @param key - The key to look up
+ * @returns The value of the parameter or undefined if not found
+ */
 function getSp(usp: URLSearchParams, key: string): string | undefined {
   return usp.has(key) ? (usp.get(key) ?? '') : undefined
 }
 
+/**
+ * Creates a context object from a request
+ * @param request - The Request object to extract context from
+ * @returns A Ctx object with request and system information
+ */
 export function getCtx(request: Request): Ctx {
   const url = new URL(
     request.url.endsWith('/') ? request.url.slice(0, -1) : request.url,
@@ -76,6 +134,12 @@ export function getCtx(request: Request): Ctx {
   }
 }
 
+/**
+ * Replaces placeholders in a line with context values
+ * @param line - The line containing placeholders to replace
+ * @param context - The context object with values to substitute
+ * @returns The line with placeholders replaced
+ */
 export function withCtx(line: string, context: Ctx): string {
   let l = line
   if (l.includes('{')) {

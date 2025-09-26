@@ -3,18 +3,57 @@ import type { Ctx } from './ctx.ts'
 import { type Env, EnvBase } from './env.ts'
 import { stringify, toFmt } from './serde.ts'
 
-export interface Cmd {
-  name: string
-  description: string
+/**
+ * This module contains components for building command implementations
+ * @module
+ */
 
+/**
+ * Interface defining the contract for command implementations
+ */
+export interface Cmd {
+  /**
+   * Name of the command
+   */
+  name: string
+  /**
+   * Description of what the command does
+   */
+  description: string
+  /**
+   * Alternative names that can be used to invoke this command
+   */
   aliases: Array<string>
+  /**
+   * List of required and optional arguments for the command
+   */
   arguments: Array<{ name: string; description: string; required?: boolean }>
+  /**
+   * List of options that can be passed to the command
+   */
   options: Array<{ keys: Array<string>; description: string }>
+  /**
+   * List of switches that can be passed to the command
+   */
   switches: Array<{ keys: Array<string>; description: string }>
 
+  /**
+   * Subcommands available for this command
+   */
   commands: Array<Cmd>
+  /**
+   * Scope path for this command (used for hierarchical organization)
+   */
   scopes: Array<string>
 
+  /**
+   * Processes command parts and executes the command
+   * @param parts - Command line parts
+   * @param client - Client instance
+   * @param context - Execution context
+   * @param environment - Environment configuration
+   * @returns Promise resolving to command output
+   */
   process(
     parts: Array<string>,
     client: Cli,
@@ -23,6 +62,12 @@ export interface Cmd {
   ): Promise<string>
 }
 
+/**
+ * Converts shorthand flags into individual flag components
+ * For example, '-abc' becomes ['-a', '-b', '-c']
+ * @param parts - Array of command line parts
+ * @returns Array of expanded argument parts
+ */
 export function toExpandedParts(parts: Array<string>): Array<string> {
   const _parts: Array<string> = []
   for (const part of parts) {
@@ -85,23 +130,60 @@ function toSerializable(command: Cmd) {
   return content
 }
 
+/**
+ * Base implementation of the Cmd interface
+ */
 export class CmdBase {
+  /**
+   * Name of the command
+   */
   name = ''
+  /**
+   * Description of what the command does
+   */
   description = ''
 
+  /**
+   * Alternative names that can be used to invoke this command
+   */
   aliases: Array<string> = []
+  /**
+   * List of required and optional arguments for the command
+   */
   arguments: Array<{ name: string; description: string; required?: boolean }> =
     []
+  /**
+   * List of options that can be passed to the command
+   */
   options: Array<{ keys: Array<string>; description: string }> = []
+  /**
+   * List of switches that can be passed to the command
+   */
   switches: Array<{ keys: Array<string>; description: string }> = []
 
+  /**
+   * Subcommands available for this command
+   */
   commands: Array<Cmd> = []
+  /**
+   * Scope path for this command (used for hierarchical organization)
+   */
   scopes: Array<string> = []
 
+  /**
+   * Creates a new CmdBase instance
+   * @param scopes - Scope path for this command
+   */
   constructor(scopes: Array<string>) {
     this.scopes = scopes
   }
 
+  /**
+   * Generates help information for the command
+   * @param client - Client instance
+   * @param environment - Environment configuration
+   * @returns Formatted help text
+   */
   help(client: Cli, environment: Env): string {
     const body = client.with(
       client.printInfo(
@@ -119,10 +201,25 @@ export class CmdBase {
     return body
   }
 
+  /**
+   * Default implementation of command work function
+   * @param client - Client instance
+   * @param _context - Execution context
+   * @param environment - Environment configuration
+   * @returns Promise resolving to help text
+   */
   work(client: Cli, _context: Ctx, environment: Env): Promise<string> {
     return Promise.resolve(this.help(client, environment))
   }
 
+  /**
+   * Processes command parts and executes the command
+   * @param parts - Command line parts
+   * @param client - Client instance
+   * @param context - Execution context
+   * @param environment - Environment configuration
+   * @returns Promise resolving to command output
+   */
   process(
     parts: Array<string>,
     client: Cli,

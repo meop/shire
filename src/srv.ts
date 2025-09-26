@@ -1,7 +1,20 @@
 import { type Cmd, CmdBase } from './cmd.ts'
 import { Fmt } from './serde.ts'
 
+/**
+ * This module contains components for building server implementations
+ * @module
+ */
+
+/**
+ * Base implementation of a server command that extends CmdBase
+ * Provides standard options and switches for server operations
+ */
 export class SrvBase extends CmdBase implements Cmd {
+  /**
+   * Creates a new SrvBase instance
+   * @param scopes - Scope path for this command
+   */
   constructor(scopes: Array<string>) {
     super(scopes)
     this.options = [
