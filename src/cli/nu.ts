@@ -70,7 +70,7 @@ export class Nushell extends CliBase implements Cli {
    * @returns The converted value
    */
   override toOuter(value: string): string {
-    return `${value}`
+    return `\`${value}\``
   }
 
   /**
