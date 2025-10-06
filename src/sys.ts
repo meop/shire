@@ -110,6 +110,7 @@ export enum SysOsId {
   ubuntu = 'ubuntu',
   fedora = 'fedora',
   rocky = 'rocky',
+  suse = 'suse',
 }
 
 /**
@@ -130,6 +131,10 @@ export function getSysOsId(sysOsId: string): SysOsId {
       return SysOsId.fedora
     case 'rocky':
       return SysOsId.rocky
+    case 'opensuse-tumbleweed':
+    case 'opensuse':
+    case 'suse':
+      return SysOsId.suse
     default:
       throw new Error(`unsupported os id: ${sysOsId}`)
   }
