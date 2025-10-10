@@ -18,30 +18,49 @@ export SYS_OS_PLAT="${(L)$(uname)}"
 export REQ_URL_CLI="${REQ_URL_CLI}&sysOsPlat=${SYS_OS_PLAT}"
 
 if [[ $SYS_OS_PLAT == 'linux' ]]; then
-  if [[ -f /etc/os-release ]]; then
-    if [[ -z $SYS_OS_DE_ID ]]; then
-      export SYS_OS_DE_ID="${(L)$(echo "${XDG_SESSION_DESKTOP}" | sed -E 's/[^a-zA-Z0-9].*//' | head -n 1)}"
-      if [[ $SYS_OS_DE_ID ]]; then
-        export REQ_URL_CLI="${REQ_URL_CLI}&sysOsDeId=${SYS_OS_DE_ID}"
-      fi
+  if [[ -z $SYS_OS_DE_ID ]]; then
+    if [[ $XDG_SESSION_DESKTOP ]]; then
+      export SYS_OS_DE_ID="${(L)XDG_SESSION_DESKTOP}"
     fi
+    if [[ $SYS_OS_DE_ID ]]; then
+      export REQ_URL_CLI="${REQ_URL_CLI}&sysOsDeId=${SYS_OS_DE_ID}"
+    fi
+  fi
+
+  if [[ -f /etc/os-release ]]; then
+    source /etc/os-release
 
     if [[ -z $SYS_OS_ID ]]; then
-      export SYS_OS_ID="${(L)$(grep '^ID=' /etc/os-release | cut -d '=' -f 2 | xargs | tr -d '"')}"
+      if [[ $ID ]]; then
+        export SYS_OS_ID="${(L)ID}"
+      fi
       if [[ $SYS_OS_ID ]]; then
         export REQ_URL_CLI="${REQ_URL_CLI}&sysOsId=${SYS_OS_ID}"
       fi
     fi
 
+    if [[ -z $SYS_OS_ID_LIKE ]]; then
+      if [[ $ID_LIKE ]]; then
+        export SYS_OS_ID_LIKE="${(L)ID_LIKE%% *}"
+      fi
+      if [[ $SYS_OS_ID_LIKE ]]; then
+        export REQ_URL_CLI="${REQ_URL_CLI}&sysOsIdLike=${SYS_OS_ID_LIKE}"
+      fi
+    fi
+
     if [[ -z $SYS_OS_VER_ID ]]; then
-      export SYS_OS_VER_ID="${(L)$(grep '^VERSION_ID=' /etc/os-release | cut -d '=' -f 2 | xargs | tr -d '"')}"
+      if [[ $VERSION_ID ]]; then
+        export SYS_OS_VER_ID="${(L)VERSION_ID}"
+      fi
       if [[ $SYS_OS_VER_ID ]]; then
         export REQ_URL_CLI="${REQ_URL_CLI}&sysOsVerId=${SYS_OS_VER_ID}"
       fi
     fi
 
     if [[ -z $SYS_OS_VER_CODE ]]; then
-      export SYS_OS_VER_CODE="${(L)$(grep '^VERSION_CODENAME=' /etc/os-release | cut -d '=' -f 2 | xargs | tr -d '"')}"
+      if [[ $VERSION_CODENAME ]]; then
+        export SYS_OS_VER_CODE="${(L)VERSION_CODENAME}"
+      fi
       if [[ $SYS_OS_VER_CODE ]]; then
         export REQ_URL_CLI="${REQ_URL_CLI}&sysOsVerCode=${SYS_OS_VER_CODE}"
       fi

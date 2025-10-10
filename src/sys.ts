@@ -89,8 +89,9 @@ export function getSysOsDeId(sysOsDeId: string): SysOsDeId {
     case 'kde':
     case 'plasma':
       return SysOsDeId.plasma
-    case 'lxde':
+    case 'rpd-labwc':
     case 'rpd':
+    case 'lxde':
       return SysOsDeId.lxde
     case 'lxqt':
       return SysOsDeId.lxqt
@@ -109,32 +110,44 @@ export enum SysOsId {
   debian = 'debian',
   ubuntu = 'ubuntu',
   fedora = 'fedora',
-  rocky = 'rocky',
+  redhat = 'redhat',
   suse = 'suse',
+  void = 'void',
 }
 
 /**
  * Converts a string representation of OS ID to the corresponding enum value
  * @param sysOsId - The OS ID string to convert
+ * @param sysOsIdLike - Optional the OS ID Like string to convert
  * @returns The corresponding SysOsId enum value
  * @throws Error if the OS ID is unsupported
  */
-export function getSysOsId(sysOsId: string): SysOsId {
+export function getSysOsId(sysOsId: string, sysOsIdLike?: string): SysOsId {
   switch (sysOsId.toLowerCase()) {
+    case 'manjaro':
+    case 'archarm':
     case 'arch':
       return SysOsId.arch
     case 'debian':
       return SysOsId.debian
+    case 'linuxmint':
+    case 'mint':
+      return sysOsIdLike?.includes('debian') ? SysOsId.debian : SysOsId.ubuntu
     case 'ubuntu':
       return SysOsId.ubuntu
     case 'fedora':
       return SysOsId.fedora
+    case 'centos-stream':
+    case 'centos':
     case 'rocky':
-      return SysOsId.rocky
+    case 'rhel':
+      return SysOsId.redhat
     case 'opensuse-tumbleweed':
     case 'opensuse':
     case 'suse':
       return SysOsId.suse
+    case 'void':
+      return SysOsId.void
     default:
       throw new Error(`unsupported os id: ${sysOsId}`)
   }
@@ -157,8 +170,8 @@ export enum SysOsPlat {
  */
 export function getSysOsPlat(sysOsPlat: string): SysOsPlat {
   switch (sysOsPlat.toLowerCase()) {
-    case 'darwin':
     case 'macos':
+    case 'darwin':
       return SysOsPlat.darwin
     case 'linux':
       return SysOsPlat.linux

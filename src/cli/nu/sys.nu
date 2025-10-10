@@ -11,31 +11,53 @@ $env.SYS_OS_PLAT = uname | get kernel-name | str downcase
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsPlat=($env.SYS_OS_PLAT)"
 
 if $env.SYS_OS_PLAT == 'linux' {
-  if ('/etc/os-release' | path exists) {
-    if 'SYS_OS_DE_ID' not-in $env {
-      $env.SYS_OS_DE_ID = ($env | get --optional XDG_SESSION_DESKTOP | default '' | sed -E 's/[^a-zA-Z0-9].*//' | head -n 1) | str downcase
-      if ($env.SYS_OS_DE_ID | is-not-empty) {
-        $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsDeId=($env.SYS_OS_DE_ID)"
-      }
+  if 'SYS_OS_DE_ID' not-in $env {
+    if 'XDG_SESSION_DESKTOP' in $env {
+      $env.SYS_OS_DE_ID = $env.XDG_SESSION_DESKTOP | str downcase
     }
+    if 'SYS_OS_DE_ID' in $env {
+      $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsDeId=($env.SYS_OS_DE_ID)"
+    }
+  }
+
+  if ('/etc/os-release' | path exists) {
+    open /etc/os-release | lines | parse "{key}={value}" |
+      update value { |v| str trim --char '"' } |
+      transpose --as-record --header-row |
+      load-env
 
     if 'SYS_OS_ID' not-in $env {
-      $env.SYS_OS_ID = (grep '^ID=' /etc/os-release | cut -d '=' -f 2 | xargs | tr -d '"') | str downcase
-      if ($env.SYS_OS_ID | is-not-empty) {
+      if 'ID' in $env {
+        $env.SYS_OS_ID = $env.ID | str downcase
+      }
+      if 'SYS_OS_ID' in $env {
         $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsId=($env.SYS_OS_ID)"
       }
     }
 
+    if 'SYS_OS_ID_LIKE' not-in $env {
+      if 'ID_LIKE' in $env {
+        $env.SYS_OS_ID_LIKE = $env.ID_LIKE | str downcase | split words | get 0
+      }
+      if 'SYS_OS_ID_LIKE' in $env {
+        $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsIdLike=($env.SYS_OS_ID_LIKE)"
+      }
+    }
+
     if 'SYS_OS_VER_ID' not-in $env {
-      $env.SYS_OS_VER_ID = (grep '^VERSION_ID=' /etc/os-release | cut -d '=' -f 2 | xargs | tr -d '"') | str downcase
-      if ($env.SYS_OS_VER_ID | is-not-empty) {
+      if 'VERSION_ID' in $env {
+        $env.SYS_OS_VER_ID = $env.VERSION_ID | str downcase
+      }
+      if 'SYS_OS_VER_ID' in $env {
         $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsVerId=($env.SYS_OS_VER_ID)"
       }
     }
 
     if 'SYS_OS_VER_CODE' not-in $env {
-      $env.SYS_OS_VER_CODE = (grep '^VERSION_CODENAME=' /etc/os-release | cut -d '=' -f 2 | xargs | tr -d '"') | str downcase
-      if ($env.SYS_OS_VER_CODE | is-not-empty) {
+      if 'VERSION_CODENAME' in $env {
+        $env.SYS_OS_VER_CODE = $env.VERSION_CODENAME | str downcase
+      }
+      if 'SYS_OS_VER_CODE' in $env {
         $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsVerCode=($env.SYS_OS_VER_CODE)"
       }
     }

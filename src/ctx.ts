@@ -97,40 +97,30 @@ export function getCtx(request: Request): Ctx {
     request.url.endsWith('/') ? request.url.slice(0, -1) : request.url,
   )
   const usp = new URLSearchParams(url.search)
-
   const spSysCpuArch = getSp(usp, 'sysCpuArch')
   const spSysCpuVenId = getSp(usp, 'sysCpuVenId')
+  const spSysHost = getSp(usp, 'sysHost')
   const spSysOsDeId = getSp(usp, 'sysOsDeId')
   const spSysOsId = getSp(usp, 'sysOsId')
+  const spSysOsIdLike = getSp(usp, 'sysOsIdLike')
   const spSysOsPlat = getSp(usp, 'sysOsPlat')
   const spSysOsVerId = getSp(usp, 'sysOsVerId')
   const spSysOsVerCode = getSp(usp, 'sysOsVerCode')
-  const spSysHost = getSp(usp, 'sysHost')
   const spSysUser = getSp(usp, 'sysUser')
 
-  const sysCpuArch = spSysCpuArch ? getSysCpuArch(spSysCpuArch) : undefined
-  const sysCpuVenId = spSysCpuVenId ? getSysCpuVenId(spSysCpuVenId) : undefined
-  const sysOsDeId = spSysOsDeId ? getSysOsDeId(spSysOsDeId) : undefined
-  const sysOsId = spSysOsId ? getSysOsId(spSysOsId) : undefined
-  const sysOsPlat = spSysOsPlat ? getSysOsPlat(spSysOsPlat) : undefined
-  const sysOsVerId = spSysOsVerId
-  const sysOsVerCode = spSysOsVerCode
-  const sysHost = spSysHost
-  const sysUser = spSysUser
-
   return {
+    sys_cpu_arch: spSysCpuArch ? getSysCpuArch(spSysCpuArch) : undefined,
+    sys_cpu_ven_id: spSysCpuVenId ? getSysCpuVenId(spSysCpuVenId) : undefined,
+    sys_host: spSysHost,
     req_orig: url.origin,
+    sys_os_de_id: spSysOsDeId ? getSysOsDeId(spSysOsDeId) : undefined,
+    sys_os_id: spSysOsId ? getSysOsId(spSysOsId, spSysOsIdLike) : undefined,
+    sys_os_plat: spSysOsPlat ? getSysOsPlat(spSysOsPlat) : undefined,
+    sys_os_ver_id: spSysOsVerId,
+    sys_os_ver_code: spSysOsVerCode,
     req_path: url.pathname,
     req_srch: url.search,
-    sys_cpu_arch: sysCpuArch,
-    sys_cpu_ven_id: sysCpuVenId,
-    sys_host: sysHost,
-    sys_os_de_id: sysOsDeId,
-    sys_os_id: sysOsId,
-    sys_os_plat: sysOsPlat,
-    sys_os_ver_id: sysOsVerId,
-    sys_os_ver_code: sysOsVerCode,
-    sys_user: sysUser,
+    sys_user: spSysUser,
   }
 }
 
