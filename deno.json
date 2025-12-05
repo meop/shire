@@ -1,13 +1,13 @@
 {
   "name": "@meop/shire",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "fmt": {
     "semiColons": false,
     "singleQuote": true,
     "trailingCommas": "onlyMultiLine"
   },
   "imports": {
-    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.1"
+    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.2"
   },
   "exports": {
     "./cli": "./src/cli.ts",

@@ -1,16 +1,16 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@eemeli/yaml@^2.8.1": "2.8.1"
+    "jsr:@eemeli/yaml@^2.8.2": "2.8.2"
   },
   "jsr": {
-    "@eemeli/yaml@2.8.1": {
-      "integrity": "148adba3583caeb2b81ea06c8af8804e4548201a9e46bcdfa08c0afb8e78f446"
+    "@eemeli/yaml@2.8.2": {
+      "integrity": "58f95e7b82f2717963d31f350a9c7cdc098a7b481a3f64c58e979e2e999db0b0"
     }
   },
   "workspace": {
     "dependencies": [
-      "jsr:@eemeli/yaml@^2.8.1"
+      "jsr:@eemeli/yaml@^2.8.2"
     ]
   }
 }
