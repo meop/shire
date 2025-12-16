@@ -1,6 +1,6 @@
 do {
   mut major = 0
-  mut minor = 107
+  mut minor = 109
 
   if 'CLI_VER_MAJOR' in $env {
     $major = $env.CLI_VER_MAJOR | into int

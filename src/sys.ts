@@ -7,8 +7,8 @@
  * Enumeration of supported CPU architectures
  */
 export enum SysCpuArch {
-  x86_64 = 'x86_64',
   aarch64 = 'aarch64',
+  x86_64 = 'x86_64',
 }
 
 /**
@@ -19,13 +19,13 @@ export enum SysCpuArch {
  */
 export function getSysCpuArch(sysCpuArch: string): SysCpuArch {
   switch (sysCpuArch.toLowerCase()) {
+    case 'arm64':
+    case 'aarch64':
+      return SysCpuArch.aarch64
     case 'amd64':
     case 'x64':
     case 'x86_64':
       return SysCpuArch.x86_64
-    case 'arm64':
-    case 'aarch64':
-      return SysCpuArch.aarch64
     default:
       throw new Error(`unsupported cpu architecture: ${sysCpuArch}`)
   }
@@ -35,10 +35,10 @@ export function getSysCpuArch(sysCpuArch: string): SysCpuArch {
  * Enumeration of supported CPU vendor IDs
  */
 export enum SysCpuVenId {
-  intel = 'intel',
+  apple = 'apple',
   amd = 'amd',
   arm = 'arm',
-  apple = 'apple',
+  intel = 'intel',
 }
 
 /**

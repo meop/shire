@@ -1,7 +1,7 @@
 $env.SYS_CPU_ARCH = uname | get machine | str downcase
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)?sysCpuArch=($env.SYS_CPU_ARCH)"
 
-$env.SYS_CPU_VEN_ID = sys cpu | first | get vendor_id | str downcase
+$env.SYS_CPU_VEN_ID = sys cpu | first | get vendor_id | split words | first | str downcase
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysCpuVenId=($env.SYS_CPU_VEN_ID)"
 
 $env.SYS_HOST = sys host | get hostname | str downcase
@@ -37,7 +37,7 @@ if $env.SYS_OS_PLAT == 'linux' {
 
     if 'SYS_OS_ID_LIKE' not-in $env {
       if 'ID_LIKE' in $env {
-        $env.SYS_OS_ID_LIKE = $env.ID_LIKE | str downcase | split words | get 0
+        $env.SYS_OS_ID_LIKE = $env.ID_LIKE | split words | first | str downcase
       }
       if 'SYS_OS_ID_LIKE' in $env {
         $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsIdLike=($env.SYS_OS_ID_LIKE)"
