@@ -106,7 +106,7 @@ export class Nushell extends CliBase implements Cli {
    * @param key - Array of keys representing the variable path
    * @returns The command to unset the variable
    */
-  override varUnset(key: Array<string>): string {
+  override varUnSet(key: Array<string>): string {
     return `hide-env ${joinKey(...key)}`
   }
 }

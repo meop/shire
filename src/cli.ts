@@ -122,7 +122,7 @@ export interface Cli {
    * @param key - Variable key components
    * @returns String representation of the operation
    */
-  varUnset(key: Array<string>): string
+  varUnSet(key: Array<string>): string
 
   /**
    * Gets the major version number
@@ -354,7 +354,7 @@ export class CliBase implements Cli {
    * @param _key - Variable key components (not used in base implementation)
    * @returns String representation of the operation
    */
-  varUnset(_key: Array<string>): string {
+  varUnSet(_key: Array<string>): string {
     throw new Error('abstract')
   }
 
