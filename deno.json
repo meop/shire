@@ -17,6 +17,8 @@
     }
   },
   "tasks": {
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
     "lint": "deno lint",
     "test": "deno test --allow-all tests/"
   },
