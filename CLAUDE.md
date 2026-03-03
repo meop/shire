@@ -1,13 +1,11 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Overview
 
-**shire** is a TypeScript library for building HTTP servers that dynamically
-generate shell scripts. It provides abstractions for multi-shell support
-(nushell, powershell, zsh) and command-line argument parsing.
+**shire** is a TypeScript library for building HTTP servers that dynamically generate shell scripts. It provides
+abstractions for multi-shell support (nushell, powershell, zsh) and command-line argument parsing.
 
 Published to JSR as `@meop/shire`.
 
@@ -17,6 +15,9 @@ Published to JSR as `@meop/shire`.
 # Format code
 deno fmt
 
+# Lint
+deno lint
+
 # Run type checking
 deno check src/**/*.ts
 ```
@@ -25,16 +26,25 @@ No standalone server - this is a library consumed by other projects (like wut).
 
 ## Publishing
 
-This package is published to JSR. Update version in `deno.json`, then publish
-using JSR's workflow.
+Publishing is handled by the CI pipeline (`.github/workflows/pipeline.yml`). To cut a release:
+
+1. Bump `"version"` in `deno.json`
+2. Push to `main`
+
+The pipeline runs four jobs in order:
+- **Version** — reads `deno.json` version, checks if `v<version>` git tag already exists; skips release jobs if so
+- **Validate** — runs `deno fmt --check` and `deno lint` (runs in parallel with Version)
+- **Release** — creates and pushes a GPG-signed git tag (main branch + new version only)
+- **Package** — runs `deno publish` to JSR (main branch + new version only)
+
+Requires two repository secrets: `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE`.
 
 ## Architecture Overview
 
 ### Core Abstraction: Shell-Agnostic Script Generation
 
-The library allows you to write shell-agnostic code that generates
-shell-specific scripts for different shells (nu/pwsh/zsh). This enables building
-HTTP servers that deliver executable shell scripts tailored to the requesting
+The library allows you to write shell-agnostic code that generates shell-specific scripts for different shells
+(nu/pwsh/zsh). This enables building HTTP servers that deliver executable shell scripts tailored to the requesting
 client.
 
 ### Module Structure
@@ -45,7 +55,7 @@ client.
 - `CliBase` provides base implementation
 - Implementations: `Nushell`, `Powershell`, `Zshell` in `cli/{nu,pwsh,zsh}.ts`
 - Key methods:
-  - `toInner()/toOuter()` - String escaping for nested quotes
+  - `toLiteral()/toElement()` - String escaping for shell code and array elements
   - `varSet()/varSetArr()/varUnSet()` - Variable management
   - `print()/printErr()/printInfo()/printSucc()/printWarn()` - Output formatting
   - `fileLoad()` - Load shell-specific template files
@@ -61,8 +71,7 @@ client.
   - Arguments (positional parameters)
   - Options (key-value flags like `--manager yay`)
   - Switches (boolean flags like `-g`)
-- The `process()` method parses command-line parts and calls `work()` on the
-  appropriate command
+- The `process()` method parses command-line parts and calls `work()` on the appropriate command
 
 **srv.ts** - Server base
 
@@ -71,9 +80,8 @@ client.
 
 **ctx.ts** - Context extraction
 
-- `getCtx()` extracts system context from HTTP requests
-- Detects OS (platform, ID, version), user, architecture from User-Agent headers
-- Provides `withCtx()` for variable substitution in config strings
+- `getCtx()` extracts system context from HTTP request query params; all fields pass through as raw strings
+- Provides `withCtx()` for placeholder substitution in config strings (e.g. `{SYS_HOST}`)
 
 **env.ts** - Environment management
 
@@ -96,10 +104,6 @@ client.
 - Parse/stringify for JSON and YAML formats
 - Format detection and conversion
 
-**sys.ts** - System types
-
-- Enums for OS platforms, architectures, etc.
-- Used for OS detection and conditional logic
 
 ## Usage Pattern
 
@@ -130,7 +134,7 @@ class MyCmd extends CmdBase implements Cmd {
 
     // Build shell script using client abstraction
     const script = client
-      .with(client.varSet(['TARGET'], client.toInner(target)))
+      .with(client.varSet(['TARGET'], client.toLiteral(target)))
       .with(await client.fileLoad(['mycommand'])) // Load mycommand.{nu,ps1,zsh}
       .with(['runMyCommand']) // Call function from loaded file
       .build()
@@ -154,11 +158,7 @@ async function handleRequest(request: Request) {
 
   // Determine client type from URL
   const clientType = parts[0] // e.g., 'nu', 'pwsh', 'zsh'
-  const client = clientType === 'nu'
-    ? new Nushell()
-    : clientType === 'pwsh'
-    ? new Powershell()
-    : new Zshell()
+  const client = clientType === 'nu' ? new Nushell() : clientType === 'pwsh' ? new Powershell() : new Zshell()
 
   // Process command
   const cmd = new MyCmd([])
@@ -200,32 +200,34 @@ runMyCommand() {
 
 ## Key Concepts
 
-### String Nesting (toInner/toOuter)
+### String Escaping (toLiteral/toElement)
 
-Shell scripts often need nested string interpolation. The `toInner()` and
-`toOuter()` methods handle quote escaping:
+Shell scripts require careful quote escaping. The `toLiteral()` method escapes values for safe use in shell code
+(variable assignments, print operations, nested execution). The `toElement()` method wraps values for use as array
+elements:
 
 ```typescript
-// Generate: nushell command that will execute zsh
-const inner = Zshell.execStr(client.toInner('echo "hello"'))
-// Result: nu wraps zsh string with proper escaping
+client.varSet(['KEY'], client.toLiteral(value))
+client.varSetArr(['ARRAY'], values.map((v) => client.toElement(v)))
+
+const cmd = Zshell.execStr(client.toLiteral('echo "hello"'))
+client.toElement(Powershell.execStr(client.toLiteral(permCmd)))
 ```
 
 ### File Loading
 
-`fileLoad()` loads shell-specific template files from `cli/{shell}/`
-directories. It follows import resolution and returns empty string if file not
-found (graceful degradation).
+`fileLoad()` loads shell-specific template files from `cli/{shell}/` directories. It follows import resolution and
+returns empty string if file not found (graceful degradation).
 
 ### Variable Scoping
 
-Variable keys are hierarchical arrays: `['pack', 'add', 'names']` becomes
-environment variable based on the key joining strategy.
+Variable keys are hierarchical arrays: `['pack', 'add', 'names']` becomes environment variable based on the key joining
+strategy.
 
 ### Context Filtering
 
-`ctx.ts` supports context-based filtering - load different config/scripts based
-on OS, architecture, or other system properties.
+`ctx.ts` supports context-based filtering - load different config/scripts based on OS, architecture, or other system
+properties.
 
 ## Code Formatting
 
@@ -237,5 +239,5 @@ Deno formatting rules (deno.json):
 
 ## Real-World Example
 
-See the **wut** project (sibling repository) for a complete implementation using
-shire to build a cross-platform configuration management system.
+See the **wut** project (sibling repository) for a complete implementation using shire to build a cross-platform
+configuration management system.

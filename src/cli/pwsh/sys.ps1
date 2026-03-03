@@ -3,17 +3,28 @@ if ($IsWindows) {
 } else {
   $SYS_CPU_ARCH = "$(uname -m)".ToLower()
 }
+$SYS_CPU_ARCH = switch ($SYS_CPU_ARCH) {
+  'arm64' { 'aarch64' }
+  'amd64' { 'x86_64' }
+  default { $SYS_CPU_ARCH }
+}
 $REQ_URL_CLI = "${REQ_URL_CLI}?sysCpuArch=${SYS_CPU_ARCH}"
 
 if ($IsWindows) {
-  $SYS_CPU_VEN_ID = "$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty Manufacturer)".ToLower()
+  $_raw_ven = "$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty Manufacturer)".ToLower()
 } elseif ($IsLinux) {
-  $SYS_CPU_VEN_ID = "$(lscpu | grep --ignore-case 'vendor id' | cut -d ':' -f 2 | xargs)".ToLower()
+  $_raw_ven = "$(lscpu | grep --ignore-case 'vendor id' | cut -d ':' -f 2 | xargs)".ToLower()
 } else {
-  $SYS_CPU_VEN_ID = "$(sysctl machdep.cpu.vendor 2> /dev/null | cut -d ':' -f 2 | xargs)".ToLower()
-  if (-not $SYS_CPU_VEN_ID) {
-    $SYS_CPU_VEN_ID = 'Apple'.ToLower()
+  $_raw_ven = "$(sysctl machdep.cpu.vendor 2> /dev/null | cut -d ':' -f 2 | xargs)".ToLower()
+  if (-not $_raw_ven) {
+    $_raw_ven = 'apple'
   }
+}
+$SYS_CPU_VEN_ID = switch ($_raw_ven) {
+  'genuineintel' { 'intel' }
+  'authenticamd' { 'amd' }
+  'qemu'         { 'apple' }
+  default        { $_raw_ven }
 }
 $REQ_URL_CLI = "${REQ_URL_CLI}&sysCpuVenId=${SYS_CPU_VEN_ID}"
 
@@ -39,6 +50,12 @@ if ($SYS_OS_PLAT -eq 'linux') {
       $SYS_OS_DE_ID = "${XDG_SESSION_DESKTOP}".ToLower()
     }
     if ($SYS_OS_DE_ID) {
+      $SYS_OS_DE_ID = switch ($SYS_OS_DE_ID) {
+        'kde'       { 'plasma' }
+        'rpd'       { 'lxde' }
+        'rpd-labwc' { 'lxde' }
+        default     { $SYS_OS_DE_ID }
+      }
       $REQ_URL_CLI = "${REQ_URL_CLI}&sysOsDeId=${SYS_OS_DE_ID}"
     }
   }

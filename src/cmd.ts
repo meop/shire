@@ -91,9 +91,7 @@ function toSerializable(command: Cmd) {
     switches?: Array<string>
     commands?: string
   } = {
-    id: `${
-      [...command.scopes, command.name].join(' ')
-    } | ${command.description}`,
+    id: `${[...command.scopes, command.name].join(' ')} | ${command.description}`,
   }
 
   if (command.aliases.length) {
@@ -102,10 +100,7 @@ function toSerializable(command: Cmd) {
 
   if (command.arguments.length) {
     content.arguments = command.arguments.map(
-      (a) =>
-        `${a.required ? '<' : '['}${a.name}${
-          a.required ? '>' : ']'
-        } | ${a.description}`,
+      (a) => `${a.required ? '<' : '['}${a.name}${a.required ? '>' : ']'} | ${a.description}`,
     )
   }
 
@@ -150,8 +145,7 @@ export class CmdBase {
   /**
    * List of required and optional arguments for the command
    */
-  arguments: Array<{ name: string; description: string; required?: boolean }> =
-    []
+  arguments: Array<{ name: string; description: string; required?: boolean }> = []
   /**
    * List of options that can be passed to the command
    */
@@ -234,7 +228,7 @@ export class CmdBase {
     const loadCliEnv = (func: () => Promise<string>) => {
       for (const [key, value] of Object.entries(_environment.store)) {
         _client = _client.with(
-          _client.varSet([key], _client.toInner(value ?? '')),
+          _client.varSet([key], _client.toLiteral(value ?? '')),
         )
       }
 
@@ -279,9 +273,7 @@ export class CmdBase {
         const _option = this.options.find((o) => o.keys.includes(part))
         if (_option && partsIndex + 1 < _parts.length) {
           if (_parts[partsIndex + 1].startsWith('-')) {
-            return loadCliEnv(() =>
-              Promise.resolve(this.help(_client, _environment))
-            )
+            return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
           }
           _environment.set(
             toFullKey(
@@ -334,9 +326,7 @@ export class CmdBase {
 
     while (argumentIndex < this.arguments.length) {
       if (this.arguments[argumentIndex].required) {
-        return loadCliEnv(() =>
-          Promise.resolve(this.help(_client, _environment))
-        )
+        return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
       }
       argumentIndex += 1
     }

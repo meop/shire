@@ -56,20 +56,20 @@ export class Nushell extends CliBase implements Cli {
   }
 
   /**
-   * Converts a value to an inner representation for Nushell
+   * Converts a value to a literal string for Nushell
    * @param value - The value to convert
-   * @returns The converted value
+   * @returns Raw string literal
    */
-  override toInner(value: string): string {
+  override toLiteral(value: string): string {
     return `r#'${value}'#`
   }
 
   /**
-   * Converts a value to an outer representation for Nushell
-   * @param value - The value to convert
-   * @returns The converted value
+   * Wraps a value as an array element for Nushell
+   * @param value - The value to wrap
+   * @returns Backtick-wrapped value
    */
-  override toOuter(value: string): string {
+  override toElement(value: string): string {
     return `\`${value}\``
   }
 

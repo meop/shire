@@ -1,7 +1,16 @@
-$env.SYS_CPU_ARCH = uname | get machine | str downcase
+$env.SYS_CPU_ARCH = match (uname | get machine | str downcase) {
+  'arm64' => 'aarch64',
+  'amd64' => 'x86_64',
+  $x => $x,
+}
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)?sysCpuArch=($env.SYS_CPU_ARCH)"
 
-$env.SYS_CPU_VEN_ID = sys cpu | first | get vendor_id | split words | first | str downcase
+$env.SYS_CPU_VEN_ID = match (sys cpu | first | get vendor_id | split words | first | str downcase) {
+  'genuineintel' => 'intel',
+  'authenticamd' => 'amd',
+  'qemu' => 'apple',
+  $x => $x,
+}
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysCpuVenId=($env.SYS_CPU_VEN_ID)"
 
 $env.SYS_HOST = sys host | get hostname | str downcase
@@ -16,6 +25,11 @@ if $env.SYS_OS_PLAT == 'linux' {
       $env.SYS_OS_DE_ID = $env.XDG_SESSION_DESKTOP | str downcase
     }
     if 'SYS_OS_DE_ID' in $env {
+      $env.SYS_OS_DE_ID = match $env.SYS_OS_DE_ID {
+        'kde' => 'plasma',
+        'rpd' | 'rpd-labwc' => 'lxde',
+        $x => $x,
+      }
       $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsDeId=($env.SYS_OS_DE_ID)"
     }
   }

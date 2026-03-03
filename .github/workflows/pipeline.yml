@@ -1,0 +1,94 @@
+---
+name: Pipeline
+on:
+  push:
+    branches:
+      - '**' # Run on all branches
+  pull_request:
+    branches:
+      - '**' # Run on all PRs
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      new_version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for Version tag
+        id: check
+        shell: bash
+        run: |
+          VERSION=$(jq -r '.version' deno.json)
+          echo "Target version: $VERSION"
+
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists. Skipping release steps."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Tag v$VERSION does not exist. Triggering release pipeline."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: vx.x.x
+      - name: Deno (version)
+        run: deno --version
+      - name: Deno format (check)
+        run: deno fmt --check
+      - name: Deno lint
+        run: deno lint
+
+  release:
+    name: Release
+    needs: [version, validate]
+    if: github.ref == 'refs/heads/main' && needs.version.outputs.changed == 'true'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_tag_gpgsign: true
+      - name: Create signed tag
+        run: |
+          git tag -s "v${{ needs.version.outputs.new_version }}" -m "Release v${{ needs.version.outputs.new_version }}"
+          git push origin "v${{ needs.version.outputs.new_version }}"
+
+  publish:
+    name: Publish
+    needs: [version, release]
+    if: github.ref == 'refs/heads/main' && needs.version.outputs.changed == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: vx.x.x
+      - name: Deno publish
+        run: deno publish

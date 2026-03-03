@@ -1,16 +1,3 @@
-import {
-  getSysCpuArch,
-  getSysCpuVenId,
-  getSysOsDeId,
-  getSysOsId,
-  getSysOsPlat,
-  type SysCpuArch,
-  type SysCpuVenId,
-  type SysOsDeId,
-  type SysOsId,
-  type SysOsPlat,
-} from './sys.ts'
-
 /**
  * This module contains components for building context implementations
  * @module
@@ -35,11 +22,11 @@ export type Ctx = {
   /**
    * System CPU architecture (optional)
    */
-  sys_cpu_arch?: SysCpuArch
+  sys_cpu_arch?: string
   /**
    * System CPU vendor ID (optional)
    */
-  sys_cpu_ven_id?: SysCpuVenId
+  sys_cpu_ven_id?: string
   /**
    * System host name (optional)
    */
@@ -47,15 +34,15 @@ export type Ctx = {
   /**
    * System OS desktop environment ID (optional)
    */
-  sys_os_de_id?: SysOsDeId
+  sys_os_de_id?: string
   /**
    * System OS ID (optional)
    */
-  sys_os_id?: SysOsId
+  sys_os_id?: string
   /**
    * System OS platform (optional)
    */
-  sys_os_plat?: SysOsPlat
+  sys_os_plat?: string
   /**
    * System OS version ID (optional)
    */
@@ -102,20 +89,19 @@ export function getCtx(request: Request): Ctx {
   const spSysHost = getSp(usp, 'sysHost')
   const spSysOsDeId = getSp(usp, 'sysOsDeId')
   const spSysOsId = getSp(usp, 'sysOsId')
-  const spSysOsIdLike = getSp(usp, 'sysOsIdLike')
   const spSysOsPlat = getSp(usp, 'sysOsPlat')
   const spSysOsVerId = getSp(usp, 'sysOsVerId')
   const spSysOsVerCode = getSp(usp, 'sysOsVerCode')
   const spSysUser = getSp(usp, 'sysUser')
 
   return {
-    sys_cpu_arch: spSysCpuArch ? getSysCpuArch(spSysCpuArch) : undefined,
-    sys_cpu_ven_id: spSysCpuVenId ? getSysCpuVenId(spSysCpuVenId) : undefined,
+    sys_cpu_arch: spSysCpuArch,
+    sys_cpu_ven_id: spSysCpuVenId,
     sys_host: spSysHost,
     req_orig: url.origin,
-    sys_os_de_id: spSysOsDeId ? getSysOsDeId(spSysOsDeId) : undefined,
-    sys_os_id: spSysOsId ? getSysOsId(spSysOsId, spSysOsIdLike) : undefined,
-    sys_os_plat: spSysOsPlat ? getSysOsPlat(spSysOsPlat) : undefined,
+    sys_os_de_id: spSysOsDeId,
+    sys_os_id: spSysOsId,
+    sys_os_plat: spSysOsPlat,
     sys_os_ver_id: spSysOsVerId,
     sys_os_ver_code: spSysOsVerCode,
     req_path: url.pathname,

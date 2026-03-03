@@ -1,14 +1,25 @@
-export SYS_CPU_ARCH="${(L)$(uname -m)}"
+_raw_arch="${(L)$(uname -m)}"
+case "$_raw_arch" in
+  arm64)   export SYS_CPU_ARCH='aarch64' ;;
+  amd64)   export SYS_CPU_ARCH='x86_64' ;;
+  *)       export SYS_CPU_ARCH="$_raw_arch" ;;
+esac
 export REQ_URL_CLI="${REQ_URL_CLI}?sysCpuArch=${SYS_CPU_ARCH}"
 
 if type lscpu > /dev/null; then
-  export SYS_CPU_VEN_ID="${(L)$(lscpu | grep --ignore-case 'vendor id' | cut -d ':' -f 2 | xargs)}"
+  _raw_ven="${(L)$(lscpu | grep --ignore-case 'vendor id' | cut -d ':' -f 2 | xargs)}"
 elif type sysctl > /dev/null; then
-  export SYS_CPU_VEN_ID="${(L)$(sysctl machdep.cpu.vendor 2> /dev/null | cut -d ':' -f 2 | xargs)}"
-  if [[ -z $SYS_CPU_VEN_ID ]]; then
-    export SYS_CPU_VEN_ID="${(L)$(echo 'Apple')}"
+  _raw_ven="${(L)$(sysctl machdep.cpu.vendor 2> /dev/null | cut -d ':' -f 2 | xargs)}"
+  if [[ -z $_raw_ven ]]; then
+    _raw_ven='apple'
   fi
 fi
+case "$_raw_ven" in
+  genuineintel) export SYS_CPU_VEN_ID='intel' ;;
+  authenticamd) export SYS_CPU_VEN_ID='amd' ;;
+  qemu)         export SYS_CPU_VEN_ID='apple' ;;
+  *)            export SYS_CPU_VEN_ID="$_raw_ven" ;;
+esac
 export REQ_URL_CLI="${REQ_URL_CLI}&sysCpuVenId=${SYS_CPU_VEN_ID}"
 
 export SYS_HOST="${(L)$(hostname)}"
@@ -23,6 +34,10 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
       export SYS_OS_DE_ID="${(L)XDG_SESSION_DESKTOP}"
     fi
     if [[ $SYS_OS_DE_ID ]]; then
+      case "$SYS_OS_DE_ID" in
+        kde)       export SYS_OS_DE_ID='plasma' ;;
+        rpd|rpd-labwc) export SYS_OS_DE_ID='lxde' ;;
+      esac
       export REQ_URL_CLI="${REQ_URL_CLI}&sysOsDeId=${SYS_OS_DE_ID}"
     fi
   fi

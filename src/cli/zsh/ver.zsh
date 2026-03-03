@@ -1,13 +1,6 @@
 function () {
-  local major=5
-  local minor=9
-
-  if [[ $CLI_VER_MAJOR ]]; then
-    major=$CLI_VER_MAJOR
-    if [[ $CLI_VER_MINOR ]]; then
-      minor=$CLI_VER_MINOR
-    fi
-  fi
+  local major=$CLI_VER_MAJOR
+  local minor=$CLI_VER_MINOR
 
   autoload is-at-least
   if ! is-at-least "${major}.${minor}"; then

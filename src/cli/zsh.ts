@@ -50,20 +50,20 @@ export class Zshell extends CliBase implements Cli {
   }
 
   /**
-   * Converts a value to an inner representation for Zshell
+   * Converts a value to a literal string for Zshell
    * @param value - The value to convert
-   * @returns The converted value
+   * @returns Single-quoted string with escaped quotes and backslashes
    */
-  override toInner(value: string): string {
+  override toLiteral(value: string): string {
     return `'${value.replaceAll('\\', '\\\\').replaceAll("'", "'\\''")}'`
   }
 
   /**
-   * Converts a value to an outer representation for Zshell
-   * @param value - The value to convert
-   * @returns The converted value
+   * Wraps a value as an array element for Zshell
+   * @param value - The value to wrap
+   * @returns Single-quoted value
    */
-  override toOuter(value: string): string {
+  override toElement(value: string): string {
     return `'${value}'`
   }
 

@@ -50,20 +50,20 @@ export class Powershell extends CliBase implements Cli {
   }
 
   /**
-   * Converts a value to an inner representation for Powershell
+   * Converts a value to a literal string for Powershell
    * @param value - The value to convert
-   * @returns The converted value
+   * @returns Single-quoted string with escaped quotes
    */
-  override toInner(value: string): string {
+  override toLiteral(value: string): string {
     return `'${value.replaceAll("'", "''")}'`
   }
 
   /**
-   * Converts a value to an outer representation for Powershell
-   * @param value - The value to convert
-   * @returns The converted value
+   * Wraps a value as an array element for Powershell
+   * @param value - The value to wrap
+   * @returns Single-quoted value
    */
-  override toOuter(value: string): string {
+  override toElement(value: string): string {
     return `'${value}'`
   }
 

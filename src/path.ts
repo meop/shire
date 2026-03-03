@@ -83,6 +83,7 @@ export async function getFilePaths(
   options?: {
     extension?: string
     filters?: Array<string>
+    flexible?: boolean
   },
 ): Promise<Array<string>> {
   if (!(await isDirPath(path))) {
@@ -92,13 +93,14 @@ export async function getFilePaths(
   const patterns: Array<string> = []
 
   if (options?.filters?.length) {
+    const prefix = options.flexible ? '**/' : ''
     const filterPattern = options.filters.map((f) => `${f}*`).join('/')
     if (options?.extension) {
-      patterns.push(`${filterPattern}/*.${options.extension}`)
-      patterns.push(`${filterPattern}.${options.extension}`)
+      patterns.push(`${prefix}${filterPattern}/*.${options.extension}`)
+      patterns.push(`${prefix}${filterPattern}.${options.extension}`)
     } else {
-      patterns.push(`${filterPattern}/**`)
-      patterns.push(filterPattern)
+      patterns.push(`${prefix}${filterPattern}/**`)
+      patterns.push(`${prefix}${filterPattern}`)
     }
   } else {
     if (options?.extension) {

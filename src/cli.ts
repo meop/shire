@@ -3,6 +3,7 @@
  * @module
  */
 
+
 /**
  * Interface defining the contract for client implementations
  */
@@ -83,19 +84,19 @@ export interface Cli {
   printWarn(lines: string | Array<string>): Array<string>
 
   /**
-   * Converts quotes to the inner representation of a nested string
-   * @example `'outer 'inner''` => `'outer "inner"'`
+   * Converts a value to a literal string safe for use in shell code
+   * Used for variable assignments and arguments that should not be interpolated
    * @param value - Value to convert
-   * @returns Inner representation of a nested string
+   * @returns Escaped literal string representation
    */
-  toInner: (value: string) => string
+  toLiteral: (value: string) => string
   /**
-   * Converts to the outer representation of a nested string
-   * @example `'outer 'inner''` => `'outer "inner"'`
-   * @param value - Value to convert
-   * @returns Outer representation of a nested string
+   * Wraps a value as an array element
+   * Used when building array structures with varSetArr
+   * @param value - Value to wrap
+   * @returns Wrapped value suitable for array element
    */
-  toOuter: (value: string) => string
+  toElement: (value: string) => string
 
   /**
    * Generates trace information
@@ -125,17 +126,6 @@ export interface Cli {
   varUnSet(key: Array<string>): string
 
   /**
-   * Gets the major version number
-   * @returns Major version number
-   */
-  verMajor(): number
-  /**
-   * Gets the minor version number
-   * @returns Minor version number
-   */
-  verMinor(): number
-
-  /**
    * Adds lines to the output buffer
    * @param lines - Lines to add
    * @returns This instance for chaining
@@ -156,7 +146,7 @@ export function toPrint(
   op: string,
 ): Array<string> {
   return (typeof lines === 'string' ? [lines] : lines).map(
-    (l) => `${op} ${client.toInner(l)}`,
+    (l) => `${op} ${client.toLiteral(l)}`,
   )
 }
 
@@ -231,9 +221,7 @@ export class CliBase implements Cli {
     if (!_path.endsWith(`.${this.extension}`)) {
       _path = `${_path}.${this.extension}`
     }
-    const fetchPath = urlResolver
-      ? urlResolver(_path)
-      : import.meta.resolve(_path)
+    const fetchPath = urlResolver ? urlResolver(_path) : import.meta.resolve(_path)
     try {
       const res = await fetch(fetchPath)
       if (res.ok) {
@@ -302,22 +290,20 @@ export class CliBase implements Cli {
   }
 
   /**
-   * Converts to the inner representation of a nested string
-   * @example `'outer 'inner''` => `'outer "inner"'`
+   * Converts a value to a literal string safe for use in shell code
    * @param _value - Value to convert (not used in base implementation)
-   * @returns Inner representation of a nested string
+   * @returns Escaped literal string representation
    */
-  toInner(_value: string): string {
+  toLiteral(_value: string): string {
     throw new Error('abstract')
   }
 
   /**
-   * Converts to the outer representation of a nested string
-   * @example `'outer 'inner''` => `'outer "inner"'`
-   * @param _value - Value to convert (not used in base implementation)
-   * @returns Outer representation of a nested string
+   * Wraps a value as an array element
+   * @param _value - Value to wrap (not used in base implementation)
+   * @returns Wrapped value suitable for array element
    */
-  toOuter(_value: string): string {
+  toElement(_value: string): string {
     throw new Error('abstract')
   }
 
@@ -356,22 +342,6 @@ export class CliBase implements Cli {
    */
   varUnSet(_key: Array<string>): string {
     throw new Error('abstract')
-  }
-
-  /**
-   * Gets the major version number
-   * @returns Major version number (0 in base implementation)
-   */
-  verMajor(): number {
-    return 0
-  }
-
-  /**
-   * Gets the minor version number
-   * @returns Minor version number (0 in base implementation)
-   */
-  verMinor(): number {
-    return 0
   }
 
   /**
