@@ -32,6 +32,7 @@ Publishing is handled by the CI pipeline (`.github/workflows/pipeline.yml`). To 
 2. Push to `main`
 
 The pipeline runs four jobs in order:
+
 - **Version** — reads `deno.json` version, checks if `v<version>` git tag already exists; skips release jobs if so
 - **Validate** — runs `deno fmt --check` and `deno lint` (runs in parallel with Version)
 - **Release** — creates and pushes a GPG-signed git tag (main branch + new version only)
@@ -103,7 +104,6 @@ client.
 
 - Parse/stringify for JSON and YAML formats
 - Format detection and conversion
-
 
 ## Usage Pattern
 

@@ -164,7 +164,8 @@ deno check src/**/*.ts
 
 ## Releasing
 
-Bump `"version"` in `deno.json` and push to `main`. The CI pipeline will validate, tag, and publish to JSR automatically.
+Bump `"version"` in `deno.json` and push to `main`. The CI pipeline will validate, tag, and publish to JSR
+automatically.
 
 ## Real-World Example
 

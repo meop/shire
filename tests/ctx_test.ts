@@ -2,7 +2,9 @@ import { assertEquals } from '@std/assert'
 import { getCtx, withCtx } from '../src/ctx.ts'
 
 Deno.test('getCtx - parses request URL and search params', () => {
-  const request = new Request('http://localhost/api/test?sysCpuArch=x86_64&sysOsPlat=linux&sysHost=myhost&sysUser=admin')
+  const request = new Request(
+    'http://localhost/api/test?sysCpuArch=x86_64&sysOsPlat=linux&sysHost=myhost&sysUser=admin',
+  )
   const ctx = getCtx(request)
 
   assertEquals(ctx.req_orig, 'http://localhost')

@@ -1,12 +1,5 @@
-import { assertEquals, assertNotEquals } from '@std/assert'
-import {
-  buildFilePath,
-  getFileContent,
-  getFilePaths,
-  isDirPath,
-  isFilePath,
-  isPath,
-} from '../src/path.ts'
+import { assertEquals } from '@std/assert'
+import { buildFilePath, getFileContent, getFilePaths, isDirPath, isFilePath, isPath } from '../src/path.ts'
 import PATH from 'node:path'
 
 Deno.test('buildFilePath - joins paths', () => {
@@ -54,12 +47,12 @@ Deno.test('getFilePaths - finds files with filters and extensions', async () => 
     // Filter by extension
     const yamls = await getFilePaths(tempDir, { extension: 'yaml' })
     assertEquals(yamls.length, 2)
-    assertEquals(yamls.every(p => p.endsWith('.yaml')), true)
+    assertEquals(yamls.every((p) => p.endsWith('.yaml')), true)
 
     // Filter by name pattern
     const rootFiles = await getFilePaths(tempDir, { filters: ['root'] })
     assertEquals(rootFiles.length, 2)
-    assertEquals(rootFiles.every(p => p.includes('root')), true)
+    assertEquals(rootFiles.every((p) => p.includes('root')), true)
 
     // Both
     const rootYamls = await getFilePaths(tempDir, { filters: ['root'], extension: 'yaml' })

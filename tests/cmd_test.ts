@@ -1,5 +1,7 @@
 import { assertEquals } from '@std/assert'
 import { CmdBase, toExpandedParts } from '../src/cmd.ts'
+import type { Cli } from '../src/cli.ts'
+import type { Ctx } from '../src/ctx.ts'
 import { Nushell } from '../src/cli/nu.ts'
 import { EnvBase } from '../src/env.ts'
 
@@ -20,7 +22,7 @@ class TestCmd extends CmdBase {
     this.arguments = [{ name: 'arg1', description: 'test arg', required: true }]
   }
 
-  override work(_client: any, _context: any, environment: any): Promise<string> {
+  override work(_client: Cli, _context: Ctx, environment: EnvBase): Promise<string> {
     // Mirror the toFullKey logic: [...scopes, name, key].slice(1)
     const key = (k: string) => [...this.scopes, this.name, k].slice(1)
     const val = environment.get(key('arg1'))

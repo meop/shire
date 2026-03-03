@@ -3,7 +3,6 @@
  * @module
  */
 
-
 /**
  * Interface defining the contract for client implementations
  */
