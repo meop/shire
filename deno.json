@@ -1,6 +1,6 @@
 {
   "name": "@meop/shire",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "fmt": {
     "lineWidth": 120,
     "semiColons": false,

@@ -25,7 +25,12 @@ export REQ_URL_CLI="${REQ_URL_CLI}&sysCpuVenId=${SYS_CPU_VEN_ID}"
 export SYS_HOST="${(L)$(hostname)}"
 export REQ_URL_CLI="${REQ_URL_CLI}&sysHost=${SYS_HOST}"
 
-export SYS_OS_PLAT="${(L)$(uname)}"
+_raw_plat="${(L)$(uname)}"
+case "$_raw_plat" in
+  darwin) export SYS_OS_PLAT='darwin' ;;
+  linux)  export SYS_OS_PLAT='linux' ;;
+  *)      export SYS_OS_PLAT="$_raw_plat" ;;
+esac
 export REQ_URL_CLI="${REQ_URL_CLI}&sysOsPlat=${SYS_OS_PLAT}"
 
 if [[ $SYS_OS_PLAT == 'linux' ]]; then

@@ -16,7 +16,12 @@ $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysCpuVenId=($env.SYS_CPU_VEN_ID)"
 $env.SYS_HOST = sys host | get hostname | str downcase
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysHost=($env.SYS_HOST)"
 
-$env.SYS_OS_PLAT = uname | get kernel-name | str downcase
+$env.SYS_OS_PLAT = match (uname | get kernel-name | str downcase) {
+  'darwin' => 'darwin',
+  'linux' => 'linux',
+  'windows_nt' => 'winnt',
+  $x => $x,
+}
 $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsPlat=($env.SYS_OS_PLAT)"
 
 if $env.SYS_OS_PLAT == 'linux' {

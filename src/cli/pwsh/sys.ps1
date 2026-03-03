@@ -35,12 +35,12 @@ if ($IsWindows) {
 }
 $REQ_URL_CLI = "${REQ_URL_CLI}&sysHost=${SYS_HOST}"
 
-if ($IsWindows) {
-  $SYS_OS_PLAT = 'winnt'
-} elseif ($IsLinux) {
-  $SYS_OS_PLAT = 'linux'
-} else {
-  $SYS_OS_PLAT = 'darwin'
+$_raw_plat = if ($IsMacOS) { 'darwin' } elseif ($IsLinux) { 'linux' } elseif ($IsWindows) { 'winnt' } else { 'unknown' }
+$SYS_OS_PLAT = switch ($_raw_plat) {
+  'darwin' { 'darwin' }
+  'linux'  { 'linux' }
+  'winnt'  { 'winnt' }
+  default  { $_raw_plat }
 }
 $REQ_URL_CLI = "${REQ_URL_CLI}&sysOsPlat=${SYS_OS_PLAT}"
 
