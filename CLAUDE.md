@@ -12,17 +12,27 @@ Published to JSR as `@meop/shire`.
 ## Development Commands
 
 ```bash
-# Format code
-deno fmt
-
-# Lint
-deno lint
-
-# Run type checking
-deno check src/**/*.ts
+deno task fmt        # apply formatting (modifies files)
+deno task fmt:check  # verify formatting without modifying (CI / pre-commit)
+deno task lint       # lint
+deno task check      # type check
+deno task test       # run tests
 ```
 
-No standalone server - this is a library consumed by other projects (like wut).
+No standalone server — this is a library consumed by other projects.
+
+## Development Workflow
+
+After making code changes, run in this order:
+
+1. `deno task fmt` — apply formatting; always modifies files if needed
+2. `deno task lint` — check for lint errors
+   - If errors found: fix them, then return to step 1
+3. `deno task test` — run tests
+   - If snapshot tests fail due to intentional output changes: `deno task test:update`, then review `git diff tests/` to
+     confirm every changed snapshot is correct and valid shell syntax
+
+Use `deno task fmt:check` (no modifications) only for CI or to verify formatting before committing.
 
 ## Publishing
 
@@ -105,114 +115,34 @@ client.
 - Parse/stringify for JSON and YAML formats
 - Format detection and conversion
 
-## Usage Pattern
-
-### 1. Define a Command
-
-```typescript
-import { type Cmd, CmdBase } from '@meop/shire/cmd'
-import type { Cli } from '@meop/shire/cli'
-import type { Ctx } from '@meop/shire/ctx'
-import type { Env } from '@meop/shire/env'
-
-class MyCmd extends CmdBase implements Cmd {
-  constructor(scopes: Array<string>) {
-    super(scopes)
-    this.name = 'mycommand'
-    this.description = 'Does something useful'
-    this.arguments = [
-      { name: 'target', description: 'Target to process', required: true },
-    ]
-  }
-
-  override async work(
-    client: Cli,
-    context: Ctx,
-    environment: Env,
-  ): Promise<string> {
-    const target = environment.get([...this.scopes, this.name, 'target'])
-
-    // Build shell script using client abstraction
-    const script = client
-      .with(client.varSet(['TARGET'], client.toLiteral(target)))
-      .with(await client.fileLoad(['mycommand'])) // Load mycommand.{nu,ps1,zsh}
-      .with(['runMyCommand']) // Call function from loaded file
-      .build()
-
-    return script
-  }
-}
-```
-
-### 2. Build an HTTP Server
-
-```typescript
-import { Nushell } from '@meop/shire/cli/nu'
-import { Powershell } from '@meop/shire/cli/pwsh'
-import { Zshell } from '@meop/shire/cli/zsh'
-import { getCtx } from '@meop/shire/ctx'
-
-async function handleRequest(request: Request) {
-  const context = getCtx(request)
-  const parts = new URL(request.url).pathname.split('/').filter((p) => p)
-
-  // Determine client type from URL
-  const clientType = parts[0] // e.g., 'nu', 'pwsh', 'zsh'
-  const client = clientType === 'nu' ? new Nushell() : clientType === 'pwsh' ? new Powershell() : new Zshell()
-
-  // Process command
-  const cmd = new MyCmd([])
-  const script = await cmd.process(parts.slice(1), client, context)
-
-  return new Response(script, {
-    headers: { 'Content-Type': 'text/plain' },
-  })
-}
-
-Deno.serve(handleRequest)
-```
-
-### 3. Create Shell Template Files
-
-Create `cli/nu/mycommand.nu`:
-
-```nu
-def runMyCommand [] {
-  print $"Processing ($env.TARGET)"
-}
-```
-
-Create `cli/pwsh/mycommand.ps1`:
-
-```powershell
-function runMyCommand {
-  Write-Host "Processing $env:TARGET"
-}
-```
-
-Create `cli/zsh/mycommand.zsh`:
-
-```zsh
-runMyCommand() {
-  echo "Processing ${TARGET}"
-}
-```
-
 ## Key Concepts
+
+### Variable Assignment
+
+Use `varSetStr` for literal string values — it applies `toLiteral` internally:
+
+```typescript
+client.varSetStr(['KEY'], value) // preferred: wraps value as shell literal automatically
+client.varSet(['KEY'], someAlreadyQuotedExpr) // use only when value is already shell-quoted
+```
+
+Use `varSetArr` with raw values — it applies `toLiteral` to each element internally:
+
+```typescript
+client.varSetArr(['ARRAY'], values) // pass raw strings; quoting is handled automatically
+```
 
 ### String Escaping (toLiteral/toElement)
 
-Shell scripts require careful quote escaping. The `toLiteral()` method escapes values for safe use in shell code
-(variable assignments, print operations, nested execution). The `toElement()` method wraps values for use as array
-elements:
+Low-level quoting primitives — prefer the high-level methods above. Use `toLiteral` when you need to quote a value for
+embedding in another shell expression (e.g., as an argument to a static `execStr` call):
 
 ```typescript
-client.varSet(['KEY'], client.toLiteral(value))
-client.varSetArr(['ARRAY'], values.map((v) => client.toElement(v)))
-
 const cmd = Zshell.execStr(client.toLiteral('echo "hello"'))
-client.toElement(Powershell.execStr(client.toLiteral(permCmd)))
 ```
+
+Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, etc.) to safely nest any content.
+`toElement` delegates to `toLiteral` on all shells (no backtick exception needed).
 
 ### File Loading
 
@@ -229,6 +159,19 @@ strategy.
 `ctx.ts` supports context-based filtering - load different config/scripts based on OS, architecture, or other system
 properties.
 
+## Testing
+
+Automated tests live in `tests/` and use snapshot testing:
+
+- Tests call exported functions directly with synthetic inputs
+- Snapshots are committed and show diffs in PRs
+- Snapshot tests fail if output changes unexpectedly
+
+```bash
+deno task test          # run all tests
+deno task test:update   # regenerate snapshots (review diffs carefully)
+```
+
 ## Code Formatting
 
 Deno formatting rules (deno.json):
@@ -236,8 +179,3 @@ Deno formatting rules (deno.json):
 - No semicolons
 - Single quotes
 - Trailing commas only on multiline
-
-## Real-World Example
-
-See the **wut** project (sibling repository) for a complete implementation using shire to build a cross-platform
-configuration management system.

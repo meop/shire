@@ -56,21 +56,26 @@ export class Nushell extends CliBase implements Cli {
   }
 
   /**
-   * Converts a value to a literal string for Nushell
+   * Converts a value to a literal string for Nushell using adaptive raw string depth
    * @param value - The value to convert
-   * @returns Raw string literal
+   * @returns Raw string literal with sufficient hash depth to avoid conflicts
    */
   override toLiteral(value: string): string {
-    return `r#'${value}'#`
+    let depth = 1
+    while (value.includes(`'${'#'.repeat(depth)}`)) {
+      depth++
+    }
+    const hash = '#'.repeat(depth)
+    return `r${hash}'${value}'${hash}`
   }
 
   /**
-   * Wraps a value as an array element for Nushell
+   * Wraps a value as an array element for Nushell (delegates to toLiteral)
    * @param value - The value to wrap
-   * @returns Backtick-wrapped value
+   * @returns Raw string literal
    */
   override toElement(value: string): string {
-    return `\`${value}\``
+    return this.toLiteral(value)
   }
 
   /**
@@ -92,13 +97,13 @@ export class Nushell extends CliBase implements Cli {
   }
 
   /**
-   * Sets an array variable in the Nushell environment
+   * Sets an array variable in the Nushell environment (applies toLiteral to each value)
    * @param key - Array of keys representing the variable path
-   * @param values - Array of values to set
+   * @param values - Array of raw string values to set
    * @returns The command to set the array variable
    */
   override varSetArr(key: Array<string>, values: Array<string>): string {
-    return `$env.${joinKey(...key)} = [ ${values.join(', ')} ]`
+    return `$env.${joinKey(...key)} = [ ${values.map((v) => this.toLiteral(v ?? '')).join(', ')} ]`
   }
 
   /**

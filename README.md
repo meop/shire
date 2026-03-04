@@ -53,7 +53,7 @@ class MyCmd extends CmdBase {
     const target = environment.get([...this.scopes, this.name, 'target'])
 
     return client
-      .with(client.varSet(['TARGET'], client.toLiteral(target)))
+      .with(client.varSetStr(['TARGET'], target))
       .with(await client.fileLoad(['mycommand']))
       .with(['runMyCommand'])
       .build()
@@ -128,15 +128,18 @@ runMyCommand() {
 Write shell-agnostic code using the `Cli` interface. Methods like `varSet()`, `print()`, and `fileLoad()` automatically
 generate the correct syntax for each shell.
 
-### String Escaping
+### Variable Assignment
 
-Use `toLiteral()` to escape values for safe use in shell code (variable assignments, arguments). Use `toElement()` when
-wrapping values as array elements:
+High-level methods handle quoting automatically:
 
 ```typescript
-client.varSet(['KEY'], client.toLiteral(value))
-client.varSetArr(['KEYS'], values.map((v) => client.toElement(v)))
+client.varSetStr(['KEY'], value) // single string value
+client.varSetArr(['KEYS'], values) // array of raw strings
+```
 
+Use `toLiteral()` only when embedding a value directly in another shell expression:
+
+```typescript
 const cmd = Zshell.execStr(client.toLiteral('echo "hello"'))
 ```
 
@@ -149,25 +152,7 @@ joining strategy.
 
 Generate different scripts based on detected system properties using the `Ctx` type.
 
-## Development
-
-```bash
-# Format code
-deno fmt
-
-# Lint
-deno lint
-
-# Type checking
-deno check src/**/*.ts
-```
-
 ## Releasing
 
 Bump `"version"` in `deno.json` and push to `main`. The CI pipeline will validate, tag, and publish to JSR
 automatically.
-
-## Real-World Example
-
-See the **wut** project for a complete implementation using shire to build a cross-platform configuration management
-system.

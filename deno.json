@@ -1,6 +1,6 @@
 {
   "name": "@meop/shire",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "fmt": {
     "lineWidth": 120,
     "semiColons": false,
@@ -17,6 +17,7 @@
     }
   },
   "tasks": {
+    "check": "deno check src/**/*.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

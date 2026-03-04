@@ -111,9 +111,16 @@ export interface Cli {
    */
   varSet(key: Array<string>, value: string): string
   /**
-   * Sets an array variable with specified key and values
+   * Sets a variable with specified key and a raw string value (applies toLiteral internally)
    * @param key - Variable key components
-   * @param values - Array of values to set
+   * @param value - Raw string value to set as a literal
+   * @returns String representation of the operation
+   */
+  varSetStr(key: Array<string>, value: string): string
+  /**
+   * Sets an array variable with specified key and raw string values (applies toLiteral to each value internally)
+   * @param key - Variable key components
+   * @param values - Array of raw string values to set
    * @returns String representation of the operation
    */
   varSetArr(key: Array<string>, values: Array<string>): string
@@ -322,6 +329,16 @@ export class CliBase implements Cli {
    */
   varSet(_key: Array<string>, _value: string): string {
     throw new Error('abstract')
+  }
+
+  /**
+   * Sets a variable with specified key and a raw string value (applies toLiteral internally)
+   * @param key - Variable key components
+   * @param value - Raw string value to set as a literal
+   * @returns String representation of the operation
+   */
+  varSetStr(key: Array<string>, value: string): string {
+    return this.varSet(key, this.toLiteral(value))
   }
 
   /**

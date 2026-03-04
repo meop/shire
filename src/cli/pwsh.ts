@@ -86,13 +86,13 @@ export class Powershell extends CliBase implements Cli {
   }
 
   /**
-   * Sets an array variable in the Powershell environment
+   * Sets an array variable in the Powershell environment (applies toLiteral to each value)
    * @param key - Array of keys representing the variable path
-   * @param values - Array of values to set
+   * @param values - Array of raw string values to set
    * @returns The command to set the array variable
    */
   override varSetArr(key: Array<string>, values: Array<string>): string {
-    return `$${joinKey(...key)} = ${`@( ${values.join(', ')} )`}`
+    return `$${joinKey(...key)} = @( ${values.map((v) => this.toLiteral(v ?? '')).join(', ')} )`
   }
 
   /**
