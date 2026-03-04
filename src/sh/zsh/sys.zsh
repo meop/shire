@@ -4,7 +4,7 @@ case "$_raw_arch" in
   amd64)   export SYS_CPU_ARCH='x86_64' ;;
   *)       export SYS_CPU_ARCH="$_raw_arch" ;;
 esac
-export REQ_URL_CLI="${REQ_URL_CLI}?sysCpuArch=${SYS_CPU_ARCH}"
+export REQ_URL_SH="${REQ_URL_SH}?sysCpuArch=${SYS_CPU_ARCH}"
 
 if type lscpu > /dev/null; then
   _raw_ven="${(L)$(lscpu | grep --ignore-case 'vendor id' | cut -d ':' -f 2 | xargs)}"
@@ -20,10 +20,10 @@ case "$_raw_ven" in
   qemu)         export SYS_CPU_VEN_ID='apple' ;;
   *)            export SYS_CPU_VEN_ID="$_raw_ven" ;;
 esac
-export REQ_URL_CLI="${REQ_URL_CLI}&sysCpuVenId=${SYS_CPU_VEN_ID}"
+export REQ_URL_SH="${REQ_URL_SH}&sysCpuVenId=${SYS_CPU_VEN_ID}"
 
 export SYS_HOST="${(L)$(hostname)}"
-export REQ_URL_CLI="${REQ_URL_CLI}&sysHost=${SYS_HOST}"
+export REQ_URL_SH="${REQ_URL_SH}&sysHost=${SYS_HOST}"
 
 _raw_plat="${(L)$(uname)}"
 case "$_raw_plat" in
@@ -31,7 +31,7 @@ case "$_raw_plat" in
   linux)  export SYS_OS_PLAT='linux' ;;
   *)      export SYS_OS_PLAT="$_raw_plat" ;;
 esac
-export REQ_URL_CLI="${REQ_URL_CLI}&sysOsPlat=${SYS_OS_PLAT}"
+export REQ_URL_SH="${REQ_URL_SH}&sysOsPlat=${SYS_OS_PLAT}"
 
 if [[ $SYS_OS_PLAT == 'linux' ]]; then
   if [[ -z $SYS_OS_DE_ID ]]; then
@@ -43,7 +43,7 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
         kde)       export SYS_OS_DE_ID='plasma' ;;
         rpd|rpd-labwc) export SYS_OS_DE_ID='lxde' ;;
       esac
-      export REQ_URL_CLI="${REQ_URL_CLI}&sysOsDeId=${SYS_OS_DE_ID}"
+      export REQ_URL_SH="${REQ_URL_SH}&sysOsDeId=${SYS_OS_DE_ID}"
     fi
   fi
 
@@ -55,7 +55,7 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
         export SYS_OS_ID="${(L)ID}"
       fi
       if [[ $SYS_OS_ID ]]; then
-        export REQ_URL_CLI="${REQ_URL_CLI}&sysOsId=${SYS_OS_ID}"
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsId=${SYS_OS_ID}"
       fi
     fi
 
@@ -64,7 +64,7 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
         export SYS_OS_ID_LIKE="${(L)ID_LIKE%% *}"
       fi
       if [[ $SYS_OS_ID_LIKE ]]; then
-        export REQ_URL_CLI="${REQ_URL_CLI}&sysOsIdLike=${SYS_OS_ID_LIKE}"
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsIdLike=${SYS_OS_ID_LIKE}"
       fi
     fi
 
@@ -73,7 +73,7 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
         export SYS_OS_VER_ID="${(L)VERSION_ID}"
       fi
       if [[ $SYS_OS_VER_ID ]]; then
-        export REQ_URL_CLI="${REQ_URL_CLI}&sysOsVerId=${SYS_OS_VER_ID}"
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsVerId=${SYS_OS_VER_ID}"
       fi
     fi
 
@@ -82,11 +82,11 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
         export SYS_OS_VER_CODE="${(L)VERSION_CODENAME}"
       fi
       if [[ $SYS_OS_VER_CODE ]]; then
-        export REQ_URL_CLI="${REQ_URL_CLI}&sysOsVerCode=${SYS_OS_VER_CODE}"
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsVerCode=${SYS_OS_VER_CODE}"
       fi
     fi
   fi
 fi
 
 export SYS_USER="${(L)$(whoami)}"
-export REQ_URL_CLI="${REQ_URL_CLI}&sysUser=${SYS_USER}"
+export REQ_URL_SH="${REQ_URL_SH}&sysUser=${SYS_USER}"

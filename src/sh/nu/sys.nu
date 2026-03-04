@@ -3,7 +3,7 @@ $env.SYS_CPU_ARCH = match (uname | get machine | str downcase) {
   'amd64' => 'x86_64',
   $x => $x,
 }
-$env.REQ_URL_CLI = $"($env.REQ_URL_CLI)?sysCpuArch=($env.SYS_CPU_ARCH)"
+$env.REQ_URL_SH = $"($env.REQ_URL_SH)?sysCpuArch=($env.SYS_CPU_ARCH)"
 
 $env.SYS_CPU_VEN_ID = match (sys cpu | first | get vendor_id | split words | first | str downcase) {
   'genuineintel' => 'intel',
@@ -11,10 +11,10 @@ $env.SYS_CPU_VEN_ID = match (sys cpu | first | get vendor_id | split words | fir
   'qemu' => 'apple',
   $x => $x,
 }
-$env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysCpuVenId=($env.SYS_CPU_VEN_ID)"
+$env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysCpuVenId=($env.SYS_CPU_VEN_ID)"
 
 $env.SYS_HOST = sys host | get hostname | str downcase
-$env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysHost=($env.SYS_HOST)"
+$env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysHost=($env.SYS_HOST)"
 
 $env.SYS_OS_PLAT = match (uname | get kernel-name | str downcase) {
   'darwin' => 'darwin',
@@ -22,7 +22,7 @@ $env.SYS_OS_PLAT = match (uname | get kernel-name | str downcase) {
   'windows_nt' => 'winnt',
   $x => $x,
 }
-$env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsPlat=($env.SYS_OS_PLAT)"
+$env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsPlat=($env.SYS_OS_PLAT)"
 
 if $env.SYS_OS_PLAT == 'linux' {
   if 'SYS_OS_DE_ID' not-in $env {
@@ -35,7 +35,7 @@ if $env.SYS_OS_PLAT == 'linux' {
         'rpd' | 'rpd-labwc' => 'lxde',
         $x => $x,
       }
-      $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsDeId=($env.SYS_OS_DE_ID)"
+      $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsDeId=($env.SYS_OS_DE_ID)"
     }
   }
 
@@ -50,7 +50,7 @@ if $env.SYS_OS_PLAT == 'linux' {
         $env.SYS_OS_ID = $env.ID | str downcase
       }
       if 'SYS_OS_ID' in $env {
-        $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsId=($env.SYS_OS_ID)"
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsId=($env.SYS_OS_ID)"
       }
     }
 
@@ -59,7 +59,7 @@ if $env.SYS_OS_PLAT == 'linux' {
         $env.SYS_OS_ID_LIKE = $env.ID_LIKE | split words | first | str downcase
       }
       if 'SYS_OS_ID_LIKE' in $env {
-        $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsIdLike=($env.SYS_OS_ID_LIKE)"
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsIdLike=($env.SYS_OS_ID_LIKE)"
       }
     }
 
@@ -68,7 +68,7 @@ if $env.SYS_OS_PLAT == 'linux' {
         $env.SYS_OS_VER_ID = $env.VERSION_ID | str downcase
       }
       if 'SYS_OS_VER_ID' in $env {
-        $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsVerId=($env.SYS_OS_VER_ID)"
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsVerId=($env.SYS_OS_VER_ID)"
       }
     }
 
@@ -77,11 +77,11 @@ if $env.SYS_OS_PLAT == 'linux' {
         $env.SYS_OS_VER_CODE = $env.VERSION_CODENAME | str downcase
       }
       if 'SYS_OS_VER_CODE' in $env {
-        $env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysOsVerCode=($env.SYS_OS_VER_CODE)"
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsVerCode=($env.SYS_OS_VER_CODE)"
       }
     }
   }
 }
 
 $env.SYS_USER = whoami | str downcase
-$env.REQ_URL_CLI = $"($env.REQ_URL_CLI)&sysUser=($env.SYS_USER)"
+$env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysUser=($env.SYS_USER)"

@@ -1,16 +1,16 @@
-import { type Cli, CliBase } from '../cli.ts'
 import { joinKey } from '../reg.ts'
+import { type Sh, ShBase } from '../sh.ts'
 
 /**
- * This module contains components for building Nushell client implementations
+ * This module contains components for building Nushell shell implementations
  * @module
  */
 
 /**
- * Nushell implementation of the Cli interface
+ * Nushell implementation of the Sh interface
  * This class provides methods for working with Nushell shell commands
  */
-export class Nushell extends CliBase implements Cli {
+export class Nushell extends ShBase implements Sh {
   /**
    * Creates a new instance of Nushell.
    */

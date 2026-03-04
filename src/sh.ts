@@ -1,32 +1,32 @@
 /**
- * This module contains components for building client implementations
+ * This module contains components for building shell implementations
  * @module
  */
 
 /**
- * Interface defining the contract for client implementations
+ * Interface defining the contract for shell implementations
  */
-export interface Cli {
+export interface Sh {
   /**
-   * Name of the client implementation
+   * Name of the shell implementation
    * @example "nu", "pwsh", "zsh"
    */
   name: string
 
   /**
-   * File extension used for client files
+   * File extension used for shell files
    * @example "nu", "ps1", "zsh"
    */
   extension: string
 
   /**
-   * Builds and returns the complete client script content
-   * @returns The full client script as a string
+   * Builds and returns the complete shell script content
+   * @returns The full shell script as a string
    */
   build(): string
 
   /**
-   * Loads a file from the client's directory structure
+   * Loads a file from the shell's directory structure
    * @param parts - Path components to locate the file
    * @param urlResolver - Optional function to resolve URLs
    * @param urlResolverBase - Base path for URL resolution
@@ -136,37 +136,37 @@ export interface Cli {
    * @param lines - Lines to add
    * @returns This instance for chaining
    */
-  with(lines: string | Array<string>): Cli
+  with(lines: string | Array<string>): Sh
 }
 
 /**
  * Helper function to format print operations
- * @param client - Client instance
+ * @param shell - Shell instance
  * @param lines - Lines to process
  * @param op - Operation type for formatting
  * @returns Formatted array of lines
  */
 export function toPrint(
-  client: Cli,
+  shell: Sh,
   lines: string | Array<string>,
   op: string,
 ): Array<string> {
   return (typeof lines === 'string' ? [lines] : lines).map(
-    (l) => `${op} ${client.toLiteral(l)}`,
+    (l) => `${op} ${shell.toLiteral(l)}`,
   )
 }
 
 /**
- * Base implementation of the client interface
+ * Base implementation of the shell interface
  */
-export class CliBase implements Cli {
+export class ShBase implements Sh {
   /**
-   * Name of the client implementation
+   * Name of the shell implementation
    */
   name: string
 
   /**
-   * File extension used for client files
+   * File extension used for shell files
    */
   extension: string
 
@@ -176,9 +176,9 @@ export class CliBase implements Cli {
   lines: Array<string | Array<string>> = []
 
   /**
-   * Creates a new CliBase instance
-   * @param name - Name of client implementation
-   * @param extension - File extension for client files
+   * Creates a new ShBase instance
+   * @param name - Name of shell implementation
+   * @param extension - File extension for shell files
    */
   constructor(name: string, extension: string) {
     this.name = name
@@ -186,8 +186,8 @@ export class CliBase implements Cli {
   }
 
   /**
-   * Builds and returns the complete client script content
-   * @returns The full client script as a string
+   * Builds and returns the complete shell script content
+   * @returns The full shell script as a string
    */
   build(): string {
     const lines: Array<string> = []
@@ -209,7 +209,7 @@ export class CliBase implements Cli {
   }
 
   /**
-   * Loads a file from the client's directory structure
+   * Loads a file from the shell's directory structure
    * @param parts - Path components to locate the file
    * @param urlResolver - Optional function to resolve URLs
    * @param urlResolverBase - Base path for URL resolution
@@ -220,7 +220,7 @@ export class CliBase implements Cli {
     urlResolver?: (specifier: string) => string,
     urlResolverBase?: Array<string>,
   ): Promise<string> {
-    let _path = [...(urlResolverBase ?? ['.']), 'cli', this.name, ...parts]
+    let _path = [...(urlResolverBase ?? ['.']), 'sh', this.name, ...parts]
       .join(
         '/',
       )

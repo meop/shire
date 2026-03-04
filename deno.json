@@ -1,15 +1,28 @@
 {
   "name": "@meop/shire",
-  "version": "0.1.10",
+  "version": "0.2.0",
+  "exports": {
+    "./sh": "./src/sh.ts",
+    "./sh/nu": "./src/sh/nu.ts",
+    "./sh/pwsh": "./src/sh/pwsh.ts",
+    "./sh/zsh": "./src/sh/zsh.ts",
+    "./cmd": "./src/cmd.ts",
+    "./ctx": "./src/ctx.ts",
+    "./env": "./src/env.ts",
+    "./path": "./src/path.ts",
+    "./reg": "./src/reg.ts",
+    "./serde": "./src/serde.ts",
+    "./srv": "./src/srv.ts"
+  },
+  "imports": {
+    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.2",
+    "@std/assert": "jsr:@std/assert@^1"
+  },
   "fmt": {
     "lineWidth": 120,
     "semiColons": false,
     "singleQuote": true,
     "trailingCommas": "onlyMultiLine"
-  },
-  "imports": {
-    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.2",
-    "@std/assert": "jsr:@std/assert@^1"
   },
   "lint": {
     "rules": {
@@ -22,18 +35,5 @@
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",
     "test": "deno test --allow-all tests/"
-  },
-  "exports": {
-    "./cli": "./src/cli.ts",
-    "./cli/nu": "./src/cli/nu.ts",
-    "./cli/pwsh": "./src/cli/pwsh.ts",
-    "./cli/zsh": "./src/cli/zsh.ts",
-    "./cmd": "./src/cmd.ts",
-    "./ctx": "./src/ctx.ts",
-    "./env": "./src/env.ts",
-    "./path": "./src/path.ts",
-    "./reg": "./src/reg.ts",
-    "./serde": "./src/serde.ts",
-    "./srv": "./src/srv.ts"
   }
 }

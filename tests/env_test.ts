@@ -1,4 +1,5 @@
 import { assertEquals } from '@std/assert'
+
 import { EnvBase } from '../src/env.ts'
 
 Deno.test('EnvBase - get and set', () => {

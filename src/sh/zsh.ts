@@ -1,30 +1,30 @@
-import { type Cli, CliBase } from '../cli.ts'
 import { joinKey } from '../reg.ts'
+import { type Sh, ShBase } from '../sh.ts'
 
 /**
- * This module contains components for building Powershell client implementations
+ * This module contains components for building Zshell shell implementations
  * @module
  */
 
 /**
- * Powershell implementation of the Cli interface
- * This class provides methods for working with Powershell commands
+ * Zshell implementation of the Sh interface
+ * This class provides methods for working with Zshell commands
  */
-export class Powershell extends CliBase implements Cli {
+export class Zshell extends ShBase implements Sh {
   /**
-   * Creates a new instance of Powershell.
+   * Creates a new instance of Zshell.
    */
   constructor() {
-    super('pwsh', 'ps1')
+    super('zsh', 'zsh')
   }
 
   /**
-   * Generates an execution string for running a command in Powershell
+   * Generates an execution string for running a command in Zshell
    * @param value - The command to execute
    * @returns The formatted command string
    */
   static execStr(value: string): string {
-    return `pwsh -noprofile -c ${value}`
+    return `zsh --no-rcs -c ${value}`
   }
 
   /**
@@ -35,31 +35,31 @@ export class Powershell extends CliBase implements Cli {
    */
   override gatedFunc(name: string, lines: Array<string>): Array<string> {
     return [
-      '& {',
-      `  $yn = ''`,
-      '  if ($YES) {',
-      `    $yn = 'y'`,
-      '  } else {',
-      `    $yn = Read-Host "? ${name} [y, [n]]"`,
-      '  }',
-      `  if ($yn -ne 'n') {`,
+      'function () {',
+      `  local yn=''`,
+      '  if [[ $YES ]]; then',
+      `    yn='y'`,
+      '  else',
+      `    read "yn?? ${name} [y, [n]]: "`,
+      '  fi',
+      `  if [[ $yn != 'n' ]]; then`,
       ...lines,
-      '  }',
+      '  fi',
       '}',
     ]
   }
 
   /**
-   * Converts a value to a literal string for Powershell
+   * Converts a value to a literal string for Zshell
    * @param value - The value to convert
-   * @returns Single-quoted string with escaped quotes
+   * @returns Single-quoted string with escaped quotes and backslashes
    */
   override toLiteral(value: string): string {
-    return `'${value.replaceAll("'", "''")}'`
+    return `'${value.replaceAll('\\', '\\\\').replaceAll("'", "'\\''")}'`
   }
 
   /**
-   * Wraps a value as an array element for Powershell
+   * Wraps a value as an array element for Zshell
    * @param value - The value to wrap
    * @returns Single-quoted value
    */
@@ -68,39 +68,39 @@ export class Powershell extends CliBase implements Cli {
   }
 
   /**
-   * Returns the trace command for Powershell
+   * Returns the trace command for Zshell.
    * @returns The trace command
    */
   override trace(): string {
-    return 'Set-PSDebug -Trace 1'
+    return 'set -x'
   }
 
   /**
-   * Sets a variable in the Powershell environment
+   * Sets a variable in the Zshell environment
    * @param key - Array of keys representing the variable path
    * @param value - The value to set
    * @returns The command to set the variable
    */
   override varSet(key: Array<string>, value: string): string {
-    return `$${joinKey(...key)} = ${value}`
+    return `${joinKey(...key)}=${value}`
   }
 
   /**
-   * Sets an array variable in the Powershell environment (applies toLiteral to each value)
+   * Sets an array variable in the Zshell environment (applies toLiteral to each value)
    * @param key - Array of keys representing the variable path
    * @param values - Array of raw string values to set
    * @returns The command to set the array variable
    */
   override varSetArr(key: Array<string>, values: Array<string>): string {
-    return `$${joinKey(...key)} = @( ${values.map((v) => this.toLiteral(v ?? '')).join(', ')} )`
+    return `${joinKey(...key)}=( ${values.map((v) => this.toLiteral(v ?? '')).join(' ')} )`
   }
 
   /**
-   * Unsets a variable from the Powershell environment
+   * Unsets a variable from the Zshell environment
    * @param key - Array of keys representing the variable path
    * @returns The command to unset the variable
    */
   override varUnSet(key: Array<string>): string {
-    return `Remove-Variable ${joinKey(...key)} -ErrorAction SilentlyContinue`
+    return `unset ${joinKey(...key)}`
   }
 }

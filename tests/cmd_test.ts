@@ -1,9 +1,10 @@
 import { assertEquals } from '@std/assert'
+
 import { CmdBase, toExpandedParts } from '../src/cmd.ts'
-import type { Cli } from '../src/cli.ts'
 import type { Ctx } from '../src/ctx.ts'
-import { Nushell } from '../src/cli/nu.ts'
 import { EnvBase } from '../src/env.ts'
+import { Nushell } from '../src/sh/nu.ts'
+import type { Sh } from '../src/sh.ts'
 
 Deno.test('toExpandedParts - expands combined flags', () => {
   assertEquals(toExpandedParts(['-abc']), ['-a', '-b', '-c'])
@@ -22,7 +23,7 @@ class TestCmd extends CmdBase {
     this.arguments = [{ name: 'arg1', description: 'test arg', required: true }]
   }
 
-  override work(_client: Cli, _context: Ctx, environment: EnvBase): Promise<string> {
+  override work(_shell: Sh, _context: Ctx, environment: EnvBase): Promise<string> {
     // Mirror the toFullKey logic: [...scopes, name, key].slice(1)
     const key = (k: string) => [...this.scopes, this.name, k].slice(1)
     const val = environment.get(key('arg1'))
@@ -34,11 +35,11 @@ class TestCmd extends CmdBase {
 
 Deno.test('CmdBase.process - parses arguments, options and switches', async () => {
   const cmd = new TestCmd(['root'])
-  const client = new Nushell()
+  const shell = new Nushell()
   const context = { req_orig: '', req_path: '', req_srch: '' }
   const env = new EnvBase()
 
-  const result = await cmd.process(['-s', '-o', 'optval', 'myarg'], client, context, env)
+  const result = await cmd.process(['-s', '-o', 'optval', 'myarg'], shell, context, env)
   assertEquals(result, 'arg1=myarg, option=optval, switch=1')
 })
 
@@ -49,9 +50,9 @@ Deno.test('CmdBase.process - handles subcommands', async () => {
   const child = new TestCmd(['root', 'parent'])
   parent.commands = [child]
 
-  const client = new Nushell()
+  const shell = new Nushell()
   const context = { req_orig: '', req_path: '', req_srch: '' }
 
-  const result = await parent.process(['test', '-s', '-o', 'optval', 'myarg'], client, context)
+  const result = await parent.process(['test', '-s', '-o', 'optval', 'myarg'], shell, context)
   assertEquals(result, 'arg1=myarg, option=optval, switch=1')
 })

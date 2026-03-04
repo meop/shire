@@ -1,6 +1,8 @@
-import { assertEquals } from '@std/assert'
-import { buildFilePath, getFileContent, getFilePaths, isDirPath, isFilePath, isPath } from '../src/path.ts'
 import PATH from 'node:path'
+
+import { assertEquals } from '@std/assert'
+
+import { buildFilePath, getFileContent, getFilePaths, isDirPath, isFilePath, isPath } from '../src/path.ts'
 
 Deno.test('buildFilePath - joins paths', () => {
   const result = buildFilePath('a', 'b', 'c')

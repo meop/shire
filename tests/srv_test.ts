@@ -1,4 +1,5 @@
 import { assertEquals } from '@std/assert'
+
 import { SrvBase } from '../src/srv.ts'
 
 Deno.test('SrvBase - has standard options and switches', () => {

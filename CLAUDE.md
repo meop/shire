@@ -56,15 +56,15 @@ Requires two repository secrets: `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE`.
 
 The library allows you to write shell-agnostic code that generates shell-specific scripts for different shells
 (nu/pwsh/zsh). This enables building HTTP servers that deliver executable shell scripts tailored to the requesting
-client.
+shell.
 
 ### Module Structure
 
-**cli.ts** - Client abstraction
+**sh.ts** - Shell abstraction
 
-- `Cli` interface defines contract for shell implementations
-- `CliBase` provides base implementation
-- Implementations: `Nushell`, `Powershell`, `Zshell` in `cli/{nu,pwsh,zsh}.ts`
+- `Sh` interface defines contract for shell implementations
+- `ShBase` provides base implementation
+- Implementations: `Nushell`, `Powershell`, `Zshell` in `sh/{nu,pwsh,zsh}.ts`
 - Key methods:
   - `toLiteral()/toElement()` - String escaping for shell code and array elements
   - `varSet()/varSetArr()/varUnSet()` - Variable management
@@ -122,14 +122,14 @@ client.
 Use `varSetStr` for literal string values — it applies `toLiteral` internally:
 
 ```typescript
-client.varSetStr(['KEY'], value) // preferred: wraps value as shell literal automatically
-client.varSet(['KEY'], someAlreadyQuotedExpr) // use only when value is already shell-quoted
+shell.varSetStr(['KEY'], value) // preferred: wraps value as shell literal automatically
+shell.varSet(['KEY'], someAlreadyQuotedExpr) // use only when value is already shell-quoted
 ```
 
 Use `varSetArr` with raw values — it applies `toLiteral` to each element internally:
 
 ```typescript
-client.varSetArr(['ARRAY'], values) // pass raw strings; quoting is handled automatically
+shell.varSetArr(['ARRAY'], values) // pass raw strings; quoting is handled automatically
 ```
 
 ### String Escaping (toLiteral/toElement)
@@ -138,7 +138,7 @@ Low-level quoting primitives — prefer the high-level methods above. Use `toLit
 embedding in another shell expression (e.g., as an argument to a static `execStr` call):
 
 ```typescript
-const cmd = Zshell.execStr(client.toLiteral('echo "hello"'))
+const cmd = Zshell.execStr(shell.toLiteral('echo "hello"'))
 ```
 
 Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, etc.) to safely nest any content.
@@ -146,7 +146,7 @@ Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, 
 
 ### File Loading
 
-`fileLoad()` loads shell-specific template files from `cli/{shell}/` directories. It follows import resolution and
+`fileLoad()` loads shell-specific template files from `sh/{shell}/` directories. It follows import resolution and
 returns empty string if file not found (graceful degradation).
 
 ### Variable Scoping
@@ -179,3 +179,12 @@ Deno formatting rules (deno.json):
 - No semicolons
 - Single quotes
 - Trailing commas only on multiline
+
+### Import Sorting
+
+Imports must be organized into 3 levels with a single empty line between each level, and sorted alphabetically within
+each category:
+
+1.  Built-in modules (e.g., `node:*`)
+2.  External packages (e.g., `@std/*`, `@meop/shire`)
+3.  Local project files (e.g., `./cmd.ts`, `../sh.ts`)

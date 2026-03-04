@@ -1,7 +1,8 @@
 import { assertEquals } from '@std/assert'
-import { Nushell } from '../src/cli/nu.ts'
-import { Powershell } from '../src/cli/pwsh.ts'
-import { Zshell } from '../src/cli/zsh.ts'
+
+import { Nushell } from '../src/sh/nu.ts'
+import { Powershell } from '../src/sh/pwsh.ts'
+import { Zshell } from '../src/sh/zsh.ts'
 
 Deno.test('Nushell - toLiteral uses adaptive raw string depth', () => {
   const nu = new Nushell()

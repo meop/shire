@@ -1,4 +1,5 @@
 import { assertEquals } from '@std/assert'
+
 import { Fmt, parse, stringify, toFmt } from '../src/serde.ts'
 
 Deno.test('toFmt - converts string to format', () => {

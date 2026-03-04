@@ -1,7 +1,7 @@
-import type { Cli } from './cli.ts'
 import type { Ctx } from './ctx.ts'
 import { type Env, EnvBase } from './env.ts'
 import { stringify, toFmt } from './serde.ts'
+import type { Sh } from './sh.ts'
 
 /**
  * This module contains components for building command implementations
@@ -49,14 +49,14 @@ export interface Cmd {
   /**
    * Processes command parts and executes the command
    * @param parts - Command line parts
-   * @param client - Client instance
+   * @param shell - Shell instance
    * @param context - Execution context
    * @param environment - Environment configuration
    * @returns Promise resolving to command output
    */
   process(
     parts: Array<string>,
-    client: Cli,
+    shell: Sh,
     context: Ctx,
     environment?: Env,
   ): Promise<string>
@@ -174,13 +174,13 @@ export class CmdBase {
 
   /**
    * Generates help information for the command
-   * @param client - Client instance
+   * @param shell - Shell instance
    * @param environment - Environment configuration
    * @returns Formatted help text
    */
-  help(client: Cli, environment: Env): string {
-    const body = client.with(
-      client.printInfo(
+  help(shell: Sh, environment: Env): string {
+    const body = shell.with(
+      shell.printInfo(
         stringify(
           toSerializable(this),
           toFmt(environment.get(['format']) ?? ''),
@@ -197,44 +197,44 @@ export class CmdBase {
 
   /**
    * Default implementation of command work function
-   * @param client - Client instance
+   * @param shell - Shell instance
    * @param _context - Execution context
    * @param environment - Environment configuration
    * @returns Promise resolving to help text
    */
-  work(client: Cli, _context: Ctx, environment: Env): Promise<string> {
-    return Promise.resolve(this.help(client, environment))
+  work(shell: Sh, _context: Ctx, environment: Env): Promise<string> {
+    return Promise.resolve(this.help(shell, environment))
   }
 
   /**
    * Processes command parts and executes the command
    * @param parts - Command line parts
-   * @param client - Client instance
+   * @param shell - Shell instance
    * @param context - Execution context
    * @param environment - Environment configuration
    * @returns Promise resolving to command output
    */
   process(
     parts: Array<string>,
-    client: Cli,
+    shell: Sh,
     context: Ctx,
     environment?: Env,
   ): Promise<string> {
     const _parts = toExpandedParts(parts)
-    let _client = client
+    let _shell = shell
     const _context = context
     const _environment = environment ? environment : new EnvBase()
 
-    const loadCliEnv = (func: () => Promise<string>) => {
+    const loadShEnv = (func: () => Promise<string>) => {
       for (const [key, value] of Object.entries(_environment.store)) {
-        _client = _client.with(
-          _client.varSet([key], _client.toLiteral(value ?? '')),
+        _shell = _shell.with(
+          _shell.varSet([key], _shell.toLiteral(value ?? '')),
         )
       }
 
       if (_environment.get(['debug'])) {
-        _client = _client.with(
-          _client.print(
+        _shell = _shell.with(
+          _shell.print(
             stringify({
               debug: { context: _context, environment: _environment },
             }, toFmt(_environment.get(['format']) ?? '')),
@@ -243,7 +243,7 @@ export class CmdBase {
       }
 
       if (_environment.get(['trace'])) {
-        _client = _client.with(_client.trace())
+        _shell = _shell.with(_shell.trace())
       }
 
       return func()
@@ -273,7 +273,7 @@ export class CmdBase {
         const _option = this.options.find((o) => o.keys.includes(part))
         if (_option && partsIndex + 1 < _parts.length) {
           if (_parts[partsIndex + 1].startsWith('-')) {
-            return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
+            return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
           }
           _environment.set(
             toFullKey(
@@ -294,7 +294,7 @@ export class CmdBase {
         if (_command) {
           return _command.process(
             _parts.slice(partsIndex + 1),
-            _client,
+            _shell,
             _context,
             _environment,
           )
@@ -321,20 +321,20 @@ export class CmdBase {
         continue
       }
 
-      return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
+      return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
     }
 
     while (argumentIndex < this.arguments.length) {
       if (this.arguments[argumentIndex].required) {
-        return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
+        return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
       }
       argumentIndex += 1
     }
 
     if (_environment.get(['help'])) {
-      return loadCliEnv(() => Promise.resolve(this.help(_client, _environment)))
+      return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
     }
 
-    return loadCliEnv(() => this.work(_client, _context, _environment))
+    return loadShEnv(() => this.work(_shell, _context, _environment))
   }
 }
