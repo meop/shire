@@ -12,7 +12,7 @@ export interface Env {
   /**
    * Store containing key-value pairs for environment variables
    */
-  store: { [key: string]: string | undefined }
+  store: Record<string, string | undefined>
   /**
    * Gets a value from the environment store using a key path
    * @param key - Array of strings representing the key path
@@ -46,7 +46,7 @@ export class EnvBase implements Env {
   /**
    * Store containing key-value pairs for environment variables
    */
-  store: { [key: string]: string | undefined } = {}
+  store: Record<string, string | undefined> = {}
 
   /**
    * Gets a value from the environment store using a key path
