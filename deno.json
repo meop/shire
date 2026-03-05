@@ -1,17 +1,17 @@
 {
   "name": "@meop/shire",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "exports": {
-    "./sh": "./src/sh.ts",
-    "./sh/nu": "./src/sh/nu.ts",
-    "./sh/pwsh": "./src/sh/pwsh.ts",
-    "./sh/zsh": "./src/sh/zsh.ts",
     "./cmd": "./src/cmd.ts",
     "./ctx": "./src/ctx.ts",
     "./env": "./src/env.ts",
     "./path": "./src/path.ts",
     "./reg": "./src/reg.ts",
     "./serde": "./src/serde.ts",
+    "./sh": "./src/sh.ts",
+    "./sh/nu": "./src/sh/nu.ts",
+    "./sh/pwsh": "./src/sh/pwsh.ts",
+    "./sh/zsh": "./src/sh/zsh.ts",
     "./srv": "./src/srv.ts"
   },
   "fmt": {
@@ -22,7 +22,7 @@
   },
   "imports": {
     "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.2",
-    "@std/assert": "jsr:@std/assert@^1"
+    "@std/assert": "jsr:@std/assert@^1.0.19"
   },
   "lint": {
     "rules": {

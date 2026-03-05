@@ -22,8 +22,9 @@ deno task test      # run tests
 ### Dependency Management
 
 To keep dependencies in sync:
-- `deno outdated`        # check for available updates
-- `deno update`          # update lockfile within version constraints
+
+- `deno outdated` # check for available updates
+- `deno update` # update lockfile within version constraints
 - `deno update --latest` # update deno.json and lockfile to absolute latest
 
 No standalone server — this is a library consumed by other projects.
