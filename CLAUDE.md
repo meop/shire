@@ -185,6 +185,6 @@ Deno formatting rules (deno.json):
 Imports must be organized into 3 levels with a single empty line between each level, and sorted alphabetically within
 each category:
 
-1.  Built-in modules (e.g., `node:*`)
-2.  External packages (e.g., `@std/*`, `@meop/shire`)
-3.  Local project files (e.g., `./cmd.ts`, `../sh.ts`)
+1. Built-in modules (e.g., `node:*`)
+2. External packages (e.g., `@std/*`, `@meop/shire`)
+3. Local project files (e.g., `./cmd.ts`, `../sh.ts`)
