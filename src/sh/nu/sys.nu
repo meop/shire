@@ -40,10 +40,12 @@ if $env.SYS_OS_PLAT == 'linux' {
   }
 
   if ('/etc/os-release' | path exists) {
-    open /etc/os-release | lines | parse "{key}={value}" |
-      update value { |v| str trim --char '"' } |
-      transpose --as-record --header-row |
-      load-env
+    open /etc/os-release
+      | lines
+      | parse "{key}={value}"
+      | update value { |v| str trim --char '"' }
+      | transpose --as-record --header-row
+      | load-env
 
     if 'SYS_OS_ID' not-in $env {
       if 'ID' in $env {

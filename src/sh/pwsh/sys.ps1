@@ -61,8 +61,8 @@ if ($SYS_OS_PLAT -eq 'linux') {
   }
 
   if (Test-Path /etc/os-release) {
-    (Get-Content -Path /etc/os-release -Raw | ConvertFrom-StringData).GetEnumerator() |
-    ForEach-Object {
+    (Get-Content -Path /etc/os-release -Raw | ConvertFrom-StringData).GetEnumerator()
+    | ForEach-Object {
       Set-Variable -Name "$($_.Name)" -Value "$($_.Value)".Trim('"')
     }
 
