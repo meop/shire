@@ -257,6 +257,10 @@ export class CmdBase {
     while (partsIndex < _parts.length) {
       const part = _parts[partsIndex]
 
+      if (part === '-h' || part === '--help') {
+        return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
+      }
+
       if (part.startsWith('-') && part !== '--') {
         const _switch = this.switches.find((s) => s.keys.includes(part))
         if (_switch) {
