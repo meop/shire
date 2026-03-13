@@ -20,13 +20,13 @@ if ($IsWindows) {
     $_raw_ven = 'apple'
   }
 }
-$SYS_CPU_VEN_ID = switch ($_raw_ven) {
+$SYS_CPU_VEND = switch ($_raw_ven) {
   'genuineintel' { 'intel' }
   'authenticamd' { 'amd' }
   'qemu'         { 'apple' }
   default        { $_raw_ven }
 }
-$REQ_URL_SH = "${REQ_URL_SH}&sysCpuVenId=${SYS_CPU_VEN_ID}"
+$REQ_URL_SH = "${REQ_URL_SH}&sysCpuVend=${SYS_CPU_VEND}"
 
 if ($IsWindows) {
   $SYS_HOST = "${env:COMPUTERNAME}".ToLower()
@@ -45,18 +45,18 @@ $SYS_OS_PLAT = switch ($_raw_plat) {
 $REQ_URL_SH = "${REQ_URL_SH}&sysOsPlat=${SYS_OS_PLAT}"
 
 if ($SYS_OS_PLAT -eq 'linux') {
-  if (-not $SYS_OS_DE_ID) {
+  if (-not $SYS_OS_DE) {
     if ($XDG_SESSION_DESKTOP) {
-      $SYS_OS_DE_ID = "${XDG_SESSION_DESKTOP}".ToLower()
+      $SYS_OS_DE = "${XDG_SESSION_DESKTOP}".ToLower()
     }
-    if ($SYS_OS_DE_ID) {
-      $SYS_OS_DE_ID = switch ($SYS_OS_DE_ID) {
+    if ($SYS_OS_DE) {
+      $SYS_OS_DE = switch ($SYS_OS_DE) {
         'kde'       { 'plasma' }
         'rpd'       { 'lxde' }
         'rpd-labwc' { 'lxde' }
-        default     { $SYS_OS_DE_ID }
+        default     { $SYS_OS_DE }
       }
-      $REQ_URL_SH = "${REQ_URL_SH}&sysOsDeId=${SYS_OS_DE_ID}"
+      $REQ_URL_SH = "${REQ_URL_SH}&sysOsDe=${SYS_OS_DE}"
     }
   }
 
@@ -66,39 +66,39 @@ if ($SYS_OS_PLAT -eq 'linux') {
       Set-Variable -Name "$($_.Name)" -Value "$($_.Value)".Trim('"')
     }
 
-    if (-not $SYS_OS_ID) {
+    if (-not $SYS_OS) {
       if ($ID) {
-        $SYS_OS_ID = "${ID}".ToLower()
+        $SYS_OS = "${ID}".ToLower()
       }
-      if ($SYS_OS_ID) {
-        $REQ_URL_SH = "${REQ_URL_SH}&sysOsId=${SYS_OS_ID}"
+      if ($SYS_OS) {
+        $REQ_URL_SH = "${REQ_URL_SH}&sysOs=${SYS_OS}"
       }
     }
 
-    if (-not $SYS_OS_ID_LIKE) {
+    if (-not $SYS_OS_LIKE) {
       if ($ID_LIKE) {
-        $SYS_OS_ID_LIKE = "${ID_LIKE}".ToLower().Split(' ')[0]
+        $SYS_OS_LIKE = "${ID_LIKE}".ToLower().Split(' ')[0]
       }
-      if ($SYS_OS_ID_LIKE) {
-        $REQ_URL_SH = "${REQ_URL_SH}&sysOsIdLike=${SYS_OS_ID_LIKE}"
+      if ($SYS_OS_LIKE) {
+        $REQ_URL_SH = "${REQ_URL_SH}&sysOsLike=${SYS_OS_LIKE}"
       }
     }
 
-    if (-not $SYS_OS_VER_ID) {
+    if (-not $SYS_OS_VERS) {
       if ($VERSION_ID) {
-        $SYS_OS_VER_ID = "${VERSION_ID}".ToLower()
+        $SYS_OS_VERS = "${VERSION_ID}".ToLower()
       }
-      if ($SYS_OS_VER_ID) {
-        $REQ_URL_SH = "${REQ_URL_SH}&sysOsVerId=${SYS_OS_VER_ID}"
+      if ($SYS_OS_VERS) {
+        $REQ_URL_SH = "${REQ_URL_SH}&sysOsVers=${SYS_OS_VERS}"
       }
     }
 
-    if (-not $SYS_OS_VER_CODE) {
+    if (-not $SYS_OS_VERS_CODE) {
       if ($VERSION_CODENAME) {
-        $SYS_OS_VER_CODE = "${VERSION_CODENAME}".ToLower()
+        $SYS_OS_VERS_CODE = "${VERSION_CODENAME}".ToLower()
       }
-      if ($SYS_OS_VER_CODE) {
-        $REQ_URL_SH = "${REQ_URL_SH}&sysOsVerCode=${SYS_OS_VER_CODE}"
+      if ($SYS_OS_VERS_CODE) {
+        $REQ_URL_SH = "${REQ_URL_SH}&sysOsVersCode=${SYS_OS_VERS_CODE}"
       }
     }
   }

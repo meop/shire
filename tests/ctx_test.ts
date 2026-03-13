@@ -4,15 +4,19 @@ import { getCtx, withCtx } from '../src/ctx.ts'
 
 Deno.test('getCtx - parses request URL and search params', () => {
   const request = new Request(
-    'http://localhost/api/test?sysCpuArch=x86_64&sysOsPlat=linux&sysHost=myhost&sysUser=admin',
+    'http://localhost/api/test?sysCpuArch=x86_64&sysCpuVend=amd&sysOsPlat=linux&sysOs=arch&sysOsDe=plasma&sysOsVers=6.1&sysOsVersCode=bookworm&sysHost=myhost&sysUser=admin',
   )
   const ctx = getCtx(request)
 
   assertEquals(ctx.req_orig, 'http://localhost')
   assertEquals(ctx.req_path, '/api/test')
-  assertEquals(ctx.req_srch, '?sysCpuArch=x86_64&sysOsPlat=linux&sysHost=myhost&sysUser=admin')
   assertEquals(ctx.sys_cpu_arch, 'x86_64')
+  assertEquals(ctx.sys_cpu_vend, 'amd')
   assertEquals(ctx.sys_os_plat, 'linux')
+  assertEquals(ctx.sys_os, 'arch')
+  assertEquals(ctx.sys_os_de, 'plasma')
+  assertEquals(ctx.sys_os_vers, '6.1')
+  assertEquals(ctx.sys_os_vers_code, 'bookworm')
   assertEquals(ctx.sys_host, 'myhost')
   assertEquals(ctx.sys_user, 'admin')
 })

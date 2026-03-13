@@ -24,33 +24,33 @@ export type Ctx = {
    */
   sys_cpu_arch?: string
   /**
-   * System CPU vendor ID (optional)
+   * System CPU vendor (optional)
    */
-  sys_cpu_ven_id?: string
+  sys_cpu_vend?: string
   /**
    * System host name (optional)
    */
   sys_host?: string
   /**
-   * System OS desktop environment ID (optional)
+   * System OS desktop environment (optional)
    */
-  sys_os_de_id?: string
+  sys_os_de?: string
   /**
-   * System OS ID (optional)
+   * System OS (optional)
    */
-  sys_os_id?: string
+  sys_os?: string
   /**
    * System OS platform (optional)
    */
   sys_os_plat?: string
   /**
-   * System OS version ID (optional)
+   * System OS version (optional)
    */
-  sys_os_ver_id?: string
+  sys_os_vers?: string
   /**
    * System OS version code (optional)
    */
-  sys_os_ver_code?: string
+  sys_os_vers_code?: string
   /**
    * System user name (optional)
    */
@@ -85,25 +85,25 @@ export function getCtx(request: Request): Ctx {
   )
   const usp = new URLSearchParams(url.search)
   const spSysCpuArch = getSp(usp, 'sysCpuArch')
-  const spSysCpuVenId = getSp(usp, 'sysCpuVenId')
+  const spSysCpuVend = getSp(usp, 'sysCpuVend')
   const spSysHost = getSp(usp, 'sysHost')
-  const spSysOsDeId = getSp(usp, 'sysOsDeId')
-  const spSysOsId = getSp(usp, 'sysOsId')
+  const spSysOsDe = getSp(usp, 'sysOsDe')
+  const spSysOs = getSp(usp, 'sysOs')
   const spSysOsPlat = getSp(usp, 'sysOsPlat')
-  const spSysOsVerId = getSp(usp, 'sysOsVerId')
-  const spSysOsVerCode = getSp(usp, 'sysOsVerCode')
+  const spSysOsVers = getSp(usp, 'sysOsVers')
+  const spSysOsVersCode = getSp(usp, 'sysOsVersCode')
   const spSysUser = getSp(usp, 'sysUser')
 
   return {
     sys_cpu_arch: spSysCpuArch,
-    sys_cpu_ven_id: spSysCpuVenId,
+    sys_cpu_vend: spSysCpuVend,
     sys_host: spSysHost,
     req_orig: url.origin,
-    sys_os_de_id: spSysOsDeId,
-    sys_os_id: spSysOsId,
+    sys_os_de: spSysOsDe,
+    sys_os: spSysOs,
     sys_os_plat: spSysOsPlat,
-    sys_os_ver_id: spSysOsVerId,
-    sys_os_ver_code: spSysOsVerCode,
+    sys_os_vers: spSysOsVers,
+    sys_os_vers_code: spSysOsVersCode,
     req_path: url.pathname,
     req_srch: url.search,
     sys_user: spSysUser,

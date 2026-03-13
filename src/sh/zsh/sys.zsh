@@ -15,12 +15,12 @@ elif type sysctl > /dev/null; then
   fi
 fi
 case "$_raw_ven" in
-  genuineintel) export SYS_CPU_VEN_ID='intel' ;;
-  authenticamd) export SYS_CPU_VEN_ID='amd' ;;
-  qemu)         export SYS_CPU_VEN_ID='apple' ;;
-  *)            export SYS_CPU_VEN_ID="$_raw_ven" ;;
+  genuineintel) export SYS_CPU_VEND='intel' ;;
+  authenticamd) export SYS_CPU_VEND='amd' ;;
+  qemu)         export SYS_CPU_VEND='apple' ;;
+  *)            export SYS_CPU_VEND="$_raw_ven" ;;
 esac
-export REQ_URL_SH="${REQ_URL_SH}&sysCpuVenId=${SYS_CPU_VEN_ID}"
+export REQ_URL_SH="${REQ_URL_SH}&sysCpuVend=${SYS_CPU_VEND}"
 
 export SYS_HOST="${(L)$(hostname)}"
 export REQ_URL_SH="${REQ_URL_SH}&sysHost=${SYS_HOST}"
@@ -34,55 +34,55 @@ esac
 export REQ_URL_SH="${REQ_URL_SH}&sysOsPlat=${SYS_OS_PLAT}"
 
 if [[ $SYS_OS_PLAT == 'linux' ]]; then
-  if [[ -z $SYS_OS_DE_ID ]]; then
+  if [[ -z $SYS_OS_DE ]]; then
     if [[ $XDG_SESSION_DESKTOP ]]; then
-      export SYS_OS_DE_ID="${(L)XDG_SESSION_DESKTOP}"
+      export SYS_OS_DE="${(L)XDG_SESSION_DESKTOP}"
     fi
-    if [[ $SYS_OS_DE_ID ]]; then
-      case "$SYS_OS_DE_ID" in
-        kde)       export SYS_OS_DE_ID='plasma' ;;
-        rpd|rpd-labwc) export SYS_OS_DE_ID='lxde' ;;
+    if [[ $SYS_OS_DE ]]; then
+      case "$SYS_OS_DE" in
+        kde)       export SYS_OS_DE='plasma' ;;
+        rpd|rpd-labwc) export SYS_OS_DE='lxde' ;;
       esac
-      export REQ_URL_SH="${REQ_URL_SH}&sysOsDeId=${SYS_OS_DE_ID}"
+      export REQ_URL_SH="${REQ_URL_SH}&sysOsDe=${SYS_OS_DE}"
     fi
   fi
 
   if [[ -f /etc/os-release ]]; then
     source /etc/os-release
 
-    if [[ -z $SYS_OS_ID ]]; then
+    if [[ -z $SYS_OS ]]; then
       if [[ $ID ]]; then
-        export SYS_OS_ID="${(L)ID}"
+        export SYS_OS="${(L)ID}"
       fi
-      if [[ $SYS_OS_ID ]]; then
-        export REQ_URL_SH="${REQ_URL_SH}&sysOsId=${SYS_OS_ID}"
+      if [[ $SYS_OS ]]; then
+        export REQ_URL_SH="${REQ_URL_SH}&sysOs=${SYS_OS}"
       fi
     fi
 
-    if [[ -z $SYS_OS_ID_LIKE ]]; then
+    if [[ -z $SYS_OS_LIKE ]]; then
       if [[ $ID_LIKE ]]; then
-        export SYS_OS_ID_LIKE="${(L)ID_LIKE%% *}"
+        export SYS_OS_LIKE="${(L)ID_LIKE%% *}"
       fi
-      if [[ $SYS_OS_ID_LIKE ]]; then
-        export REQ_URL_SH="${REQ_URL_SH}&sysOsIdLike=${SYS_OS_ID_LIKE}"
+      if [[ $SYS_OS_LIKE ]]; then
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsLike=${SYS_OS_LIKE}"
       fi
     fi
 
-    if [[ -z $SYS_OS_VER_ID ]]; then
+    if [[ -z $SYS_OS_VERS ]]; then
       if [[ $VERSION_ID ]]; then
-        export SYS_OS_VER_ID="${(L)VERSION_ID}"
+        export SYS_OS_VERS="${(L)VERSION_ID}"
       fi
-      if [[ $SYS_OS_VER_ID ]]; then
-        export REQ_URL_SH="${REQ_URL_SH}&sysOsVerId=${SYS_OS_VER_ID}"
+      if [[ $SYS_OS_VERS ]]; then
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsVers=${SYS_OS_VERS}"
       fi
     fi
 
-    if [[ -z $SYS_OS_VER_CODE ]]; then
+    if [[ -z $SYS_OS_VERS_CODE ]]; then
       if [[ $VERSION_CODENAME ]]; then
-        export SYS_OS_VER_CODE="${(L)VERSION_CODENAME}"
+        export SYS_OS_VERS_CODE="${(L)VERSION_CODENAME}"
       fi
-      if [[ $SYS_OS_VER_CODE ]]; then
-        export REQ_URL_SH="${REQ_URL_SH}&sysOsVerCode=${SYS_OS_VER_CODE}"
+      if [[ $SYS_OS_VERS_CODE ]]; then
+        export REQ_URL_SH="${REQ_URL_SH}&sysOsVersCode=${SYS_OS_VERS_CODE}"
       fi
     fi
   fi

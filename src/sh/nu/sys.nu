@@ -5,13 +5,13 @@ $env.SYS_CPU_ARCH = match (uname | get machine | str downcase) {
 }
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)?sysCpuArch=($env.SYS_CPU_ARCH)"
 
-$env.SYS_CPU_VEN_ID = match (sys cpu | first | get vendor_id | split words | first | str downcase) {
+$env.SYS_CPU_VEND = match (sys cpu | first | get vendor_id | split words | first | str downcase) {
   'genuineintel' => 'intel',
   'authenticamd' => 'amd',
   'qemu' => 'apple',
   $x => $x,
 }
-$env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysCpuVenId=($env.SYS_CPU_VEN_ID)"
+$env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysCpuVend=($env.SYS_CPU_VEND)"
 
 $env.SYS_HOST = sys host | get hostname | str downcase
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysHost=($env.SYS_HOST)"
@@ -25,17 +25,17 @@ $env.SYS_OS_PLAT = match (uname | get kernel-name | str downcase) {
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsPlat=($env.SYS_OS_PLAT)"
 
 if $env.SYS_OS_PLAT == 'linux' {
-  if 'SYS_OS_DE_ID' not-in $env {
+  if 'SYS_OS_DE' not-in $env {
     if 'XDG_SESSION_DESKTOP' in $env {
-      $env.SYS_OS_DE_ID = $env.XDG_SESSION_DESKTOP | str downcase
+      $env.SYS_OS_DE = $env.XDG_SESSION_DESKTOP | str downcase
     }
-    if 'SYS_OS_DE_ID' in $env {
-      $env.SYS_OS_DE_ID = match $env.SYS_OS_DE_ID {
+    if 'SYS_OS_DE' in $env {
+      $env.SYS_OS_DE = match $env.SYS_OS_DE {
         'kde' => 'plasma',
         'rpd' | 'rpd-labwc' => 'lxde',
         $x => $x,
       }
-      $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsDeId=($env.SYS_OS_DE_ID)"
+      $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsDe=($env.SYS_OS_DE)"
     }
   }
 
@@ -47,39 +47,39 @@ if $env.SYS_OS_PLAT == 'linux' {
       | transpose --as-record --header-row
       | load-env
 
-    if 'SYS_OS_ID' not-in $env {
+    if 'SYS_OS' not-in $env {
       if 'ID' in $env {
-        $env.SYS_OS_ID = $env.ID | str downcase
+        $env.SYS_OS = $env.ID | str downcase
       }
-      if 'SYS_OS_ID' in $env {
-        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsId=($env.SYS_OS_ID)"
+      if 'SYS_OS' in $env {
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOs=($env.SYS_OS)"
       }
     }
 
-    if 'SYS_OS_ID_LIKE' not-in $env {
+    if 'SYS_OS_LIKE' not-in $env {
       if 'ID_LIKE' in $env {
-        $env.SYS_OS_ID_LIKE = $env.ID_LIKE | split words | first | str downcase
+        $env.SYS_OS_LIKE = $env.ID_LIKE | split words | first | str downcase
       }
-      if 'SYS_OS_ID_LIKE' in $env {
-        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsIdLike=($env.SYS_OS_ID_LIKE)"
+      if 'SYS_OS_LIKE' in $env {
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsLike=($env.SYS_OS_LIKE)"
       }
     }
 
-    if 'SYS_OS_VER_ID' not-in $env {
+    if 'SYS_OS_VERS' not-in $env {
       if 'VERSION_ID' in $env {
-        $env.SYS_OS_VER_ID = $env.VERSION_ID | str downcase
+        $env.SYS_OS_VERS = $env.VERSION_ID | str downcase
       }
-      if 'SYS_OS_VER_ID' in $env {
-        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsVerId=($env.SYS_OS_VER_ID)"
+      if 'SYS_OS_VERS' in $env {
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsVers=($env.SYS_OS_VERS)"
       }
     }
 
-    if 'SYS_OS_VER_CODE' not-in $env {
+    if 'SYS_OS_VERS_CODE' not-in $env {
       if 'VERSION_CODENAME' in $env {
-        $env.SYS_OS_VER_CODE = $env.VERSION_CODENAME | str downcase
+        $env.SYS_OS_VERS_CODE = $env.VERSION_CODENAME | str downcase
       }
-      if 'SYS_OS_VER_CODE' in $env {
-        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsVerCode=($env.SYS_OS_VER_CODE)"
+      if 'SYS_OS_VERS_CODE' in $env {
+        $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsVersCode=($env.SYS_OS_VERS_CODE)"
       }
     }
   }

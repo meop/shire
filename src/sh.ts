@@ -200,8 +200,8 @@ export class ShBase implements Sh {
 
   /**
    * Abstract method for generating gated function content
-   * @param _name - Name of the gated function (not used in base implementation)
-   * @param _lines - Lines to gate (not used in base implementation)
+   * @param _name - Name of the gated function
+   * @param _lines - Lines to gate
    * @returns Array of gated lines
    */
   gatedFunc(_name: string, _lines: Array<string>): Array<string> {
@@ -297,7 +297,7 @@ export class ShBase implements Sh {
 
   /**
    * Converts a value to a literal string safe for use in shell code
-   * @param _value - Value to convert (not used in base implementation)
+   * @param _value - Value to convert
    * @returns Escaped literal string representation
    */
   toLiteral(_value: string): string {
@@ -306,7 +306,7 @@ export class ShBase implements Sh {
 
   /**
    * Wraps a value as an array element
-   * @param _value - Value to wrap (not used in base implementation)
+   * @param _value - Value to wrap
    * @returns Wrapped value suitable for array element
    */
   toElement(_value: string): string {
@@ -323,8 +323,8 @@ export class ShBase implements Sh {
 
   /**
    * Sets a variable with specified key and value
-   * @param _key - Variable key components (not used in base implementation)
-   * @param _value - Value to set (not used in base implementation)
+   * @param _key - Variable key components
+   * @param _value - Value to set
    * @returns String representation of the operation
    */
   varSet(_key: Array<string>, _value: string): string {
@@ -343,8 +343,8 @@ export class ShBase implements Sh {
 
   /**
    * Sets an array variable with specified key and values
-   * @param _key - Variable key components (not used in base implementation)
-   * @param _values - Array of values to set (not used in base implementation)
+   * @param _key - Variable key components
+   * @param _values - Array of values to set
    * @returns String representation of the operation
    */
   varSetArr(_key: Array<string>, _values: Array<string>): string {
@@ -353,7 +353,7 @@ export class ShBase implements Sh {
 
   /**
    * Unsets a variable with specified key
-   * @param _key - Variable key components (not used in base implementation)
+   * @param _key - Variable key components
    * @returns String representation of the operation
    */
   varUnSet(_key: Array<string>): string {
