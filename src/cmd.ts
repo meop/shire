@@ -82,6 +82,54 @@ export function toExpandedParts(parts: Array<string>): Array<string> {
   return _parts
 }
 
+/**
+ * Resolves command parts to their canonical form: expands combined flags,
+ * replaces aliases with canonical command names, and preserves recognized
+ * switches/options with their long-form keys.
+ * @param cmd - The command to resolve against
+ * @param parts - Raw command line parts
+ * @returns Canonical parts array
+ */
+export function resolveCanonicalParts(cmd: Cmd, parts: Array<string>): Array<string> {
+  const _parts = toExpandedParts(parts)
+  const canonical: Array<string> = []
+  let i = 0
+
+  while (i < _parts.length) {
+    const part = _parts[i]
+
+    if (part.startsWith('-') && part !== '--') {
+      const isSwitch = cmd.switches.find((s) => s.keys.includes(part))
+      if (isSwitch) {
+        canonical.push(isSwitch.keys.find((k) => k.startsWith('--')) ?? part)
+        i += 1
+        continue
+      }
+      const isOption = cmd.options.find((o) => o.keys.includes(part))
+      if (isOption && i + 1 < _parts.length && !_parts[i + 1].startsWith('-')) {
+        canonical.push(isOption.keys.find((k) => k.startsWith('--')) ?? part, _parts[i + 1])
+        i += 2
+      } else {
+        i += 1
+      }
+      continue
+    }
+
+    if (cmd.commands.length) {
+      const sub = cmd.commands.find((c) => c.name === part || c.aliases.includes(part))
+      if (sub) {
+        canonical.push(sub.name)
+        return canonical.concat(resolveCanonicalParts(sub, _parts.slice(i + 1)))
+      }
+    }
+
+    canonical.push(part)
+    i += 1
+  }
+
+  return canonical
+}
+
 function toSerializable(command: Cmd) {
   const content: {
     id: string

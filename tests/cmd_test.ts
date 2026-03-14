@@ -1,6 +1,6 @@
 import { assertEquals } from '@std/assert'
 
-import { CmdBase, toExpandedParts } from '../src/cmd.ts'
+import { CmdBase, resolveCanonicalParts, toExpandedParts } from '../src/cmd.ts'
 import type { Ctx } from '../src/ctx.ts'
 import { EnvBase } from '../src/env.ts'
 import { Nushell } from '../src/sh/nu.ts'
@@ -41,6 +41,67 @@ Deno.test('CmdBase.process - parses arguments, options and switches', async () =
 
   const result = await cmd.process(['-s', '-o', 'optval', 'myarg'], shell, context, env)
   assertEquals(result, 'arg1=myarg, option=optval, switch=1')
+})
+
+class SubCmd extends CmdBase {
+  constructor(scopes: string[]) {
+    super(scopes)
+    this.name = 'sub'
+    this.description = 'sub command'
+    this.aliases = ['s', 'su']
+    this.arguments = [{ name: 'parts', description: 'filter parts' }]
+  }
+  override work(_shell: Sh, _context: Ctx, _env: EnvBase): Promise<string> {
+    return Promise.resolve('')
+  }
+}
+
+class RootCmd extends CmdBase {
+  constructor() {
+    super([])
+    this.name = 'root'
+    this.description = 'root command'
+    this.switches = [
+      { keys: ['-d', '--debug'], description: 'debug' },
+      { keys: ['-n', '--noop'], description: 'noop' },
+      { keys: ['-y', '--yes'], description: 'yes' },
+    ]
+    this.options = [{ keys: ['-f', '--format'], description: 'format' }]
+    this.commands = [new SubCmd(['root'])]
+  }
+}
+
+Deno.test('resolveCanonicalParts - expands aliases to canonical names', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['s']), ['sub'])
+  assertEquals(resolveCanonicalParts(cmd, ['su']), ['sub'])
+  assertEquals(resolveCanonicalParts(cmd, ['sub']), ['sub'])
+})
+
+Deno.test('resolveCanonicalParts - expands combined short flags to long form', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['-dn', 'sub']), ['--debug', '--noop', 'sub'])
+  assertEquals(resolveCanonicalParts(cmd, ['-y', 'sub']), ['--yes', 'sub'])
+})
+
+Deno.test('resolveCanonicalParts - preserves options with values', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['-f', 'json', 'sub']), ['--format', 'json', 'sub'])
+})
+
+Deno.test('resolveCanonicalParts - passes through arguments unchanged', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['sub', 'foo', 'bar']), ['sub', 'foo', 'bar'])
+})
+
+Deno.test('resolveCanonicalParts - flags before and after subcommand', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['-dn', 's', 'foo']), ['--debug', '--noop', 'sub', 'foo'])
+})
+
+Deno.test('resolveCanonicalParts - unknown flags are dropped', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['-z', 'sub']), ['sub'])
 })
 
 Deno.test('CmdBase.process - handles subcommands', async () => {
