@@ -60,6 +60,13 @@ Deno.test('getFilePaths - finds files with filters and extensions', async () => 
     const rootYamls = await getFilePaths(tempDir, { filters: ['root'], extension: 'yaml' })
     assertEquals(rootYamls.length, 1)
     assertEquals(rootYamls[0].endsWith('root.yaml'), true)
+
+    // Deep nesting: filter matches dir, file is nested 2 levels deep
+    const subSubDir = PATH.join(subDir, 'deeper')
+    await Deno.mkdir(subSubDir)
+    await Deno.writeTextFile(PATH.join(subSubDir, 'deep.yaml'), 'deep yaml')
+    const deepFiles = await getFilePaths(tempDir, { filters: ['sub'], extension: 'yaml' })
+    assertEquals(deepFiles.some((p) => p.endsWith('deep.yaml')), true)
   } finally {
     await Deno.remove(tempDir, { recursive: true })
   }

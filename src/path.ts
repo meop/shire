@@ -96,6 +96,7 @@ export async function getFilePaths(
     const prefix = options.flexible ? '**/' : ''
     const filterPattern = options.filters.map((f) => `*${f}*`).join('/')
     if (options?.extension) {
+      patterns.push(`${prefix}${filterPattern}/**/*.${options.extension}`)
       patterns.push(`${prefix}${filterPattern}/*.${options.extension}`)
       patterns.push(`${prefix}${filterPattern}.${options.extension}`)
     } else {
