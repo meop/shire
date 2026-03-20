@@ -2,24 +2,24 @@ import { joinKey } from '../reg.ts'
 import { type Sh, ShBase } from '../sh.ts'
 
 /**
- * This module contains components for building Nushell shell implementations
+ * This module contains components for building NuSh shell implementations
  * @module
  */
 
 /**
- * Nushell implementation of the Sh interface
- * This class provides methods for working with Nushell shell commands
+ * NuSh implementation of the Sh interface
+ * This class provides methods for working with NuSh shell commands
  */
-export class Nushell extends ShBase implements Sh {
+export class NuSh extends ShBase implements Sh {
   /**
-   * Creates a new instance of Nushell.
+   * Creates a new instance of NuSh.
    */
   constructor() {
     super('nu', 'nu')
   }
 
   /**
-   * Generates an execution string for running a command in Nushell
+   * Generates an execution string for running a command in NuSh
    * @param value - The command to execute
    * @returns The formatted command string
    */
@@ -50,7 +50,7 @@ export class Nushell extends ShBase implements Sh {
   }
 
   /**
-   * Converts a value to a literal string for Nushell using adaptive raw string depth
+   * Converts a value to a literal string for NuSh using adaptive raw string depth
    * @param value - The value to convert
    * @returns Raw string literal with sufficient hash depth to avoid conflicts
    */
@@ -64,7 +64,7 @@ export class Nushell extends ShBase implements Sh {
   }
 
   /**
-   * Wraps a value as an array element for Nushell (delegates to toLiteral)
+   * Wraps a value as an array element for NuSh (delegates to toLiteral)
    * @param value - The value to wrap
    * @returns Raw string literal
    */
@@ -73,7 +73,7 @@ export class Nushell extends ShBase implements Sh {
   }
 
   /**
-   * Returns the trace command for Nushell (empty as there's no direct equivalent)
+   * Returns the trace command for NuSh (empty as there's no direct equivalent)
    * @returns Empty string
    */
   override trace(): string {
@@ -81,7 +81,7 @@ export class Nushell extends ShBase implements Sh {
   }
 
   /**
-   * Sets a variable in the Nushell environment
+   * Sets a variable in the NuSh environment
    * @param key - Array of keys representing the variable path
    * @param value - The value to set
    * @returns The command to set the variable
@@ -91,7 +91,7 @@ export class Nushell extends ShBase implements Sh {
   }
 
   /**
-   * Sets an array variable in the Nushell environment (applies toLiteral to each value)
+   * Sets an array variable in the NuSh environment (applies toLiteral to each value)
    * @param key - Array of keys representing the variable path
    * @param values - Array of raw string values to set
    * @returns The command to set the array variable
@@ -101,7 +101,7 @@ export class Nushell extends ShBase implements Sh {
   }
 
   /**
-   * Unsets a variable from the Nushell environment
+   * Unsets a variable from the NuSh environment
    * @param key - Array of keys representing the variable path
    * @returns The command to unset the variable
    */

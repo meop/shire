@@ -2,24 +2,24 @@ import { joinKey } from '../reg.ts'
 import { type Sh, ShBase } from '../sh.ts'
 
 /**
- * This module contains components for building Zshell shell implementations
+ * This module contains components for building ZSh shell implementations
  * @module
  */
 
 /**
- * Zshell implementation of the Sh interface
- * This class provides methods for working with Zshell commands
+ * ZSh implementation of the Sh interface
+ * This class provides methods for working with ZSh commands
  */
-export class Zshell extends ShBase implements Sh {
+export class ZSh extends ShBase implements Sh {
   /**
-   * Creates a new instance of Zshell.
+   * Creates a new instance of ZSh.
    */
   constructor() {
     super('zsh', 'zsh')
   }
 
   /**
-   * Generates an execution string for running a command in Zshell
+   * Generates an execution string for running a command in ZSh
    * @param value - The command to execute
    * @returns The formatted command string
    */
@@ -50,7 +50,7 @@ export class Zshell extends ShBase implements Sh {
   }
 
   /**
-   * Converts a value to a literal string for Zshell
+   * Converts a value to a literal string for ZSh
    * @param value - The value to convert
    * @returns Single-quoted string with escaped quotes and backslashes
    */
@@ -59,7 +59,7 @@ export class Zshell extends ShBase implements Sh {
   }
 
   /**
-   * Wraps a value as an array element for Zshell
+   * Wraps a value as an array element for ZSh
    * @param value - The value to wrap
    * @returns Single-quoted value
    */
@@ -68,7 +68,7 @@ export class Zshell extends ShBase implements Sh {
   }
 
   /**
-   * Returns the trace command for Zshell.
+   * Returns the trace command for ZSh.
    * @returns The trace command
    */
   override trace(): string {
@@ -76,7 +76,7 @@ export class Zshell extends ShBase implements Sh {
   }
 
   /**
-   * Sets a variable in the Zshell environment
+   * Sets a variable in the ZSh environment
    * @param key - Array of keys representing the variable path
    * @param value - The value to set
    * @returns The command to set the variable
@@ -86,7 +86,7 @@ export class Zshell extends ShBase implements Sh {
   }
 
   /**
-   * Sets an array variable in the Zshell environment (applies toLiteral to each value)
+   * Sets an array variable in the ZSh environment (applies toLiteral to each value)
    * @param key - Array of keys representing the variable path
    * @param values - Array of raw string values to set
    * @returns The command to set the array variable
@@ -96,7 +96,7 @@ export class Zshell extends ShBase implements Sh {
   }
 
   /**
-   * Unsets a variable from the Zshell environment
+   * Unsets a variable from the ZSh environment
    * @param key - Array of keys representing the variable path
    * @returns The command to unset the variable
    */

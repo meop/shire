@@ -2,24 +2,24 @@ import { joinKey } from '../reg.ts'
 import { type Sh, ShBase } from '../sh.ts'
 
 /**
- * This module contains components for building Powershell shell implementations
+ * This module contains components for building PowerSh shell implementations
  * @module
  */
 
 /**
- * Powershell implementation of the Sh interface
- * This class provides methods for working with Powershell commands
+ * PowerSh implementation of the Sh interface
+ * This class provides methods for working with PowerSh commands
  */
-export class Powershell extends ShBase implements Sh {
+export class PowerSh extends ShBase implements Sh {
   /**
-   * Creates a new instance of Powershell.
+   * Creates a new instance of PowerSh.
    */
   constructor() {
     super('pwsh', 'ps1')
   }
 
   /**
-   * Generates an execution string for running a command in Powershell
+   * Generates an execution string for running a command in PowerSh
    * @param value - The command to execute
    * @returns The formatted command string
    */
@@ -50,7 +50,7 @@ export class Powershell extends ShBase implements Sh {
   }
 
   /**
-   * Converts a value to a literal string for Powershell
+   * Converts a value to a literal string for PowerSh
    * @param value - The value to convert
    * @returns Single-quoted string with escaped quotes
    */
@@ -59,7 +59,7 @@ export class Powershell extends ShBase implements Sh {
   }
 
   /**
-   * Wraps a value as an array element for Powershell
+   * Wraps a value as an array element for PowerSh
    * @param value - The value to wrap
    * @returns Single-quoted value
    */
@@ -68,7 +68,7 @@ export class Powershell extends ShBase implements Sh {
   }
 
   /**
-   * Returns the trace command for Powershell
+   * Returns the trace command for PowerSh
    * @returns The trace command
    */
   override trace(): string {
@@ -76,7 +76,7 @@ export class Powershell extends ShBase implements Sh {
   }
 
   /**
-   * Sets a variable in the Powershell environment
+   * Sets a variable in the PowerSh environment
    * @param key - Array of keys representing the variable path
    * @param value - The value to set
    * @returns The command to set the variable
@@ -86,7 +86,7 @@ export class Powershell extends ShBase implements Sh {
   }
 
   /**
-   * Sets an array variable in the Powershell environment (applies toLiteral to each value)
+   * Sets an array variable in the PowerSh environment (applies toLiteral to each value)
    * @param key - Array of keys representing the variable path
    * @param values - Array of raw string values to set
    * @returns The command to set the array variable
@@ -96,7 +96,7 @@ export class Powershell extends ShBase implements Sh {
   }
 
   /**
-   * Unsets a variable from the Powershell environment
+   * Unsets a variable from the PowerSh environment
    * @param key - Array of keys representing the variable path
    * @returns The command to unset the variable
    */

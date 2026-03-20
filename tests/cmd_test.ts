@@ -1,9 +1,9 @@
-import { assertEquals } from '@std/assert'
+import { assertEquals, assertStringIncludes } from '@std/assert'
 
 import { CmdBase, resolveCanonicalParts, toExpandedParts } from '../src/cmd.ts'
 import type { Ctx } from '../src/ctx.ts'
 import { EnvBase } from '../src/env.ts'
-import { Nushell } from '../src/sh/nu.ts'
+import { NuSh } from '../src/sh/nu.ts'
 import type { Sh } from '../src/sh.ts'
 
 Deno.test('toExpandedParts - expands combined flags', () => {
@@ -35,7 +35,7 @@ class TestCmd extends CmdBase {
 
 Deno.test('CmdBase.process - parses arguments, options and switches', async () => {
   const cmd = new TestCmd(['root'])
-  const shell = new Nushell()
+  const shell = new NuSh()
   const context = { req_orig: '', req_path: '', req_srch: '' }
   const env = new EnvBase()
 
@@ -111,9 +111,55 @@ Deno.test('CmdBase.process - handles subcommands', async () => {
   const child = new TestCmd(['root', 'parent'])
   parent.commands = [child]
 
-  const shell = new Nushell()
+  const shell = new NuSh()
   const context = { req_orig: '', req_path: '', req_srch: '' }
 
   const result = await parent.process(['test', '-s', '-o', 'optval', 'myarg'], shell, context)
   assertEquals(result, 'arg1=myarg, option=optval, switch=1')
+})
+
+Deno.test('CmdBase.process - --help flag returns help', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+
+  const result = await cmd.process(['--help'], shell, context)
+  assertStringIncludes(result, 'root test | test command')
+})
+
+Deno.test('CmdBase.process - -h flag returns help', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+
+  const result = await cmd.process(['-h'], shell, context)
+  assertStringIncludes(result, 'root test | test command')
+})
+
+Deno.test('CmdBase.process - missing required arg returns help', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+
+  const result = await cmd.process([], shell, context)
+  assertStringIncludes(result, 'root test | test command')
+})
+
+Deno.test('CmdBase.process - option followed by flag returns help', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+
+  const result = await cmd.process(['-o', '--switch', 'myarg'], shell, context)
+  assertStringIncludes(result, 'root test | test command')
+})
+
+Deno.test('CmdBase.process - extra positional args append to last', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+  const env = new EnvBase()
+
+  await cmd.process(['first', 'second', 'third'], shell, context, env)
+  assertEquals(env.get(['test', 'arg1']), 'first|second|third')
 })
