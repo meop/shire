@@ -1,6 +1,6 @@
 function () {
-  local major=$SH_VER_MAJOR
-  local minor=$SH_VER_MINOR
+  local major=$SH_VERS_MAJOR
+  local minor=$SH_VERS_MINOR
 
   autoload is-at-least
   if ! is-at-least "${major}.${minor}"; then
