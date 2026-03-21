@@ -151,8 +151,3 @@ joining strategy.
 ### Context Filtering
 
 Generate different scripts based on detected system properties using the `Ctx` type.
-
-## Releasing
-
-Bump `"version"` in `deno.json` and push to `main`. The CI pipeline will validate, tag, and publish to JSR
-automatically.

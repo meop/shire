@@ -2,13 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Overview
-
-**shire** is a TypeScript library for building HTTP servers that dynamically generate shell scripts. It provides
-abstractions for multi-shell support (nushell, powershell, zsh) and command-line argument parsing.
-
-Published to JSR as `@meop/shire`.
-
 ## Development Commands
 
 ```bash
@@ -127,58 +120,26 @@ shell.
 
 ### Variable Assignment
 
-Use `varSetStr` for literal string values — it applies `toLiteral` internally:
-
-```typescript
-shell.varSetStr(['KEY'], value) // preferred: wraps value as shell literal automatically
-shell.varSet(['KEY'], someAlreadyQuotedExpr) // use only when value is already shell-quoted
-```
-
-Use `varSetArr` with raw values — it applies `toLiteral` to each element internally:
-
-```typescript
-shell.varSetArr(['ARRAY'], values) // pass raw strings; quoting is handled automatically
-```
+`varSet` vs `varSetStr`: use `varSetStr` for raw values (applies `toLiteral` internally); use `varSet` only when the
+value is already shell-quoted. `varSetArr` applies `toLiteral` to each element automatically — always pass raw strings.
 
 ### String Escaping (toLiteral/toElement)
 
-Low-level quoting primitives — prefer the high-level methods above. Use `toLiteral` when you need to quote a value for
-embedding in another shell expression (e.g., as an argument to a static `execStr` call):
-
-```typescript
-const cmd = Zshell.execStr(shell.toLiteral('echo "hello"'))
-```
+Low-level quoting primitives — prefer `varSetStr`/`varSetArr` above. Use `toLiteral` when embedding a value in another
+shell expression (e.g., as an argument to a static `execStr` call).
 
 Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, etc.) to safely nest any content.
 `toElement` delegates to `toLiteral` on all shells (no backtick exception needed).
 
 ### File Loading
 
-`fileLoad()` loads shell-specific template files from `sh/{shell}/` directories. It follows import resolution and
-returns empty string if file not found (graceful degradation).
-
-### Variable Scoping
-
-Variable keys are hierarchical arrays: `['pack', 'add', 'names']` becomes environment variable based on the key joining
-strategy.
-
-### Context Filtering
-
-`ctx.ts` supports context-based filtering - load different config/scripts based on OS, architecture, or other system
-properties.
+`fileLoad()` returns empty string if the file is not found — graceful degradation, no error thrown.
 
 ## Testing
 
-Automated tests live in `tests/` and use snapshot testing:
-
-- Tests call exported functions directly with synthetic inputs
-- Snapshots are committed and show diffs in PRs
-- Snapshot tests fail if output changes unexpectedly
-
-```bash
-deno task test          # run all tests
-deno task test:update   # regenerate snapshots (review diffs carefully)
-```
+Automated tests live in `tests/` and use snapshot testing. Tests call exported functions directly with synthetic inputs.
+Snapshots are committed and show diffs in PRs — use `deno task test:update` to regenerate after intentional changes,
+then review diffs carefully.
 
 ## Code Formatting
 
