@@ -1,6 +1,6 @@
 {
   "name": "@meop/shire",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "exports": {
     "./cmd": "./src/cmd.ts",
     "./ctx": "./src/ctx.ts",

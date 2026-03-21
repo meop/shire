@@ -76,10 +76,12 @@ if ($SYS_OS_PLAT -eq 'linux') {
     }
 
     if (-not $SYS_OS_LIKE) {
-      if ($ID_LIKE) {
-        $SYS_OS_LIKE = "${ID_LIKE}".ToLower().Split(' ')[0]
-      }
-      if ($SYS_OS_LIKE) {
+      if ($SYS_OS) {
+        $SYS_OS_LIKE = if ($ID_LIKE) {
+          "${SYS_OS}-${ID_LIKE}".ToLower().Replace(' ', '-')
+        } else {
+          $SYS_OS
+        }
         $REQ_URL_SH = "${REQ_URL_SH}&sysOsLike=${SYS_OS_LIKE}"
       }
     }

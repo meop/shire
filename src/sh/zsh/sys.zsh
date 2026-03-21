@@ -60,10 +60,8 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
     fi
 
     if [[ -z $SYS_OS_LIKE ]]; then
-      if [[ $ID_LIKE ]]; then
-        export SYS_OS_LIKE="${(L)ID_LIKE%% *}"
-      fi
-      if [[ $SYS_OS_LIKE ]]; then
+      if [[ $SYS_OS ]]; then
+        export SYS_OS_LIKE="${SYS_OS}${ID_LIKE:+-${(L)${ID_LIKE// /-}}}"
         export REQ_URL_SH="${REQ_URL_SH}&sysOsLike=${SYS_OS_LIKE}"
       fi
     fi

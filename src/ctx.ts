@@ -40,6 +40,10 @@ export type Ctx = {
    */
   sys_os?: string
   /**
+   * System OS like (optional)
+   */
+  sys_os_like?: string
+  /**
    * System OS platform (optional)
    */
   sys_os_plat?: string
@@ -89,6 +93,7 @@ export function getCtx(request: Request): Ctx {
   const spSysHost = getSp(usp, 'sysHost')
   const spSysOsDe = getSp(usp, 'sysOsDe')
   const spSysOs = getSp(usp, 'sysOs')
+  const spSysOsLike = getSp(usp, 'sysOsLike')
   const spSysOsPlat = getSp(usp, 'sysOsPlat')
   const spSysOsVers = getSp(usp, 'sysOsVers')
   const spSysOsVersCode = getSp(usp, 'sysOsVersCode')
@@ -101,6 +106,7 @@ export function getCtx(request: Request): Ctx {
     req_orig: url.origin,
     sys_os_de: spSysOsDe,
     sys_os: spSysOs,
+    sys_os_like: spSysOsLike,
     sys_os_plat: spSysOsPlat,
     sys_os_vers: spSysOsVers,
     sys_os_vers_code: spSysOsVersCode,
