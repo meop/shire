@@ -20,7 +20,7 @@ export class SrvBase extends CmdBase implements Cmd {
     this.options = [
       {
         keys: ['-f', '--format'],
-        description: `shell print format <${Object.keys(Fmt).map((k, i) => i === 0 ? k : `[${k}]`).join(', ')}>`,
+        description: `shell print format <${Object.keys(Fmt).map((k, i) => !i ? k : `[${k}]`).join(', ')}>`,
       },
     ]
     this.switches = [
