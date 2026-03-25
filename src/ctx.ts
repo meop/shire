@@ -62,13 +62,6 @@ export type Ctx = {
 }
 
 /**
- * Context filter type for filtering context properties
- */
-export type CtxFilter = {
-  [key: string]: CtxFilter | Array<string>
-}
-
-/**
  * Gets a search parameter value from URLSearchParams
  * @param usp - URLSearchParams object
  * @param key - The key to look up

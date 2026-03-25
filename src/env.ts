@@ -1,9 +1,9 @@
-import { joinKey, joinVal, splitVal } from './reg.ts'
-
 /**
  * This module contains components for building environment implementations
  * @module
  */
+
+import { joinKey, joinVal, splitVal } from './reg.ts'
 
 /**
  * Interface defining the contract for environment configuration management

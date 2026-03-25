@@ -1,9 +1,9 @@
-import * as YAML from '@eemeli/yaml'
-
 /**
  * This module contains components for building serialization / deserialization implementations
  * @module
  */
+
+import * as YAML from '@eemeli/yaml'
 
 /**
  * Enumeration of supported formats for serialization/deserialization

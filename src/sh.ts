@@ -3,6 +3,8 @@
  * @module
  */
 
+import { readFile } from 'node:fs/promises'
+
 /**
  * Interface defining the contract for shell implementations
  */
@@ -229,14 +231,15 @@ export class ShBase implements Sh {
     }
     const fetchPath = urlResolver ? urlResolver(_path) : import.meta.resolve(_path)
     try {
+      if (fetchPath.startsWith('file://')) {
+        return await readFile(new URL(fetchPath), 'utf-8')
+      }
       const res = await fetch(fetchPath)
       if (res.ok) {
         return await res.text()
       }
-    } catch (e: unknown) {
-      if (!(e instanceof TypeError)) {
-        throw e
-      }
+    } catch {
+      return ''
     }
     return ''
   }

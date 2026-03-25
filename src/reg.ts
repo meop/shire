@@ -1,10 +1,10 @@
-const KEY_SPLIT = '_'
-const VAL_SPLIT = '|'
-
 /**
  * This module contains components for building register implementations
  * @module
  */
+
+const KEY_SPLIT = '_'
+const VAL_SPLIT = '|'
 
 /**
  * Splits a key string into parts using the key split delimiter
