@@ -229,17 +229,20 @@ export class ShBase implements Sh {
     if (!_path.endsWith(`.${this.extension}`)) {
       _path = `${_path}.${this.extension}`
     }
-    const fetchPath = urlResolver ? urlResolver(_path) : import.meta.resolve(_path)
+    const fetchUrl = new URL(urlResolver ? urlResolver(_path) : import.meta.resolve(_path))
     try {
-      if (fetchPath.startsWith('file://')) {
-        return await readFile(new URL(fetchPath), 'utf-8')
+      if (fetchUrl.protocol === 'file:') {
+        return await readFile(fetchUrl, 'utf-8')
       }
-      const res = await fetch(fetchPath)
+      const res = await fetch(fetchUrl)
       if (res.ok) {
         return await res.text()
       }
-    } catch {
-      return ''
+    } catch (e) {
+      if ((e as { code?: string }).code === 'ENOENT' || e instanceof TypeError) {
+        return ''
+      }
+      throw e
     }
     return ''
   }
