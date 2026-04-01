@@ -1,6 +1,6 @@
 import { assertEquals } from '@std/assert'
 
-import { EnvBase } from '../src/env.ts'
+import { EnvBase } from './env.ts'
 
 Deno.test('EnvBase - get and set', () => {
   const env = new EnvBase()

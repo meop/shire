@@ -1,6 +1,6 @@
 import { assertEquals } from '@std/assert'
 
-import { SrvBase } from '../src/srv.ts'
+import { SrvBase } from './srv.ts'
 
 Deno.test('SrvBase - has standard options and switches', () => {
   const srv = new SrvBase([])

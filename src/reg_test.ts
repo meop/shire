@@ -1,6 +1,6 @@
 import { assertEquals } from '@std/assert'
 
-import { joinKey, joinVal, splitKey, splitVal } from '../src/reg.ts'
+import { joinKey, joinVal, splitKey, splitVal } from './reg.ts'
 
 Deno.test('joinKey - joins parts with underscores and converts to uppercase', () => {
   assertEquals(joinKey('sh', 'ver', 'major'), 'SH_VER_MAJOR')

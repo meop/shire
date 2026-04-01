@@ -1,6 +1,6 @@
 import { assertEquals } from '@std/assert'
 
-import { getCtx, withCtx } from '../src/ctx.ts'
+import { getCtx, withCtx } from './ctx.ts'
 
 Deno.test('getCtx - parses request URL and search params', () => {
   const request = new Request(

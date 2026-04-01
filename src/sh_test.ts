@@ -1,8 +1,8 @@
 import { assertEquals } from '@std/assert'
 
-import { NuSh } from '../src/sh/nu.ts'
-import { PowerSh } from '../src/sh/pwsh.ts'
-import { ZSh } from '../src/sh/zsh.ts'
+import { NuSh } from './sh/nu.ts'
+import { PowerSh } from './sh/pwsh.ts'
+import { ZSh } from './sh/zsh.ts'
 
 Deno.test('NuSh - toLiteral uses adaptive raw string depth', () => {
   const nu = new NuSh()

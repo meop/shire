@@ -1,6 +1,6 @@
 import { assertEquals } from '@std/assert'
 
-import { Fmt, parse, stringify, toFmt } from '../src/serde.ts'
+import { Fmt, parse, stringify, toFmt } from './serde.ts'
 
 Deno.test('toFmt - converts string to format', () => {
   assertEquals(toFmt('json'), Fmt.json)
