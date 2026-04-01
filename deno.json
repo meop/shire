@@ -31,8 +31,8 @@
   },
   "tasks": {
     "check": "deno check src/**/*.ts",
-    "fmt": "deno fmt",
-    "fmt:check": "deno fmt --check",
+    "format": "deno fmt",
+    "format:check": "deno fmt --check",
     "lint": "deno lint",
     "test": "deno test --allow-all src/"
   }

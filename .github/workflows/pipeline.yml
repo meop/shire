@@ -49,7 +49,7 @@ jobs:
       - name: Deno (version)
         run: deno --version
       - name: Deno format (check)
-        run: deno task fmt:check
+        run: deno task format:check
       - name: Deno lint
         run: deno task lint
       - name: Deno check

@@ -5,11 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-deno task fmt       # apply formatting (modifies files)
-deno task fmt:check # verify formatting without modifying (CI / pre-commit)
-deno task lint      # lint
-deno task check     # type check
-deno task test      # run tests
+deno task check        # type check
+deno task format       # apply formatting (modifies files)
+deno task format:check # verify formatting without modifying (CI / pre-commit)
+deno task lint         # lint
+deno task test         # run tests
 ```
 
 ### Dependency Management
@@ -26,14 +26,14 @@ No standalone server — this is a library consumed by other projects.
 
 After making code changes, run in this order:
 
-1. `deno task fmt` — apply formatting; always modifies files if needed
+1. `deno task format` — apply formatting; always modifies files if needed
 2. `deno task lint` — check for lint errors
    - If errors found: fix them, then return to step 1
 3. `deno task test` — run tests
    - If snapshot tests fail due to intentional output changes: `deno task test:update`, then review `git diff tests/` to
      confirm every changed snapshot is correct and valid shell syntax
 
-Use `deno task fmt:check` (no modifications) only for CI or to verify formatting before committing.
+Use `deno task format:check` (no modifications) only for CI or to verify formatting before committing.
 
 ## Publishing
 
