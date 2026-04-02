@@ -1,6 +1,7 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+A library consumed by other projects (no standalone server). Provides shell-agnostic script generation for nu/pwsh/zsh,
+a hierarchical command system, context extraction, and path/env utilities.
 
 ## Development Commands
 
@@ -10,111 +11,28 @@ deno task format       # apply formatting (modifies files)
 deno task format:check # verify formatting without modifying (CI / pre-commit)
 deno task lint         # lint
 deno task test         # run tests
+deno task test:update  # regenerate snapshots after intentional changes
 ```
+
+### After Making Changes
+
+1. `deno task format`
+2. `deno task lint` — fix errors, return to step 1 if any
+3. `deno task test` — if snapshots fail due to intentional changes: `deno task test:update`, then review
+   `git diff tests/` to confirm every changed snapshot is correct and valid shell syntax
 
 ### Dependency Management
 
-To keep dependencies in sync:
-
-- `deno outdated` # check for available updates
-- `deno update` # update lockfile within version constraints
-- `deno update --latest` # update deno.json and lockfile to absolute latest
-
-No standalone server — this is a library consumed by other projects.
-
-## Development Workflow
-
-After making code changes, run in this order:
-
-1. `deno task format` — apply formatting; always modifies files if needed
-2. `deno task lint` — check for lint errors
-   - If errors found: fix them, then return to step 1
-3. `deno task test` — run tests
-   - If snapshot tests fail due to intentional output changes: `deno task test:update`, then review `git diff tests/` to
-     confirm every changed snapshot is correct and valid shell syntax
-
-Use `deno task format:check` (no modifications) only for CI or to verify formatting before committing.
+- `deno outdated` — check for available updates
+- `deno update` — update lockfile within version constraints
+- `deno update --latest` — update deno.json and lockfile to absolute latest
 
 ## Publishing
 
-Publishing is handled by the CI pipeline (`.github/workflows/pipeline.yml`). To cut a release:
+To cut a release: bump `"version"` in `deno.json` and push to `main`.
 
-1. Bump `"version"` in `deno.json`
-2. Push to `main`
-
-The pipeline runs four jobs in order:
-
-- **Version** — reads `deno.json` version, checks if `v<version>` git tag already exists; skips release jobs if so
-- **Validate** — runs `deno fmt --check` and `deno lint` (runs in parallel with Version)
-- **Release** — creates and pushes a GPG-signed git tag (main branch + new version only)
-- **Package** — runs `deno publish` to JSR (main branch + new version only)
-
-Requires two repository secrets: `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE`.
-
-## Architecture Overview
-
-### Core Abstraction: Shell-Agnostic Script Generation
-
-The library allows you to write shell-agnostic code that generates shell-specific scripts for different shells
-(nu/pwsh/zsh). This enables building HTTP servers that deliver executable shell scripts tailored to the requesting
-shell.
-
-### Module Structure
-
-**sh.ts** - Shell abstraction
-
-- `Sh` interface defines contract for shell implementations
-- `ShBase` provides base implementation
-- Implementations: `Nushell`, `Powershell`, `Zshell` in `sh/{nu,pwsh,zsh}.ts`
-- Key methods:
-  - `toLiteral()/toElement()` - String escaping for shell code and array elements
-  - `varSet()/varSetArr()/varUnSet()` - Variable management
-  - `print()/printErr()/printInfo()/printSucc()/printWarn()` - Output formatting
-  - `fileLoad()` - Load shell-specific template files
-  - `build()` - Generate final shell script
-
-**cmd.ts** - Command system
-
-- `Cmd` interface defines hierarchical command structure
-- `CmdBase` provides argument parsing and dispatching
-- Supports:
-  - Subcommands (nested commands)
-  - Aliases (alternative names)
-  - Arguments (positional parameters)
-  - Options (key-value flags like `--manager yay`)
-  - Switches (boolean flags like `-g`)
-- The `process()` method parses command-line parts and calls `work()` on the appropriate command
-
-**srv.ts** - Server base
-
-- `SrvBase` extends `CmdBase` with standard server options
-- Provides common flags: `--help`, `--debug`, `--log`, `--noop`, `--trace`, etc.
-
-**ctx.ts** - Context extraction
-
-- `getCtx()` extracts system context from HTTP request query params; all fields pass through as raw strings
-- Provides `withCtx()` for placeholder substitution in config strings (e.g. `{SYS_HOST}`)
-
-**env.ts** - Environment management
-
-- `Env` interface for key-value environment storage
-- `EnvBase` implementation with `get()`, `set()`, `setAppend()`, `getSplit()`
-
-**path.ts** - Path utilities
-
-- Cross-platform path building
-- File system operations (reading files, listing directories)
-- Path filtering and pattern matching
-
-**reg.ts** - Registry utilities
-
-- Key/value joining and splitting with delimiters
-- Used for hierarchical key construction
-
-**serde.ts** - Serialization
-
-- Parse/stringify for JSON and YAML formats
-- Format detection and conversion
+The CI pipeline (`.github/workflows/pipeline.yml`) runs: Version check → Validate (fmt + lint) → Release (GPG-signed
+tag) → Package (`deno publish` to JSR). Requires `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE` repository secrets.
 
 ## Key Concepts
 
@@ -134,12 +52,6 @@ Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, 
 ### File Loading
 
 `fileLoad()` returns empty string if the file is not found — graceful degradation, no error thrown.
-
-## Testing
-
-Automated tests live in `tests/` and use snapshot testing. Tests call exported functions directly with synthetic inputs.
-Snapshots are committed and show diffs in PRs — use `deno task test:update` to regenerate after intentional changes,
-then review diffs carefully.
 
 ## Code Formatting
 
