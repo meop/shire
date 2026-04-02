@@ -152,9 +152,21 @@ Deno formatting rules (deno.json):
 
 ### Import Sorting
 
-Imports must be organized into 3 levels with a single empty line between each level, and sorted alphabetically within
-each category:
+Imports must be organized into 3 groups with a single empty line between each group, and sorted alphabetically by source
+within each group:
 
 1. Built-in modules (e.g., `node:*`)
-2. External packages (e.g., `@std/*`, `@meop/shire`)
+2. External packages (e.g., `@eemeli/yaml`, `@std/*`)
 3. Local project files (e.g., `./cmd.ts`, `../sh.ts`)
+
+Example:
+
+```typescript
+import { readFileSync } from 'node:fs'
+
+import { parse } from '@eemeli/yaml'
+import { assertEquals } from '@std/assert'
+
+import { CmdBase } from './cmd.ts'
+import type { Sh } from './sh.ts'
+```

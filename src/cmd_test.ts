@@ -3,8 +3,8 @@ import { assertEquals, assertStringIncludes } from '@std/assert'
 import { CmdBase, resolveCanonicalParts, toExpandedParts } from './cmd.ts'
 import type { Ctx } from './ctx.ts'
 import { EnvBase } from './env.ts'
-import { NuSh } from './sh/nu.ts'
 import type { Sh } from './sh.ts'
+import { NuSh } from './sh/nu.ts'
 
 Deno.test('toExpandedParts - expands combined flags', () => {
   assertEquals(toExpandedParts(['-abc']), ['-a', '-b', '-c'])
