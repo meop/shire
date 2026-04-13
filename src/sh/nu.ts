@@ -35,7 +35,7 @@ export class NuSh extends ShBase implements Sh {
    */
   override gatedFunc(name: string, lines: Array<string>): Array<string> {
     return [
-      'do {',
+      'do --env {',
       `  mut yn = ''`,
       `  if 'YES' in $env {`,
       `    $yn = 'y'`,
