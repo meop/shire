@@ -68,8 +68,30 @@ def opPrintCmd --wrapped [...args] {
   }
 }
 
+def opMaybePrintCmd --wrapped [...args] {
+  if 'NOOP' not-in $env {
+    opPrintCmd ...$args
+  }
+}
+
 def opRunCmd --wrapped [...args] {
   nu --no-config-file -c $"($args | str join ' ')"
+}
+
+def opRunSilentCmd --wrapped [...args] {
+  nu --no-config-file -c $"($args | str join ' ') o+e> | silent"
+}
+
+def opMaybeRunCmd --wrapped [...args] {
+  if 'NOOP' not-in $env {
+    opRunCmd ...$args
+  }
+}
+
+def opMaybeRunSilentCmd --wrapped [...args] {
+  if 'NOOP' not-in $env {
+    opRunSilentCmd ...$args
+  }
 }
 
 def opPrintRunCmd --wrapped [...args] {
@@ -79,7 +101,5 @@ def opPrintRunCmd --wrapped [...args] {
 
 def opPrintMaybeRunCmd --wrapped [...args] {
   opPrintCmd ...$args
-  if 'NOOP' not-in $env {
-    opRunCmd ...$args
-  }
+  opMaybeRunCmd ...$args
 }

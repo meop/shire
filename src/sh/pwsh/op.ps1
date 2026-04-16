@@ -76,8 +76,30 @@ function opPrintCmd {
   }
 }
 
+function opMaybePrintCmd {
+  if (-not $NOOP) {
+    opPrintCmd @args
+  }
+}
+
 function opRunCmd {
-  iex "$($args -join ' ')"
+  Invoke-Expression "$($args -join ' ')"
+}
+
+function opRunSilentCmd {
+  Invoke-Expression "$($args -join ' ')" 6>&1 5>&1 4>&1 3>&1 2>&1 | Out-Null
+}
+
+function opMaybeRunCmd {
+  if (-not $NOOP) {
+    opRunCmd @args
+  }
+}
+
+function opMaybeRunSilentCmd {
+  if (-not $NOOP) {
+    opRunSilentCmd @args
+  }
 }
 
 function opPrintRunCmd {
@@ -87,7 +109,5 @@ function opPrintRunCmd {
 
 function opPrintMaybeRunCmd {
   opPrintCmd @args
-  if (-not $NOOP) {
-    opRunCmd @args
-  }
+  opMaybeRunCmd @args
 }

@@ -76,8 +76,30 @@ function opPrintCmd {
   fi
 }
 
+function opMaybePrintCmd {
+  if [[ -z $NOOP ]]; then
+    opPrintCmd "$@"
+  fi
+}
+
 function opRunCmd {
   eval "$*"
+}
+
+function opRunSilentCmd {
+  eval "$*" &> /dev/null
+}
+
+function opMaybeRunCmd {
+  if [[ -z $NOOP ]]; then
+    opRunCmd "$@"
+  fi
+}
+
+function opMaybeRunSilentCmd {
+  if [[ -z $NOOP ]]; then
+    opRunSilentCmd "$@"
+  fi
 }
 
 function opPrintRunCmd {
@@ -87,7 +109,5 @@ function opPrintRunCmd {
 
 function opPrintMaybeRunCmd {
   opPrintCmd "$@"
-  if [[ -z $NOOP ]]; then
-    opRunCmd "$@"
-  fi
+  opMaybeRunCmd "$@"
 }

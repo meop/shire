@@ -1,1 +1,1 @@
-iex "$( irm -ErrorAction Stop -ProgressAction SilentlyContinue -Uri "${REQ_URL_SH}" )"
+Invoke-Expression "$( Invoke-RestMethod -ErrorAction Stop -ProgressAction SilentlyContinue -Uri "${REQ_URL_SH}" )"
