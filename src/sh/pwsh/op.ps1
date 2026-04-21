@@ -84,11 +84,11 @@ function opMaybePrintCmd {
 }
 
 function opRunCmd {
-  Invoke-Expression $"(($args | ForEach-Object { $_ }) -join ' ')"
+  Invoke-Expression "$(($args | ForEach-Object { $_ }) -join ' ')"
 }
 
 function opRunSilentCmd {
-  Invoke-Expression $"(($args | ForEach-Object { $_ }) -join ' ') 6>&1 5>&1 4>&1 3>&1 2>&1 | Out-Null"
+  Invoke-Expression "$(($args | ForEach-Object { $_ }) -join ' ') 6>&1 5>&1 4>&1 3>&1 2>&1 | Out-Null"
 }
 
 function opMaybeRunCmd {
