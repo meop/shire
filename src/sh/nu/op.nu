@@ -2,7 +2,7 @@ def opPrint --wrapped [...args] {
   if 'SUCCINCT' in $env {
     return
   }
-  $"($args | str join ' ')" | print
+  $"($args | flatten | str join ' ')" | print
 }
 
 def opPrintErr --wrapped [...args] {
@@ -10,11 +10,10 @@ def opPrintErr --wrapped [...args] {
     return
   }
   if 'GRAYSCALE' in $env {
-    $"($args | str join ' ')" | print --stderr
+    $"($args | flatten | str join ' ')" | print --stderr
     return
   }
-
-  $"(ansi red)($args | str join ' ')(ansi reset)" | print --stderr
+  $"(ansi red)($args | flatten | str join ' ')(ansi reset)" | print --stderr
 }
 
 def opPrintSucc --wrapped [...args] {
@@ -22,11 +21,10 @@ def opPrintSucc --wrapped [...args] {
     return
   }
   if 'GRAYSCALE' in $env {
-    $"($args | str join ' ')" | print
+    $"($args | flatten | str join ' ')" | print
     return
   }
-
-  $"(ansi green)($args | str join ' ')(ansi reset)" | print
+  $"(ansi green)($args | flatten | str join ' ')(ansi reset)" | print
 }
 
 def opPrintWarn --wrapped [...args] {
@@ -34,11 +32,10 @@ def opPrintWarn --wrapped [...args] {
     return
   }
   if 'GRAYSCALE' in $env {
-    $"($args | str join ' ')" | print
+    $"($args | flatten | str join ' ')" | print
     return
   }
-
-  $"(ansi yellow)($args | str join ' ')(ansi reset)" | print
+  $"(ansi yellow)($args | flatten | str join ' ')(ansi reset)" | print
 }
 
 def opPrintInfo --wrapped [...args] {
@@ -46,11 +43,10 @@ def opPrintInfo --wrapped [...args] {
     return
   }
   if 'GRAYSCALE' in $env {
-    $"($args | str join ' ')" | print
+    $"($args | flatten | str join ' ')" | print
     return
   }
-
-  $"(ansi blue)($args | str join ' ')(ansi reset)" | print
+  $"(ansi blue)($args | flatten | str join ' ')(ansi reset)" | print
 }
 
 def opPrintCmd --wrapped [...args] {
@@ -58,10 +54,10 @@ def opPrintCmd --wrapped [...args] {
     return
   }
   if 'GRAYSCALE' in $env {
-    $"($args | str join ' ')" | print
+    $"($args | flatten | str join ' ')" | print
     return
   }
-
+  let args = $args | flatten
   $"(ansi magenta)($args | first)(ansi reset)" | print --no-newline
   if ($args | length) > 1 {
     $" (ansi cyan)($args | skip 1 | str join ' ')(ansi reset)" | print
@@ -75,11 +71,11 @@ def opMaybePrintCmd --wrapped [...args] {
 }
 
 def opRunCmd --wrapped [...args] {
-  nu --no-config-file -c $"($args | str join ' ')"
+  nu --no-config-file -c $"($args | flatten | str join ' ')"
 }
 
 def opRunSilentCmd --wrapped [...args] {
-  nu --no-config-file -c $"($args | str join ' ') o+e> | silent"
+  nu --no-config-file -c $"($args | flatten | str join ' ') o+e> | silent"
 }
 
 def opMaybeRunCmd --wrapped [...args] {

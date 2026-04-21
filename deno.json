@@ -1,6 +1,6 @@
 {
   "name": "@meop/shire",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Shell Interface Renderer — renders dynamic web-based command-line user interfaces for shells",
   "exports": {
     "./cmd": "./src/cmd.ts",

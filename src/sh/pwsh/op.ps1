@@ -2,7 +2,7 @@ function opPrint {
   if ($SUCCINCT) {
     return
   }
-  [Console]::WriteLine($($args -join ' '))
+  [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
 }
 
 function opPrintErr {
@@ -10,11 +10,11 @@ function opPrintErr {
     return
   }
   if ($GRAYSCALE) {
-    [Console]::Error.WriteLine($($args -join ' '))
+    [Console]::Error.WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
   [Console]::ForegroundColor = 'red'
-  [Console]::Error.WriteLine($($args -join ' '))
+  [Console]::Error.WriteLine((($args | ForEach-Object { $_ }) -join ' '))
   [Console]::ResetColor()
 }
 
@@ -23,11 +23,11 @@ function opPrintSucc {
     return
   }
   if ($GRAYSCALE) {
-    [Console]::WriteLine($($args -join ' '))
+    [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
   [Console]::ForegroundColor = 'green'
-  [Console]::WriteLine($($args -join ' '))
+  [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
   [Console]::ResetColor()
 }
 
@@ -36,11 +36,11 @@ function opPrintWarn {
     return
   }
   if ($GRAYSCALE) {
-    [Console]::WriteLine($($args -join ' '))
+    [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
   [Console]::ForegroundColor = 'yellow'
-  [Console]::WriteLine($($args -join ' '))
+  [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
   [Console]::ResetColor()
 }
 
@@ -49,11 +49,11 @@ function opPrintInfo {
     return
   }
   if ($GRAYSCALE) {
-    [Console]::WriteLine($($args -join ' '))
+    [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
   [Console]::ForegroundColor = 'blue'
-  [Console]::WriteLine($($args -join ' '))
+  [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
   [Console]::ResetColor()
 }
 
@@ -62,16 +62,17 @@ function opPrintCmd {
     return
   }
   if ($GRAYSCALE) {
-    [Console]::WriteLine($($args -join ' '))
+    [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
+  $_args = $args | ForEach-Object { $_ }
   [Console]::ForegroundColor = 'magenta'
-  [Console]::Write($args[0])
+  [Console]::Write($_args[0])
   [Console]::ResetColor()
   if ($args.Length -gt 1) {
     [Console]::Write(' ')
     [Console]::ForegroundColor = 'cyan'
-    [Console]::WriteLine($($($args | Select-Object -Skip 1) -join ' '))
+    [Console]::WriteLine((($_args | Select-Object -Skip 1) -join ' '))
     [Console]::ResetColor()
   }
 }
@@ -83,11 +84,11 @@ function opMaybePrintCmd {
 }
 
 function opRunCmd {
-  Invoke-Expression "$($args -join ' ')"
+  Invoke-Expression $"(($args | ForEach-Object { $_ }) -join ' ')"
 }
 
 function opRunSilentCmd {
-  Invoke-Expression "$($args -join ' ')" 6>&1 5>&1 4>&1 3>&1 2>&1 | Out-Null
+  Invoke-Expression $"(($args | ForEach-Object { $_ }) -join ' ') 6>&1 5>&1 4>&1 3>&1 2>&1 | Out-Null"
 }
 
 function opMaybeRunCmd {
