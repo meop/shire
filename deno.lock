@@ -1,13 +1,13 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@eemeli/yaml@^2.8.2": "2.8.2",
+    "jsr:@eemeli/yaml@^2.8.3": "2.8.3",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.12"
   },
   "jsr": {
-    "@eemeli/yaml@2.8.2": {
-      "integrity": "58f95e7b82f2717963d31f350a9c7cdc098a7b481a3f64c58e979e2e999db0b0"
+    "@eemeli/yaml@2.8.3": {
+      "integrity": "838335bac4d404cd10fbebf15367849a1315eb1e247a662f27e0fd59831f8b36"
     },
     "@std/assert@1.0.19": {
       "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
@@ -21,7 +21,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@eemeli/yaml@^2.8.2",
+      "jsr:@eemeli/yaml@^2.8.3",
       "jsr:@std/assert@^1.0.19"
     ]
   }

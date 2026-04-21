@@ -21,7 +21,7 @@
     "trailingCommas": "onlyMultiLine"
   },
   "imports": {
-    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.2",
+    "@eemeli/yaml": "jsr:@eemeli/yaml@^2.8.3",
     "@std/assert": "jsr:@std/assert@^1.0.19"
   },
   "lint": {
