@@ -12,10 +12,10 @@ elif type sysctl > /dev/null; then
   _raw_vend="${(L)$(sysctl machdep.cpu.brand_string 2> /dev/null | cut -d ':' -f 2 | xargs)}"
 fi
 case "$_raw_vend" in
-  intel*) export SYS_CPU_VEND='intel' ;;
   amd*) export SYS_CPU_VEND='amd' ;;
-  arm*) export SYS_CPU_VEND='arm' ;;
   apple*) export SYS_CPU_VEND='apple' ;;
+  arm*) export SYS_CPU_VEND='arm' ;;
+  intel*) export SYS_CPU_VEND='intel' ;;
 esac
 if [[ $SYS_CPU_VEND ]]; then
   export REQ_URL_SH="${REQ_URL_SH}&sysCpuVend=${SYS_CPU_VEND}"

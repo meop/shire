@@ -40,7 +40,7 @@ export class NuSh extends ShBase implements Sh {
       `  if 'YES' in $env {`,
       `    $yn = 'y'`,
       '  } else {',
-      `    $yn = input r#'? ${name} [y, [n]]: '#`,
+      `    $yn = input r#'${name} [y, [n]]: '#`,
       '  }',
       `  if $yn != 'n' {`,
       ...lines,

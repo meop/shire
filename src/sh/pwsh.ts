@@ -40,7 +40,7 @@ export class PowerSh extends ShBase implements Sh {
       '  if ($YES) {',
       `    $yn = 'y'`,
       '  } else {',
-      `    $yn = Read-Host "? ${name} [y, [n]]"`,
+      `    $yn = Read-Host "${name} [y, [n]]"`,
       '  }',
       `  if ($yn -ne 'n') {`,
       ...lines,

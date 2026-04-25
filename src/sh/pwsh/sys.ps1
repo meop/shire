@@ -18,10 +18,10 @@ if ($IsWindows) {
   $_raw_vend = "$(sysctl machdep.cpu.brand_string 2> /dev/null | cut -d ':' -f 2 | xargs)".ToLower()
 }
 $SYS_CPU_VEND = switch -Wildcard ($_raw_vend) {
-  'intel*' { 'intel' }
   'amd*' { 'amd' }
-  'arm*' { 'arm' }
   'apple*' { 'apple' }
+  'arm*' { 'arm' }
+  'intel*' { 'intel' }
 }
 if ($SYS_CPU_VEND) {
   $REQ_URL_SH = "${REQ_URL_SH}&sysCpuVend=${SYS_CPU_VEND}"
@@ -61,7 +61,7 @@ if ($SYS_OS_PLAT -eq 'linux') {
     }
 
     if (-not $SYS_OS_LIKE -and $SYS_OS) {
-      $SYS_OS_LIKE = (if ($ID_LIKE) { "${SYS_OS}_${ID_LIKE}" } else { "${SYS_OS}" }).ToLower().Replace(' ', '_')
+      $SYS_OS_LIKE = "$(if ($ID_LIKE) { "${SYS_OS}_${ID_LIKE}" } else { "${SYS_OS}" })".ToLower().Replace(' ', '_')
       $REQ_URL_SH = "${REQ_URL_SH}&sysOsLike=${SYS_OS_LIKE}"
     }
 

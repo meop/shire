@@ -99,7 +99,7 @@ def runMyCommand [] {
 
 ```powershell
 function runMyCommand {
-  Write-Host "Processing $env:TARGET"
+  Write-Host "Processing ${env:TARGET}"
 }
 ```
 
@@ -107,7 +107,7 @@ function runMyCommand {
 
 ```zsh
 runMyCommand() {
-  echo "Processing ${TARGET}"
+  echo "Processing $TARGET"
 }
 ```
 

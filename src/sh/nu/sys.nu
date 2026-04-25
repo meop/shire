@@ -7,10 +7,10 @@ $env.REQ_URL_SH = $"($env.REQ_URL_SH)?sysCpuArch=($env.SYS_CPU_ARCH)"
 
 let _raw_vend = sys cpu | first | get name | str downcase
 $env.SYS_CPU_VEND = match $_raw_vend {
-  $x if ($x | str starts-with 'intel') => 'intel',
   $x if ($x | str starts-with 'amd') => 'amd',
-  $x if ($x | str starts-with 'arm') => 'arm',
   $x if ($x | str starts-with 'apple') => 'apple',
+  $x if ($x | str starts-with 'arm') => 'arm',
+  $x if ($x | str starts-with 'intel') => 'intel',
 }
 if $env.SYS_CPU_VEND != null {
   $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysCpuVend=($env.SYS_CPU_VEND)"
