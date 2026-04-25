@@ -40,7 +40,7 @@ export class ZSh extends ShBase implements Sh {
       '  if [[ $YES ]]; then',
       `    yn='y'`,
       '  else',
-      `    read "yn?${name} [y, [n]]: "`,
+      `    read "yn?${name} [y,[n]]: "`,
       '  fi',
       `  if [[ $yn != 'n' ]]; then`,
       ...lines,
