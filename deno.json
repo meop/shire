@@ -15,7 +15,7 @@
     "./srv": "./src/srv.ts"
   },
   "fmt": {
-    "exclude": ["**/*.yaml", "**/*.yml", "**/*.jsonc", "**/*.json"],
+    "exclude": [".github", "**/*.yaml", "**/*.yml", "**/*.jsonc", "**/*.json"],
     "lineWidth": 120,
     "semiColons": false,
     "singleQuote": true,
