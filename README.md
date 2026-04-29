@@ -14,15 +14,19 @@ Published to JSR as `@meop/shire`.
 
 ## Installation
 
+Published to JSR as `@meop/shire` — works with Deno, Bun, and Node.
+
 ```bash
-deno add @meop/shire
+deno add @meop/shire      # Deno
+bunx jsr add @meop/shire  # Bun
+npx jsr add @meop/shire   # Node
 ```
 
-Or import directly in your Deno project:
+Or import directly:
 
 ```typescript
-import { CmdBase } from 'https://jsr.io/@meop/shire/cmd.ts'
-import { Nushell } from 'https://jsr.io/@meop/shire/sh/nu.ts'
+import { CmdBase } from 'jsr:@meop/shire/cmd'
+import { Nushell } from 'jsr:@meop/shire/sh/nu'
 ```
 
 ## Quick Start
@@ -63,13 +67,16 @@ class MyCmd extends CmdBase {
 
 ### Build an HTTP Server
 
+Use any runtime's HTTP server — Deno, Bun, or Node:
+
 ```typescript
 import { Nushell } from '@meop/shire/sh/nu'
 import { Powershell } from '@meop/shire/sh/pwsh'
 import { Zshell } from '@meop/shire/sh/zsh'
 import { getCtx } from '@meop/shire/ctx'
 
-Deno.serve(async (request: Request) => {
+// Handler works with any runtime — Deno.serve(), Bun.serve(), Node's http, etc.
+async function handler(request: Request): Promise<Response> {
   const context = getCtx(request)
   const parts = new URL(request.url).pathname.split('/').filter((p) => p)
 
@@ -80,7 +87,7 @@ Deno.serve(async (request: Request) => {
   const script = await cmd.process(parts.slice(1), shell, context)
 
   return new Response(script, { headers: { 'Content-Type': 'text/plain' } })
-})
+}
 ```
 
 ### Create Shell Templates
