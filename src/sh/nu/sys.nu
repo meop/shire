@@ -1,16 +1,16 @@
 $env.SYS_CPU_ARCH = match (uname | get machine | str downcase) {
-  arm64 => aarch64,
-  amd64 => x86_64,
+  arm64 => 'aarch64',
+  amd64 => 'x86_64',
   $x => $x,
 }
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)?sysCpuArch=($env.SYS_CPU_ARCH)"
 
 let _raw_vend = sys cpu | first | get name | str downcase
 $env.SYS_CPU_VEND = match $_raw_vend {
-  $x if ($x | str starts-with 'amd') => amd,
-  $x if ($x | str starts-with 'apple') => apple,
-  $x if ($x | str starts-with 'arm') => arm,
-  $x if ($x | str starts-with 'intel') => intel,
+  $x if ($x | str starts-with amd) => 'amd',
+  $x if ($x | str starts-with apple) => 'apple',
+  $x if ($x | str starts-with arm) => 'arm',
+  $x if ($x | str starts-with intel) => 'intel',
 }
 if $env.SYS_CPU_VEND != null {
   $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysCpuVend=($env.SYS_CPU_VEND)"
@@ -20,9 +20,9 @@ $env.SYS_HOST = sys host | get hostname | str downcase
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysHost=($env.SYS_HOST)"
 
 $env.SYS_OS_PLAT = match (uname | get kernel-name | str downcase) {
-  darwin => darwin,
-  linux => linux,
-  windows_nt => winnt,
+  darwin => 'darwin',
+  linux => 'linux',
+  windows_nt => 'winnt',
   $x => $x,
 }
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsPlat=($env.SYS_OS_PLAT)"
@@ -30,8 +30,8 @@ $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsPlat=($env.SYS_OS_PLAT)"
 if $env.SYS_OS_PLAT == linux {
   if SYS_OS_DE not-in $env and XDG_SESSION_DESKTOP in $env {
     $env.SYS_OS_DE = match ($env.XDG_SESSION_DESKTOP | str downcase) {
-      kde => plasma,
-      rpd | rpd-labwc => lxde,
+      kde => 'plasma',
+      rpd | rpd-labwc => 'lxde',
       $x => $x,
     }
     $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsDe=($env.SYS_OS_DE)"

@@ -4,8 +4,8 @@ if ($IsWindows) {
   $_raw_arch = "$(uname -m)".ToLower()
 }
 $SYS_CPU_ARCH = switch ($_raw_arch) {
-  arm64 { aarch64 }
-  amd64 { x86_64 }
+  arm64 { 'aarch64' }
+  amd64 { 'x86_64' }
   default { $_raw_arch }
 }
 $REQ_URL_SH = "${REQ_URL_SH}?sysCpuArch=${SYS_CPU_ARCH}"
@@ -18,10 +18,10 @@ if ($IsWindows) {
   $_raw_vend = "$(sysctl machdep.cpu.brand_string 2> /dev/null | cut -d ':' -f 2 | xargs)".ToLower()
 }
 $SYS_CPU_VEND = switch -Wildcard ($_raw_vend) {
-  amd* { amd }
-  apple* { apple }
-  arm* { arm }
-  intel* { intel }
+  amd* { 'amd' }
+  apple* { 'apple' }
+  arm* { 'arm' }
+  intel* { 'intel' }
 }
 if ($SYS_CPU_VEND) {
   $REQ_URL_SH = "${REQ_URL_SH}&sysCpuVend=${SYS_CPU_VEND}"
@@ -41,9 +41,9 @@ if ($SYS_OS_PLAT -eq linux) {
   if (-not $SYS_OS_DE -and $XDG_SESSION_DESKTOP) {
     $_de = "${XDG_SESSION_DESKTOP}".ToLower()
     $SYS_OS_DE = switch ($_de) {
-      kde { plasma }
-      rpd { lxde }
-      rpd-labwc { lxde }
+      kde { 'plasma' }
+      rpd { 'lxde' }
+      rpd-labwc { 'lxde' }
       default { $_de }
     }
     $REQ_URL_SH = "${REQ_URL_SH}&sysOsDe=${SYS_OS_DE}"
