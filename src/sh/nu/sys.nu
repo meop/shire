@@ -37,7 +37,7 @@ if $env.SYS_OS_PLAT == linux {
     $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsDe=($env.SYS_OS_DE)"
   }
 
-  if (/etc/os-release | path exists) {
+  if ('/etc/os-release' | path exists) {
     open /etc/os-release
       | lines
       | parse '{key}={value}'

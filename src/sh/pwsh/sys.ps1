@@ -34,10 +34,10 @@ if ($IsWindows) {
 }
 $REQ_URL_SH = "${REQ_URL_SH}&sysHost=${SYS_HOST}"
 
-$SYS_OS_PLAT = if ($IsMacOS) { darwin } elseif ($IsLinux) { linux } elseif ($IsWindows) { winnt } else { unknown }
+$SYS_OS_PLAT = if ($IsMacOS) { 'darwin' } elseif ($IsLinux) { 'linux' } elseif ($IsWindows) { 'winnt' } else { 'unknown' }
 $REQ_URL_SH = "${REQ_URL_SH}&sysOsPlat=${SYS_OS_PLAT}"
 
-if ($SYS_OS_PLAT -eq linux) {
+if ($SYS_OS_PLAT -eq 'linux') {
   if (-not $SYS_OS_DE -and $XDG_SESSION_DESKTOP) {
     $_de = "${XDG_SESSION_DESKTOP}".ToLower()
     $SYS_OS_DE = switch ($_de) {
