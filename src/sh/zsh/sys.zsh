@@ -1,7 +1,7 @@
 _raw_arch="${(L)$(uname -m)}"
 case "$_raw_arch" in
-  arm64) export SYS_CPU_ARCH='aarch64' ;;
-  amd64) export SYS_CPU_ARCH='x86_64' ;;
+  arm64) export SYS_CPU_ARCH=aarch64 ;;
+  amd64) export SYS_CPU_ARCH=x86_64 ;;
   *) export SYS_CPU_ARCH="$_raw_arch" ;;
 esac
 export REQ_URL_SH="${REQ_URL_SH}?sysCpuArch=${SYS_CPU_ARCH}"
@@ -12,10 +12,10 @@ elif type sysctl > /dev/null; then
   _raw_vend="${(L)$(sysctl machdep.cpu.brand_string 2> /dev/null | cut -d ':' -f 2 | xargs)}"
 fi
 case "$_raw_vend" in
-  amd*) export SYS_CPU_VEND='amd' ;;
-  apple*) export SYS_CPU_VEND='apple' ;;
-  arm*) export SYS_CPU_VEND='arm' ;;
-  intel*) export SYS_CPU_VEND='intel' ;;
+  amd*) export SYS_CPU_VEND=amd ;;
+  apple*) export SYS_CPU_VEND=apple ;;
+  arm*) export SYS_CPU_VEND=arm ;;
+  intel*) export SYS_CPU_VEND=intel ;;
 esac
 if [[ $SYS_CPU_VEND ]]; then
   export REQ_URL_SH="${REQ_URL_SH}&sysCpuVend=${SYS_CPU_VEND}"
@@ -26,8 +26,8 @@ export REQ_URL_SH="${REQ_URL_SH}&sysHost=${SYS_HOST}"
 
 _raw_plat="${(L)$(uname)}"
 case "$_raw_plat" in
-  darwin) export SYS_OS_PLAT='darwin' ;;
-  linux) export SYS_OS_PLAT='linux' ;;
+  darwin) export SYS_OS_PLAT=darwin ;;
+  linux) export SYS_OS_PLAT=linux ;;
   *) export SYS_OS_PLAT="$_raw_plat" ;;
 esac
 export REQ_URL_SH="${REQ_URL_SH}&sysOsPlat=${SYS_OS_PLAT}"
@@ -36,8 +36,8 @@ if [[ $SYS_OS_PLAT == 'linux' ]]; then
   if [[ -z $SYS_OS_DE ]] && [[ $XDG_SESSION_DESKTOP ]]; then
     _raw_de="${(L)XDG_SESSION_DESKTOP}"
     case "$_raw_de" in
-      kde) export SYS_OS_DE='plasma' ;;
-      rpd|rpd-labwc) export SYS_OS_DE='lxde' ;;
+      kde) export SYS_OS_DE=plasma ;;
+      rpd|rpd-labwc) export SYS_OS_DE=lxde ;;
       *) export SYS_OS_DE="$_raw_de" ;;
     esac
     export REQ_URL_SH="${REQ_URL_SH}&sysOsDe=${SYS_OS_DE}"

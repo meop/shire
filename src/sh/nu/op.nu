@@ -1,15 +1,15 @@
 def opPrint --wrapped [...args] {
-  if 'SUCCINCT' in $env {
+  if SUCCINCT in $env {
     return
   }
   $"($args | flatten | str join ' ')" | print
 }
 
 def opPrintErr --wrapped [...args] {
-  if 'SUCCINCT' in $env {
+  if SUCCINCT in $env {
     return
   }
-  if 'GRAYSCALE' in $env {
+  if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print --stderr
     return
   }
@@ -17,10 +17,10 @@ def opPrintErr --wrapped [...args] {
 }
 
 def opPrintSucc --wrapped [...args] {
-  if 'SUCCINCT' in $env {
+  if SUCCINCT in $env {
     return
   }
-  if 'GRAYSCALE' in $env {
+  if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
   }
@@ -28,10 +28,10 @@ def opPrintSucc --wrapped [...args] {
 }
 
 def opPrintWarn --wrapped [...args] {
-  if 'SUCCINCT' in $env {
+  if SUCCINCT in $env {
     return
   }
-  if 'GRAYSCALE' in $env {
+  if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
   }
@@ -39,10 +39,10 @@ def opPrintWarn --wrapped [...args] {
 }
 
 def opPrintInfo --wrapped [...args] {
-  if 'SUCCINCT' in $env {
+  if SUCCINCT in $env {
     return
   }
-  if 'GRAYSCALE' in $env {
+  if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
   }
@@ -50,10 +50,10 @@ def opPrintInfo --wrapped [...args] {
 }
 
 def opPrintCmd --wrapped [...args] {
-  if 'SUCCINCT' in $env {
+  if SUCCINCT in $env {
     return
   }
-  if 'GRAYSCALE' in $env {
+  if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
   }
@@ -65,7 +65,7 @@ def opPrintCmd --wrapped [...args] {
 }
 
 def opMaybePrintCmd --wrapped [...args] {
-  if 'NOOP' not-in $env {
+  if NOOP not-in $env {
     opPrintCmd ...$args
   }
 }
@@ -79,13 +79,13 @@ def opRunSilentCmd --wrapped [...args] {
 }
 
 def opMaybeRunCmd --wrapped [...args] {
-  if 'NOOP' not-in $env {
+  if NOOP not-in $env {
     opRunCmd ...$args
   }
 }
 
 def opMaybeRunSilentCmd --wrapped [...args] {
-  if 'NOOP' not-in $env {
+  if NOOP not-in $env {
     opRunSilentCmd ...$args
   }
 }
