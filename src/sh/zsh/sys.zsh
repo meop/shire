@@ -32,7 +32,7 @@ case "$_raw_plat" in
 esac
 export REQ_URL_SH="${REQ_URL_SH}&sysOsPlat=${SYS_OS_PLAT}"
 
-if [[ $SYS_OS_PLAT == 'linux' ]]; then
+if [[ $SYS_OS_PLAT == linux ]]; then
   if [[ -z $SYS_OS_DE ]] && [[ $XDG_SESSION_DESKTOP ]]; then
     _raw_de="${(L)XDG_SESSION_DESKTOP}"
     case "$_raw_de" in
