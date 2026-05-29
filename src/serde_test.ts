@@ -5,7 +5,7 @@ import { Fmt, parse, stringify, toFmt } from './serde.ts'
 Deno.test('toFmt - converts string to format', () => {
   assertEquals(toFmt('json'), Fmt.json)
   assertEquals(toFmt('yaml'), Fmt.yaml)
-  assertEquals(toFmt('other'), Fmt.yaml) // Default to yaml
+  assertEquals(toFmt('other'), Fmt.yaml)
 })
 
 Deno.test('parse and stringify - JSON', () => {
@@ -17,7 +17,6 @@ Deno.test('parse and stringify - JSON', () => {
 
 Deno.test('parse and stringify - YAML', () => {
   const data = { a: 1, b: 'test' }
-  // The @eemeli/yaml stringify might have different indentation or formatting
   const result = stringify(data, Fmt.yaml)
   assertEquals(parse(result, Fmt.yaml), data)
 })

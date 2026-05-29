@@ -3,7 +3,7 @@
  * @module
  */
 
-import * as YAML from '@eemeli/yaml'
+import * as YAML from '@std/yaml'
 
 /**
  * Enumeration of supported formats for serialization/deserialization
