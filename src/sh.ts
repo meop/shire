@@ -91,13 +91,6 @@ export interface Sh {
    * @returns Escaped literal string representation
    */
   toLiteral: (value: string) => string
-  /**
-   * Wraps a value as an array element
-   * Used when building array structures with varSetArr
-   * @param value - Value to wrap
-   * @returns Wrapped value suitable for array element
-   */
-  toElement: (value: string) => string
 
   /**
    * Generates trace information
@@ -307,15 +300,6 @@ export class ShBase implements Sh {
    * @returns Escaped literal string representation
    */
   toLiteral(_value: string): string {
-    throw new Error('abstract')
-  }
-
-  /**
-   * Wraps a value as an array element
-   * @param _value - Value to wrap
-   * @returns Wrapped value suitable for array element
-   */
-  toElement(_value: string): string {
     throw new Error('abstract')
   }
 

@@ -71,7 +71,7 @@ export interface Cmd {
 export function toExpandedParts(parts: Array<string>): Array<string> {
   const _parts: Array<string> = []
   for (const part of parts) {
-    if (part.startsWith('-') && !part.startsWith('--')) {
+    if (part.length > 1 && part.startsWith('-') && !part.startsWith('--')) {
       for (const c of part.split('').slice(1)) {
         _parts.push(`-${c}`)
       }
@@ -153,17 +153,15 @@ function toSerializable(command: Cmd) {
   }
 
   if (command.options.length) {
-    command.options.sort((a, b) => a.keys[0].localeCompare(b.keys[0]))
-    content.options = command.options.map(
-      (opt) => `${opt.keys.join(', ')} | ${opt.description}`,
-    )
+    content.options = [...command.options]
+      .sort((a, b) => a.keys[0].localeCompare(b.keys[0]))
+      .map((opt) => `${opt.keys.join(', ')} | ${opt.description}`)
   }
 
   if (command.switches.length) {
-    command.switches.sort((a, b) => a.keys[0].localeCompare(b.keys[0]))
-    content.switches = command.switches.map(
-      (swt) => `${swt.keys.join(', ')} | ${swt.description}`,
-    )
+    content.switches = [...command.switches]
+      .sort((a, b) => a.keys[0].localeCompare(b.keys[0]))
+      .map((swt) => `${swt.keys.join(', ')} | ${swt.description}`)
   }
 
   if (command.commands.length) {
@@ -323,8 +321,11 @@ export class CmdBase {
           continue
         }
         const _option = this.options.find((o) => o.keys.includes(part))
-        if (_option && partsIndex + 1 < _parts.length) {
-          if (_parts[partsIndex + 1].startsWith('-')) {
+        if (_option) {
+          if (
+            partsIndex + 1 >= _parts.length ||
+            _parts[partsIndex + 1].startsWith('-')
+          ) {
             return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
           }
           _environment.set(

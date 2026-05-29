@@ -16,12 +16,6 @@ Deno.test('NuSh - toLiteral uses adaptive raw string depth', () => {
   assertEquals(nu.toLiteral("r##'deep'##"), "r###'r##'deep'##'###")
 })
 
-Deno.test('NuSh - toElement delegates to toLiteral (no backtick)', () => {
-  const nu = new NuSh()
-  assertEquals(nu.toElement('val'), "r#'val'#")
-  assertEquals(nu.toElement("r#'nested'#"), "r##'r#'nested'#'##")
-})
-
 Deno.test('NuSh - varSetArr applies toLiteral to each value', () => {
   const nu = new NuSh()
   assertEquals(nu.varSetArr(['ARR'], ['v1', 'v2']), "$env.ARR = [ r#'v1'#, r#'v2'# ]")
@@ -49,12 +43,6 @@ Deno.test('PowerSh - toLiteral escapes single quotes', () => {
   assertEquals(pwsh.toLiteral("it''s"), "'it''''s'")
 })
 
-Deno.test('PowerSh - toElement wraps without escaping', () => {
-  const pwsh = new PowerSh()
-  // toElement wraps with single quotes but does not escape — callers should pass pre-quoted or safe values
-  assertEquals(pwsh.toElement('val'), "'val'")
-})
-
 Deno.test('PowerSh - varSetArr applies toLiteral to raw values', () => {
   const pwsh = new PowerSh()
   assertEquals(pwsh.varSetArr(['ARR'], ['v1', 'v2']), "$ARR = @( 'v1', 'v2' )")
@@ -79,12 +67,6 @@ Deno.test('ZSh - toLiteral escapes single quotes and backslashes', () => {
   assertEquals(zsh.toLiteral('hello'), "'hello'")
   assertEquals(zsh.toLiteral("some'value"), String.raw`'some'\''value'`)
   assertEquals(zsh.toLiteral('back\\slash'), String.raw`'back\\slash'`)
-})
-
-Deno.test('ZSh - toElement wraps without escaping', () => {
-  const zsh = new ZSh()
-  // toElement wraps with single quotes but does not escape — callers should pass pre-quoted or safe values
-  assertEquals(zsh.toElement('val'), "'val'")
 })
 
 Deno.test('ZSh - varSetArr applies toLiteral to raw values', () => {

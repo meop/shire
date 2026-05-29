@@ -59,15 +59,6 @@ export class PowerSh extends ShBase implements Sh {
   }
 
   /**
-   * Wraps a value as an array element for PowerSh
-   * @param value - The value to wrap
-   * @returns Single-quoted value
-   */
-  override toElement(value: string): string {
-    return `'${value}'`
-  }
-
-  /**
    * Returns the trace command for PowerSh
    * @returns The trace command
    */

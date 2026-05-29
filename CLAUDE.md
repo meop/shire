@@ -41,13 +41,12 @@ tag) → Package (`deno publish` to JSR). Requires `GPG_PRIVATE_KEY` and `GPG_PA
 `varSet` vs `varSetStr`: use `varSetStr` for raw values (applies `toLiteral` internally); use `varSet` only when the
 value is already shell-quoted. `varSetArr` applies `toLiteral` to each element automatically — always pass raw strings.
 
-### String Escaping (toLiteral/toElement)
+### String Escaping (toLiteral)
 
-Low-level quoting primitives — prefer `varSetStr`/`varSetArr` above. Use `toLiteral` when embedding a value in another
+Low-level quoting primitive — prefer `varSetStr`/`varSetArr` above. Use `toLiteral` when embedding a value in another
 shell expression (e.g., as an argument to a static `execStr` call).
 
 Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, etc.) to safely nest any content.
-`toElement` delegates to `toLiteral` on all shells (no backtick exception needed).
 
 ### File Loading
 

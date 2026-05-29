@@ -64,15 +64,6 @@ export class NuSh extends ShBase implements Sh {
   }
 
   /**
-   * Wraps a value as an array element for NuSh (delegates to toLiteral)
-   * @param value - The value to wrap
-   * @returns Raw string literal
-   */
-  override toElement(value: string): string {
-    return this.toLiteral(value)
-  }
-
-  /**
    * Returns the trace command for NuSh (empty as there's no direct equivalent)
    * @returns Empty string
    */
