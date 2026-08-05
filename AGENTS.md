@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 A library consumed by other projects (no standalone server). Provides shell-agnostic script generation for nu/pwsh/zsh,
 a hierarchical command system, context extraction, and path/env utilities.
