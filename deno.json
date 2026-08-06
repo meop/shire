@@ -1,6 +1,6 @@
 {
   "name": "@meop/shire",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Shell Interface Renderer — renders dynamic web-based command-line user interfaces for shells",
   "exports": {
     "./cmd": "./src/cmd.ts",
@@ -23,7 +23,7 @@
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.19",
-    "@std/yaml": "jsr:@std/yaml@^1.1.1"
+    "@std/yaml": "jsr:@std/yaml@^1.2.0"
   },
   "lint": {
     "rules": {
