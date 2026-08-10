@@ -28,6 +28,15 @@ export interface Sh {
   build(): string
 
   /**
+   * Generates the shell's own invocation flags for running a value as a script (e.g. `-c <value>` plus whatever
+   * non-interactive/no-config flags the shell needs). Deliberately excludes the binary name/path itself — callers
+   * decide what to invoke (the bare shell name, or an explicit path to a specific binary) and prepend it themselves.
+   * @param value - The command to execute
+   * @returns The formatted flags string, without a leading binary name
+   */
+  execArgs(value: string): string
+
+  /**
    * Loads a file from the shell's directory structure
    * @param parts - Path components to locate the file
    * @param urlResolver - Optional function to resolve URLs
@@ -191,6 +200,15 @@ export class ShBase implements Sh {
       lines.push('')
     }
     return lines.join('\n')
+  }
+
+  /**
+   * Abstract method for generating the shell's invocation flags
+   * @param _value - The command to execute
+   * @returns The formatted flags string, without a leading binary name
+   */
+  execArgs(_value: string): string {
+    throw new Error('abstract')
   }
 
   /**

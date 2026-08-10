@@ -19,12 +19,12 @@ export class NuSh extends ShBase implements Sh {
   }
 
   /**
-   * Generates an execution string for running a command in NuSh
+   * Generates the invocation flags for running a value as a NuSh script
    * @param value - The command to execute
-   * @returns The formatted command string
+   * @returns The formatted flags string, without a leading binary name
    */
-  static execStr(value: string): string {
-    return `nu --no-config-file -c ${value}`
+  override execArgs(value: string): string {
+    return `--no-config-file -c ${value}`
   }
 
   /**

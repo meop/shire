@@ -71,11 +71,11 @@ def opMaybePrintCmd --wrapped [...args] {
 }
 
 def opRunCmd --wrapped [...args] {
-  nu --no-config-file -c $"($args | flatten | str join ' ')"
+  ^($nu.current-exe) --no-config-file -c $"($args | flatten | str join ' ')"
 }
 
 def opRunSilentCmd --wrapped [...args] {
-  nu --no-config-file -c $"($args | flatten | str join ' ') o+e> | silent"
+  ^($nu.current-exe) --no-config-file -c $"($args | flatten | str join ' ') o+e> | silent"
 }
 
 def opMaybeRunCmd --wrapped [...args] {
