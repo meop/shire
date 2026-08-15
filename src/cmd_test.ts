@@ -163,3 +163,34 @@ Deno.test('CmdBase.process - extra positional args append to last', async () => 
   await cmd.process(['first', 'second', 'third'], shell, context, env)
   assertEquals(env.get(['test', 'arg1']), 'first|second|third')
 })
+
+Deno.test('CmdBase.process - "--" separates trailing args from matched arguments', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+  const env = new EnvBase()
+
+  await cmd.process(['myarg', '--', 'foo', 'bar'], shell, context, env)
+  assertEquals(env.get(['test', 'arg1']), 'myarg')
+  assertEquals(env.get(['test', 'args']), 'foo|bar')
+})
+
+Deno.test('CmdBase.process - "--" with nothing after it sets no args', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+  const env = new EnvBase()
+
+  await cmd.process(['myarg', '--'], shell, context, env)
+  assertEquals(env.get(['test', 'arg1']), 'myarg')
+  assertEquals(env.get(['test', 'args']), undefined)
+})
+
+Deno.test('CmdBase.process - "--" before a required arg is filled still returns help', async () => {
+  const cmd = new TestCmd(['root'])
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+
+  const result = await cmd.process(['--', 'foo'], shell, context)
+  assertStringIncludes(result, 'root test | test command')
+})

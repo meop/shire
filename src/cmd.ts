@@ -307,6 +307,13 @@ export class CmdBase {
         return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
       }
 
+      if (part === '--') {
+        for (const arg of _parts.slice(partsIndex + 1)) {
+          _environment.setAppend(toFullKey('args'), arg)
+        }
+        break
+      }
+
       if (part.startsWith('-') && part !== '--') {
         const _switch = this.switches.find((s) => s.keys.includes(part))
         if (_switch) {
