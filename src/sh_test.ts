@@ -16,6 +16,16 @@ Deno.test('NuSh - toLiteral uses adaptive raw string depth', () => {
   assertEquals(nu.toLiteral("r##'deep'##"), "r###'r##'deep'##'###")
 })
 
+Deno.test("NuSh - toLiteral bumps depth when value starts with '#' (nu misparses r#'#... as unclosed)", () => {
+  const nu = new NuSh()
+  // leading '#' at depth 1 would misparse: bump to depth 2
+  assertEquals(nu.toLiteral('# comment\nrest'), "r##'# comment\nrest'##")
+  // leading '##' needs depth 3, not just 2
+  assertEquals(nu.toLiteral('##double'), "r###'##double'###")
+  // '#' elsewhere (not leading) is unaffected: depth 1 still safe
+  assertEquals(nu.toLiteral('hello # world'), "r#'hello # world'#")
+})
+
 Deno.test('NuSh - varSetArr applies toLiteral to each value', () => {
   const nu = new NuSh()
   assertEquals(nu.varSetArr(['ARR'], ['v1', 'v2']), "$env.ARR = [ r#'v1'#, r#'v2'# ]")

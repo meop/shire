@@ -55,8 +55,11 @@ export class NuSh extends ShBase implements Sh {
    * @returns Raw string literal with sufficient hash depth to avoid conflicts
    */
   override toLiteral(value: string): string {
+    // nu's raw string parser misreads r#'#... as an unclosed delimiter when the leading run of '#'
+    // in the content is at least as long as the opening depth, so the depth must clear that run too
+    const leadingHashes = value.match(/^#*/)?.[0].length ?? 0
     let depth = 1
-    while (value.includes(`'${'#'.repeat(depth)}`)) {
+    while (value.includes(`'${'#'.repeat(depth)}`) || depth <= leadingHashes) {
       depth++
     }
     const hash = '#'.repeat(depth)
