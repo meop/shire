@@ -22,7 +22,7 @@ $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysHost=($env.SYS_HOST)"
 $env.SYS_OS_PLAT = match (uname | get kernel-name | str lowercase) {
   darwin => 'darwin',
   linux => 'linux',
-  windows_nt => 'winnt',
+  windows_nt => 'windows',
   $x => $x,
 }
 $env.REQ_URL_SH = $"($env.REQ_URL_SH)&sysOsPlat=($env.SYS_OS_PLAT)"
