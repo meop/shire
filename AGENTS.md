@@ -48,6 +48,15 @@ shell expression (e.g., as an argument to a static `execStr` call).
 
 Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, etc.) to safely nest any content.
 
+### Ctrl-C (quietInterrupt)
+
+A ctrl-c ends a script quietly with exit code 130 in every shell. zsh and pwsh do that on their own, so their
+`quietInterrupt` returns the script unchanged. nu raises it as an error instead — printed on the way out, and caught by
+any `try` — so `NuSh.build()` wraps every script in one handler, and `opRunCmd` wraps the child nu each command runs in
+(`opQuietInterrupt` in `op.nu`, which must match `NuSh.quietInterrupt` line for line; `nu_test.ts` holds that). nu keeps
+a ctrl-c pending until a `try` catches it, so code that has to run after one (cleanup) goes in `try { X } catch { X }`:
+the first attempt can be cut short, the second cannot. Only the outermost nu in a chain prints the newline after `^C`.
+
 ### File Loading
 
 `fileLoad()` returns empty string if the file is not found — graceful degradation, no error thrown.

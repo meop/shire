@@ -6,6 +6,30 @@ import { type Sh, ShBase } from '../sh.ts'
  * @module
  */
 
+// nu raises a ctrl-c as an error at its next check, in every nu process it reached, and keeps it pending until a try
+// catches it — so the catch below can itself be cut short. the inner try is the catch for that: whichever way the
+// interrupt surfaces, the script ends quietly with 130. only the outermost nu prints the newline a shell would, so a
+// chain of them prints one
+const QUIET_INTERRUPT_HEAD = [
+  `let shireOuter = ('SHIRE_NU_NESTED' not-in $env)`,
+  `$env.SHIRE_NU_NESTED = '1'`,
+  'try {',
+]
+const QUIET_INTERRUPT_TAIL = [
+  '} catch { |e|',
+  '  try {',
+  `    if ($e.debug =~ '^(Interrupted |TerminatedBySignal \\{ signal_name: "SIGINT"|NonZeroExitCode \\{ exit_code: (130|254),)') or ($e.details.code? == 'nu::shell::io::interrupted') {`,
+  `      if $shireOuter { print '' }`,
+  '      exit 130',
+  '    }',
+  '  } catch {',
+  `    if $shireOuter { print '' }`,
+  '    exit 130',
+  '  }',
+  '  $e.raw',
+  '}',
+]
+
 /**
  * NuSh implementation of the Sh interface
  * This class provides methods for working with NuSh shell commands
@@ -25,6 +49,24 @@ export class NuSh extends ShBase implements Sh {
    */
   override execArgs(value: string): string {
     return `--no-config-file -c ${value}`
+  }
+
+  /**
+   * Builds the script, wrapped so a ctrl-c ends it quietly with 130
+   * @returns The full shell script as a string
+   */
+  override build(): string {
+    return this.quietInterrupt(super.build())
+  }
+
+  /**
+   * Wraps a NuSh script so a ctrl-c ends it quietly with exit code 130, as it ends a zsh or pwsh one. any other
+   * error is raised again, so nu reports it and exits as it would have
+   * @param body - The script to wrap
+   * @returns The wrapped script
+   */
+  override quietInterrupt(body: string): string {
+    return [...QUIET_INTERRUPT_HEAD, body, ...QUIET_INTERRUPT_TAIL].join('\n')
   }
 
   /**

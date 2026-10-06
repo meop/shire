@@ -150,6 +150,11 @@ Use `toLiteral()` only when embedding a value directly in another shell expressi
 const cmd = Zshell.execStr(shell.toLiteral('echo "hello"'))
 ```
 
+### Ctrl-C
+
+A ctrl-c ends a generated script the same way in every shell: no error output, exit code 130. zsh and pwsh do this on
+their own; nu scripts get it from `build()`, which wraps them via `quietInterrupt()`.
+
 ### Variable Scoping
 
 Variable keys are hierarchical arrays: `['pack', 'add', 'names']` maps to environment variables based on the shell's key

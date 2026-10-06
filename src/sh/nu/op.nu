@@ -70,12 +70,34 @@ def opMaybePrintCmd --wrapped [...args] {
   }
 }
 
+# the child nu a command runs in ends quietly on a ctrl-c too: NuSh.quietInterrupt, line for line
+def opQuietInterrupt [body: string] {
+  [
+    r#'let shireOuter = ('SHIRE_NU_NESTED' not-in $env)'#
+    r#'$env.SHIRE_NU_NESTED = '1''#
+    r#'try {'#
+    $body
+    r#'} catch { |e|'#
+    r#'  try {'#
+    r#'    if ($e.debug =~ '^(Interrupted |TerminatedBySignal \{ signal_name: "SIGINT"|NonZeroExitCode \{ exit_code: (130|254),)') or ($e.details.code? == 'nu::shell::io::interrupted') {'#
+    r#'      if $shireOuter { print '' }'#
+    r#'      exit 130'#
+    r#'    }'#
+    r#'  } catch {'#
+    r#'    if $shireOuter { print '' }'#
+    r#'    exit 130'#
+    r#'  }'#
+    r#'  $e.raw'#
+    r#'}'#
+  ] | str join "\n"
+}
+
 def opRunCmd --wrapped [...args] {
-  ^($nu.current-exe) --no-config-file -c $"($args | flatten | str join ' ')"
+  ^($nu.current-exe) --no-config-file -c (opQuietInterrupt $"($args | flatten | str join ' ')")
 }
 
 def opRunSilentCmd --wrapped [...args] {
-  ^($nu.current-exe) --no-config-file -c $"($args | flatten | str join ' ') o+e> | silent"
+  ^($nu.current-exe) --no-config-file -c (opQuietInterrupt $"($args | flatten | str join ' ') o+e> | silent")
 }
 
 def opMaybeRunCmd --wrapped [...args] {

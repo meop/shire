@@ -72,11 +72,12 @@ Deno.test('PowerSh - varSet and varUnSet', () => {
   assertEquals(pwsh.varUnSet(['KEY']), 'Remove-Variable KEY -ErrorAction SilentlyContinue')
 })
 
-Deno.test('ZSh - toLiteral escapes single quotes and backslashes', () => {
+Deno.test('ZSh - toLiteral escapes single quotes and leaves backslashes as they are', () => {
   const zsh = new ZSh()
   assertEquals(zsh.toLiteral('hello'), "'hello'")
   assertEquals(zsh.toLiteral("some'value"), String.raw`'some'\''value'`)
-  assertEquals(zsh.toLiteral('back\\slash'), String.raw`'back\\slash'`)
+  // zsh reads single quotes as they are, so a doubled backslash would reach the script doubled
+  assertEquals(zsh.toLiteral('back\\slash'), String.raw`'back\slash'`)
 })
 
 Deno.test('ZSh - varSetArr applies toLiteral to raw values', () => {
@@ -96,4 +97,17 @@ Deno.test('ZSh - varSet and varUnSet', () => {
   const zsh = new ZSh()
   assertEquals(zsh.varSet(['TEST', 'KEY'], "'value'"), "TEST_KEY='value'")
   assertEquals(zsh.varUnSet(['KEY']), 'unset KEY')
+})
+
+Deno.test('ZSh - toLiteral reads back in zsh as the value it was given', async () => {
+  const value = String.raw`a\b 'q' \{ $HOME "d"`
+  try {
+    const out = await new Deno.Command('zsh', { args: ['-f', '-c', `print -rn -- ${new ZSh().toLiteral(value)}`] })
+      .output()
+    assertEquals(new TextDecoder().decode(out.stdout), value)
+  } catch (e) {
+    if (!(e instanceof Deno.errors.NotFound)) {
+      throw e
+    }
+  }
 })

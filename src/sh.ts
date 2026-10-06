@@ -37,6 +37,15 @@ export interface Sh {
   execArgs(value: string): string
 
   /**
+   * Wraps a script so a ctrl-c ends it the way it ends a zsh or pwsh one: quietly, with exit code 130. zsh and pwsh
+   * already behave that way, so for them this returns the script unchanged; nu raises a ctrl-c as an error instead,
+   * which it prints on the way out
+   * @param body - The script to wrap
+   * @returns The wrapped script
+   */
+  quietInterrupt(body: string): string
+
+  /**
    * Loads a file from the shell's directory structure
    * @param parts - Path components to locate the file
    * @param urlResolver - Optional function to resolve URLs
@@ -209,6 +218,15 @@ export class ShBase implements Sh {
    */
   execArgs(_value: string): string {
     throw new Error('abstract')
+  }
+
+  /**
+   * Returns the script unchanged: a shell stops quietly on a ctrl-c unless it says otherwise
+   * @param body - The script to wrap
+   * @returns The same script
+   */
+  quietInterrupt(body: string): string {
+    return body
   }
 
   /**

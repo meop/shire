@@ -52,10 +52,10 @@ export class ZSh extends ShBase implements Sh {
   /**
    * Converts a value to a literal string for ZSh
    * @param value - The value to convert
-   * @returns Single-quoted string with escaped quotes and backslashes
+   * @returns Single-quoted string with escaped quotes; zsh reads everything else in single quotes as it is
    */
   override toLiteral(value: string): string {
-    return `'${value.replaceAll('\\', '\\\\').replaceAll("'", "'\\''")}'`
+    return `'${value.replaceAll("'", "'\\''")}'`
   }
 
   /**
