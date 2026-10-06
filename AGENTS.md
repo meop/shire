@@ -50,26 +50,30 @@ Nushell's `toLiteral` uses adaptive raw string depth (`r#'...'#`, `r##'...'##`, 
 
 ### Ctrl-C (quietInterrupt)
 
-A ctrl-c ends a script quietly with exit code 130 in every shell. zsh and pwsh do that on their own, so their
-`quietInterrupt` returns the script unchanged. nu raises it as an error, which it prints on the way out and which any
-`try` catches, so `NuSh.build()` wraps every script in one handler, and `opRunCmd` wraps the child nu each command runs
-in (`opQuietInterrupt` in `op.nu`, held to `NuSh.quietInterrupt` line for line by `nu_test.ts`).
+A ctrl-c ends a script with exit code 130 and no error output in every shell. zsh and pwsh do that on their own, so
+their `quietInterrupt` returns the script unchanged. nu raises it as an error, which it prints on the way out and which
+any `try` catches, so each nu process gets one wrapper at its top: `NuSh.build()` wraps every script, and `opRunCmd` the
+child nu each command runs in (`opQuietInterrupt` in `op.nu`, held to `NuSh.quietInterrupt` line for line by
+`nu_test.ts`). Its catch exits 130 for a ctrl-c (`opInterrupted`) and raises anything else again, to be reported as
+before. Nothing else is needed: code below that rethrows an interrupt (`opRethrowInterrupt`) lets it reach the top.
 
 How nu behaves, from its source (0.116):
 
-- one interrupt flag per process, set by the ctrl-c handler (`src/signals.rs`); a script's children share its process
-  group, so every nu in a chain gets one (`crates/nu-system/src/foreground.rs`)
+- the ctrl-c handler sets one interrupt flag per process, from a thread of its own (the `ctrlc` crate's
+  `set_handler_inner`), so nu can see a command the ctrl-c stopped exit before its own flag is set. a script's children
+  share its process group, so every nu in a chain gets one (`crates/nu-system/src/foreground.rs`)
 - the flag is checked only at a jump or a return (`crates/nu-protocol/src/ir/mod.rs`, `check_interrupt`) and inside
-  commands that wait or write; the end of a `catch` block is neither (`crates/nu-engine/src/compile/keyword.rs`)
+  commands that wait or write, and raised there as `Interrupted`. `exit` is not a check
 - a `catch` or `finally` clears it only when the error it handles is `Interrupted`, or on unix `TerminatedBySignal`
-  (`crates/nu-engine/src/eval_ir.rs`, `reset_signals_if_interrupted`). the failure of a command a ctrl-c stopped is
-  often neither — a command that reads it exits 130, windows exits STATUS_CONTROL_C_EXIT — so the flag is still set and
-  fires at the next check
+  (`crates/nu-engine/src/eval_ir.rs`, `reset_signals_if_interrupted`)
 - a caught error carries `exit_code` for a command's failure: its code, or minus the signal for a signal death
 
-So `opInterrupted` is the one test for a ctrl-c, and `opSettle` (`try { do { } }`: the block's return is a check, inside
-a try that clears it) is how code that has to run after one — a cleanup — makes sure it is not cut short. Only the
-outermost nu in a chain prints the newline after `^C`.
+So a ctrl-c can be raised late, anywhere — including inside the wrapper's own catch. That is why the wrapper has an
+outer catch with nothing in it but the same exit: wherever the interrupt lands, it is caught, and `exit` cannot be
+interrupted. Cleanup that has to run however a command ended (`get.nu`'s removal of the fetched script) runs as
+`try { X } catch { |e| X; $e }` and raises what it caught afterwards: the interrupt fires once, so if it cuts the first
+attempt short, the second completes. The wrapper prints no newline after `^C`; that would be code a late interrupt could
+cut short, and zsh's `PROMPT_SP` starts the prompt on a fresh line already.
 
 ### File Loading
 

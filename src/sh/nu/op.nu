@@ -82,27 +82,15 @@ def opRethrowInterrupt [e: record] {
   }
 }
 
-# fires a pending ctrl-c inside a try that clears it, so what follows runs whole; true when there was one
-def opSettle [] {
-  try { do { }; false } catch { true }
-}
-
 # NuSh.quietInterrupt, line for line, for the child nu a command runs in
 def opQuietInterrupt [body: string] {
-  [
-    r#'let shireOuter = ('SHIRE_NU_NESTED' not-in $env)'#
-    r#'$env.SHIRE_NU_NESTED = '1''#
-    r#'try {'#
-    $body
-    r#'} catch { |e|'#
-    r#'  let shireSettled = (try { do { }; false } catch { true })'#
-    r#'  if $shireSettled or ($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510]) {'#
-    r#'    if $shireOuter { print '' }'#
-    r#'    exit 130'#
-    r#'  }'#
-    r#'  $e.raw'#
+  let stop = [
+    r#'if ($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510]) {'#
+    r#'  exit 130'#
     r#'}'#
-  ] | str join "\n"
+    r#'$e.raw'#
+  ] | each { |l| $"  ($l)" }
+  [r#'try {'# r#'try {'# $body r#'} catch { |e|'# ...$stop r#'}'# r#'} catch { |e|'# ...$stop r#'}'#] | str join "\n"
 }
 
 def opRunCmd --wrapped [...args] {

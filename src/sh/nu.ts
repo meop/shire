@@ -6,22 +6,21 @@ import { type Sh, ShBase } from '../sh.ts'
  * @module
  */
 
-// a ctrl-c ends a nu script quietly with 130; see AGENTS.md (Ctrl-C). the condition is op.nu's opInterrupted
-const QUIET_INTERRUPT_COND =
-  `($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510])`
-const QUIET_INTERRUPT_HEAD = [
-  `let shireOuter = ('SHIRE_NU_NESTED' not-in $env)`,
-  `$env.SHIRE_NU_NESTED = '1'`,
-  'try {',
+// a ctrl-c ends a nu script with 130 and no error output; the outer catch takes one that lands during the inner one.
+// the condition is op.nu's opInterrupted; see AGENTS.md (Ctrl-C)
+const QUIET_INTERRUPT_STOP = [
+  `if ($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510]) {`,
+  '  exit 130',
+  '}',
+  '$e.raw',
 ]
+const QUIET_INTERRUPT_HEAD = ['try {', 'try {']
 const QUIET_INTERRUPT_TAIL = [
   '} catch { |e|',
-  '  let shireSettled = (try { do { }; false } catch { true })',
-  `  if $shireSettled or ${QUIET_INTERRUPT_COND} {`,
-  `    if $shireOuter { print '' }`,
-  '    exit 130',
-  '  }',
-  '  $e.raw',
+  ...QUIET_INTERRUPT_STOP.map((l) => `  ${l}`),
+  '}',
+  '} catch { |e|',
+  ...QUIET_INTERRUPT_STOP.map((l) => `  ${l}`),
   '}',
 ]
 

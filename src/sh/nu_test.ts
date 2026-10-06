@@ -51,15 +51,8 @@ Deno.test('NuSh - op.nu wraps a command exactly as quietInterrupt wraps a script
   }
 })
 
-Deno.test('NuSh - a ctrl-c ends a built script quietly with 130, and a newline', async () => {
+Deno.test('NuSh - a ctrl-c ends a built script quietly with 130', async () => {
   const out = await runNu(built(`${SELF_SIGINT}\nprint 'kept going'`))
-  if (out != null) {
-    assertEquals(out, { code: 130, stdout: '\n', stderr: '' })
-  }
-})
-
-Deno.test('NuSh - a nested nu leaves the newline to the outermost', async () => {
-  const out = await runNu(built(SELF_SIGINT), { SHIRE_NU_NESTED: '1' })
   if (out != null) {
     assertEquals(out, { code: 130, stdout: '', stderr: '' })
   }
@@ -68,7 +61,7 @@ Deno.test('NuSh - a nested nu leaves the newline to the outermost', async () => 
 Deno.test('NuSh - a command that read the ctrl-c itself and exited 130 ends the script the same way', async () => {
   const out = await runNu(built(`^sh -c 'exit 130'\nprint 'kept going'`))
   if (out != null) {
-    assertEquals(out, { code: 130, stdout: '\n', stderr: '' })
+    assertEquals(out, { code: 130, stdout: '', stderr: '' })
   }
 })
 
@@ -92,7 +85,7 @@ Deno.test('NuSh - a command run through opRunCmd ends quietly on a ctrl-c', asyn
     built(`${await Deno.readTextFile(OP_NU)}\nopRunCmd ^sh -c "'kill -INT $$'"\nprint 'kept going'`),
   )
   if (out != null) {
-    assertEquals(out, { code: 130, stdout: '\n', stderr: '' })
+    assertEquals(out, { code: 130, stdout: '', stderr: '' })
   }
 })
 
@@ -106,7 +99,7 @@ const PENDING_130 = `let f = (try { ^sh -c 'kill -INT $PPID; sleep 1; exit 130' 
 Deno.test('NuSh - the handler asks the same question as opInterrupted', async () => {
   const op = await Deno.readTextFile(OP_NU)
   const cond = /def opInterrupted \[e: record\] \{\n\s*(.+)\n\}/.exec(op)?.[1]
-  assertEquals(cond != null && new NuSh().quietInterrupt('BODY').includes(`if $shireSettled or ${cond} {`), true)
+  assertEquals(cond != null && new NuSh().quietInterrupt('BODY').includes(`if ${cond} {`), true)
 })
 
 Deno.test('NuSh - opInterrupted knows a ctrl-c however nu shows it', async () => {
@@ -124,17 +117,10 @@ Deno.test('NuSh - opInterrupted knows a ctrl-c however nu shows it', async () =>
   }
 })
 
-Deno.test('NuSh - opSettle clears a pending ctrl-c, so what follows runs', async () => {
-  const out = await opRun(`${PENDING_130}\nprint (opSettle)\nprint 'ran'\nprint (opSettle)`)
+Deno.test('NuSh - a ctrl-c still pending when the catch runs ends the script the same way', async () => {
+  // the command reads the ctrl-c and exits 130 before nu's own interrupt is raised: it lands in the handler
+  const out = await runNu(built(`${PENDING_130}\n$f.raw`))
   if (out != null) {
-    assertEquals(out, { code: 0, stdout: 'true\nran\nfalse\n', stderr: '' })
-  }
-})
-
-Deno.test('NuSh - the end of a catch block is not where a pending ctrl-c fires', async () => {
-  // get.nu's shape: keep the failure, settle, clean up, then raise it
-  const out = await runNu(built(`${PENDING_130}\ntry { do { } }\nprint 'cleaned up'\n$f.raw`))
-  if (out != null) {
-    assertEquals(out, { code: 130, stdout: 'cleaned up\n\n', stderr: '' })
+    assertEquals(out, { code: 130, stdout: '', stderr: '' })
   }
 })
