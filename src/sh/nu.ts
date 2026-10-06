@@ -6,10 +6,9 @@ import { type Sh, ShBase } from '../sh.ts'
  * @module
  */
 
-// nu raises a ctrl-c as an error at its next check, in every nu process it reached, and keeps it pending until a try
-// catches it — so the catch below can itself be cut short. the inner try is the catch for that: whichever way the
-// interrupt surfaces, the script ends quietly with 130. only the outermost nu prints the newline a shell would, so a
-// chain of them prints one
+// a ctrl-c ends a nu script quietly with 130; see AGENTS.md (Ctrl-C). the condition is op.nu's opInterrupted
+const QUIET_INTERRUPT_COND =
+  `($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510])`
 const QUIET_INTERRUPT_HEAD = [
   `let shireOuter = ('SHIRE_NU_NESTED' not-in $env)`,
   `$env.SHIRE_NU_NESTED = '1'`,
@@ -17,12 +16,8 @@ const QUIET_INTERRUPT_HEAD = [
 ]
 const QUIET_INTERRUPT_TAIL = [
   '} catch { |e|',
-  '  try {',
-  `    if ($e.debug =~ '^(Interrupted |TerminatedBySignal \\{ signal_name: "SIGINT"|NonZeroExitCode \\{ exit_code: (130|254),)') or ($e.details.code? == 'nu::shell::io::interrupted') {`,
-  `      if $shireOuter { print '' }`,
-  '      exit 130',
-  '    }',
-  '  } catch {',
+  '  let shireSettled = (try { do { }; false } catch { true })',
+  `  if $shireSettled or ${QUIET_INTERRUPT_COND} {`,
   `    if $shireOuter { print '' }`,
   '    exit 130',
   '  }',

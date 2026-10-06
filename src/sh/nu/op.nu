@@ -70,7 +70,24 @@ def opMaybePrintCmd --wrapped [...args] {
   }
 }
 
-# the child nu a command runs in ends quietly on a ctrl-c too: NuSh.quietInterrupt, line for line
+# a ctrl-c: nu's own, an input prompt's, or the exit of a command it stopped (130, SIGINT, windows' ctrl-c status)
+def opInterrupted [e: record] {
+  ($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510])
+}
+
+# a catch hands its error here first, so a ctrl-c is not stepped past
+def opRethrowInterrupt [e: record] {
+  if (opInterrupted $e) {
+    $e.raw
+  }
+}
+
+# fires a pending ctrl-c inside a try that clears it, so what follows runs whole; true when there was one
+def opSettle [] {
+  try { do { }; false } catch { true }
+}
+
+# NuSh.quietInterrupt, line for line, for the child nu a command runs in
 def opQuietInterrupt [body: string] {
   [
     r#'let shireOuter = ('SHIRE_NU_NESTED' not-in $env)'#
@@ -78,12 +95,8 @@ def opQuietInterrupt [body: string] {
     r#'try {'#
     $body
     r#'} catch { |e|'#
-    r#'  try {'#
-    r#'    if ($e.debug =~ '^(Interrupted |TerminatedBySignal \{ signal_name: "SIGINT"|NonZeroExitCode \{ exit_code: (130|254),)') or ($e.details.code? == 'nu::shell::io::interrupted') {'#
-    r#'      if $shireOuter { print '' }'#
-    r#'      exit 130'#
-    r#'    }'#
-    r#'  } catch {'#
+    r#'  let shireSettled = (try { do { }; false } catch { true })'#
+    r#'  if $shireSettled or ($e.debug | str starts-with 'Interrupted ') or ($e.details.code? == 'nu::shell::io::interrupted') or ($e.exit_code? in [130, -2, -1073741510]) {'#
     r#'    if $shireOuter { print '' }'#
     r#'    exit 130'#
     r#'  }'#

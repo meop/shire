@@ -95,3 +95,46 @@ Deno.test('NuSh - a command run through opRunCmd ends quietly on a ctrl-c', asyn
     assertEquals(out, { code: 130, stdout: '\n', stderr: '' })
   }
 })
+
+async function opRun(body: string): Promise<Run | null> {
+  return await runNu(`${await Deno.readTextFile(OP_NU)}\n${body}`)
+}
+
+// a ctrl-c reaches nu and the command it ran; the command reads it and exits 130, so nu's own stays pending
+const PENDING_130 = `let f = (try { ^sh -c 'kill -INT $PPID; sleep 1; exit 130' } catch { |e| $e })`
+
+Deno.test('NuSh - the handler asks the same question as opInterrupted', async () => {
+  const op = await Deno.readTextFile(OP_NU)
+  const cond = /def opInterrupted \[e: record\] \{\n\s*(.+)\n\}/.exec(op)?.[1]
+  assertEquals(cond != null && new NuSh().quietInterrupt('BODY').includes(`if $shireSettled or ${cond} {`), true)
+})
+
+Deno.test('NuSh - opInterrupted knows a ctrl-c however nu shows it', async () => {
+  const out = await opRun(
+    [
+      `print (try { ^sh -c 'exit 130' } catch { |e| opInterrupted $e })`,
+      `print (try { ^sh -c 'kill -INT $$' } catch { |e| opInterrupted $e })`,
+      `print (try { ^sh -c 'exit 3' } catch { |e| opInterrupted $e })`,
+      `print (try { ^sh -c 'kill -KILL $$' } catch { |e| opInterrupted $e })`,
+      `print (try { error make { msg: 'x' } } catch { |e| opInterrupted $e })`,
+    ].join('\n'),
+  )
+  if (out != null) {
+    assertEquals(out.stdout, 'true\ntrue\nfalse\nfalse\nfalse\n')
+  }
+})
+
+Deno.test('NuSh - opSettle clears a pending ctrl-c, so what follows runs', async () => {
+  const out = await opRun(`${PENDING_130}\nprint (opSettle)\nprint 'ran'\nprint (opSettle)`)
+  if (out != null) {
+    assertEquals(out, { code: 0, stdout: 'true\nran\nfalse\n', stderr: '' })
+  }
+})
+
+Deno.test('NuSh - the end of a catch block is not where a pending ctrl-c fires', async () => {
+  // get.nu's shape: keep the failure, settle, clean up, then raise it
+  const out = await runNu(built(`${PENDING_130}\ntry { do { } }\nprint 'cleaned up'\n$f.raw`))
+  if (out != null) {
+    assertEquals(out, { code: 130, stdout: 'cleaned up\n\n', stderr: '' })
+  }
+})
