@@ -90,6 +90,16 @@ function opRunSilentCmd {
   eval "$*" &> /dev/null
 }
 
+# a yes/no question: empty, y or yes is yes, and YES answers yes without asking
+function opAsk {
+  if [[ $YES ]]; then
+    return 0
+  fi
+  local yn=''
+  read "yn?${1} [y,[n]]: "
+  [[ -z $yn || ${(L)yn} == y || ${(L)yn} == yes ]]
+}
+
 function opMaybeRunCmd {
   if [[ -z $NOOP ]]; then
     opRunCmd "$@"

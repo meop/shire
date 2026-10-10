@@ -75,6 +75,11 @@ interrupted. Cleanup that has to run however a command ended (`get.nu`'s removal
 attempt short, the second completes. The wrapper prints no newline after `^C`; that would be code a late interrupt could
 cut short, and zsh's `PROMPT_SP` starts the prompt on a fresh line already.
 
+### Questions (opAsk)
+
+`opAsk` is the one yes/no question in every shell's op file: empty, `y` or `yes` is yes, and `YES` answers yes without
+asking. nu's `input` reads only from a terminal, so `op_test.ts` cannot pipe an answer to it.
+
 ### File Loading
 
 `fileLoad()` returns empty string if the file is not found — graceful degradation, no error thrown.

@@ -101,6 +101,15 @@ def opRunSilentCmd --wrapped [...args] {
   ^($nu.current-exe) --no-config-file -c (opQuietInterrupt $"($args | flatten | str join ' ') o+e> | silent")
 }
 
+# a yes/no question: empty, y or yes is yes, and YES answers yes without asking
+def opAsk [question: string] {
+  if 'YES' in $env {
+    return true
+  }
+  let yn = (input $"($question) [y,[n]]: " | str lowercase)
+  $yn in ['' 'y' 'yes']
+}
+
 def opMaybeRunCmd --wrapped [...args] {
   if NOOP not-in $env {
     opRunCmd ...$args
