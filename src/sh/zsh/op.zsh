@@ -73,6 +73,8 @@ function opPrintCmd {
     print -n " \033[0;36m"
     print -n -r -- "$*"
     print "\033[0m"
+  else
+    print
   fi
 }
 

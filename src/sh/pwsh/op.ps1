@@ -65,15 +65,17 @@ function opPrintCmd {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
-  $_args = $args | ForEach-Object { $_ }
+  $_args = @($args | ForEach-Object { $_ })
   [Console]::ForegroundColor = 'magenta'
   [Console]::Write($_args[0])
   [Console]::ResetColor()
-  if ($args.Length -gt 1) {
+  if ($_args.Count -gt 1) {
     [Console]::Write(' ')
     [Console]::ForegroundColor = 'cyan'
     [Console]::WriteLine((($_args | Select-Object -Skip 1) -join ' '))
     [Console]::ResetColor()
+  } else {
+    [Console]::WriteLine()
   }
 }
 

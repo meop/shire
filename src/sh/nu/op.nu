@@ -61,6 +61,8 @@ def opPrintCmd --wrapped [...args] {
   $"(ansi magenta)($args | first)(ansi reset)" | print --no-newline
   if ($args | length) > 1 {
     $" (ansi cyan)($args | skip 1 | str join ' ')(ansi reset)" | print
+  } else {
+    print ''
   }
 }
 
