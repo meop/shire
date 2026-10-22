@@ -41,6 +41,12 @@ tag) → Package (`deno publish` to JSR). Requires `GPG_PRIVATE_KEY` and `GPG_PA
 `varSet` vs `varSetStr`: use `varSetStr` for raw values (applies `toLiteral` internally); use `varSet` only when the
 value is already shell-quoted. `varSetArr` applies `toLiteral` to each element automatically — always pass raw strings.
 
+`envSet`/`envSetStr` vs `varSet`/`varSetStr`: a value a child process should see goes in the environment, and is read
+from there, in every shell: `$env.X` in nu, `$env:X` in pwsh, `$X` in zsh (`export`ed). That covers the switches
+(`loadShEnv`), the `SYS_*` context (`sys.*`) and `REQ_URL_SH`. A value only the script that sets it reads is a variable:
+`SH_VERS_*`, and every array, since neither pwsh's nor zsh's environment holds a list. In nu the two are the same, since
+nu keeps its globals in `$env`.
+
 ### String Escaping (toLiteral)
 
 Low-level quoting primitive — prefer `varSetStr`/`varSetArr` above. Use `toLiteral` when embedding a value in another

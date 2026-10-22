@@ -117,6 +117,21 @@ export interface Sh {
   trace(): string
 
   /**
+   * Sets an environment variable with specified key and value, which every process the script starts inherits
+   * @param key - Variable key components
+   * @param value - Value to set
+   * @returns String representation of the operation
+   */
+  envSet(key: Array<string>, value: string): string
+  /**
+   * Sets an environment variable with specified key and a raw string value (applies toLiteral internally)
+   * @param key - Variable key components
+   * @param value - Raw string value to set as a literal
+   * @returns String representation of the operation
+   */
+  envSetStr(key: Array<string>, value: string): string
+
+  /**
    * Sets a variable with specified key and value
    * @param key - Variable key components
    * @param value - Value to set
@@ -345,6 +360,26 @@ export class ShBase implements Sh {
    */
   trace(): string {
     throw new Error('abstract')
+  }
+
+  /**
+   * Sets an environment variable with specified key and value
+   * @param _key - Variable key components
+   * @param _value - Value to set
+   * @returns String representation of the operation
+   */
+  envSet(_key: Array<string>, _value: string): string {
+    throw new Error('abstract')
+  }
+
+  /**
+   * Sets an environment variable with specified key and a raw string value (applies toLiteral internally)
+   * @param key - Variable key components
+   * @param value - Raw string value to set as a literal
+   * @returns String representation of the operation
+   */
+  envSetStr(key: Array<string>, value: string): string {
+    return this.envSet(key, this.toLiteral(value))
   }
 
   /**

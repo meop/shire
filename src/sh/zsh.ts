@@ -67,6 +67,16 @@ export class ZSh extends ShBase implements Sh {
   }
 
   /**
+   * Sets an environment variable in the ZSh environment
+   * @param key - Array of keys representing the variable path
+   * @param value - The value to set
+   * @returns The command to set the environment variable
+   */
+  override envSet(key: Array<string>, value: string): string {
+    return `export ${joinKey(...key)}=${value}`
+  }
+
+  /**
    * Sets a variable in the ZSh environment
    * @param key - Array of keys representing the variable path
    * @param value - The value to set

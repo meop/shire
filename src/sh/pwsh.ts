@@ -37,7 +37,7 @@ export class PowerSh extends ShBase implements Sh {
     return [
       '& {',
       `  $yn = ''`,
-      '  if ($YES) {',
+      '  if ($env:YES) {',
       `    $yn = 'y'`,
       '  } else {',
       `    $yn = Read-Host "${name} [y,[n]]"`,
@@ -64,6 +64,16 @@ export class PowerSh extends ShBase implements Sh {
    */
   override trace(): string {
     return 'Set-PSDebug -Trace 1'
+  }
+
+  /**
+   * Sets an environment variable in the PowerSh environment
+   * @param key - Array of keys representing the variable path
+   * @param value - The value to set
+   * @returns The command to set the environment variable
+   */
+  override envSet(key: Array<string>, value: string): string {
+    return `$env:${joinKey(...key)} = ${value}`
   }
 
   /**

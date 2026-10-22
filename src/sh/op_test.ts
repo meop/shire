@@ -2,15 +2,14 @@ import { assertEquals } from '@std/assert'
 
 type Run = { code: number; stdout: string }
 
-// each shell sources its own op file and runs one line of it; a shell that is not installed answers null
+// each shell sources its own op file and runs one line of it; a shell that is not installed answers null. the
+// switches are given as env vars, which is where every shell's op helpers read them
 const SHELLS = {
   zsh: {
     op: new URL('./zsh/op.zsh', import.meta.url).pathname,
     args: (op: string, body: string) => ['-c', `source ${op}\n${body}`],
     ask: 'opAsk q && print yes || print no',
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
-    // YES reaches zsh and nu as an env var; pwsh's op helpers read a plain variable
-    check: '',
     piped: true,
   },
   pwsh: {
@@ -18,7 +17,6 @@ const SHELLS = {
     args: (op: string, body: string) => ['-NoProfile', '-Command', `. ${op}\n${body}`],
     ask: `if (opAsk 'q') { 'yes' } else { 'no' }`,
     cmds: `opPrintCmd hostname; 'next'; opPrintCmd git status; 'next'`,
-    check: '$YES = $env:YES\n',
     piped: true,
   },
   nu: {
@@ -26,7 +24,6 @@ const SHELLS = {
     args: (op: string, body: string) => ['--no-config-file', '-c', `source ${op}\n${body}`],
     ask: `print (if (opAsk q) { 'yes' } else { 'no' })`,
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
-    check: '',
     // nu's input reads only from a terminal, so a piped answer cannot reach it
     piped: false,
   },
@@ -41,7 +38,7 @@ async function run(
   const s = SHELLS[shell]
   try {
     const child = new Deno.Command(shell, {
-      args: s.args(s.op, `${s.check}${body}`),
+      args: s.args(s.op, body),
       env,
       stdin: 'piped',
       stdout: 'piped',

@@ -111,6 +111,16 @@ export class NuSh extends ShBase implements Sh {
   }
 
   /**
+   * Sets an environment variable in the NuSh environment
+   * @param key - Array of keys representing the variable path
+   * @param value - The value to set
+   * @returns The command to set the environment variable
+   */
+  override envSet(key: Array<string>, value: string): string {
+    return `$env.${joinKey(...key)} = ${value}`
+  }
+
+  /**
    * Sets a variable in the NuSh environment
    * @param key - Array of keys representing the variable path
    * @param value - The value to set

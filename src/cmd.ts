@@ -274,7 +274,7 @@ export class CmdBase {
     const loadShEnv = (func: () => Promise<string>) => {
       for (const [key, value] of Object.entries(_environment.store)) {
         _shell = _shell.with(
-          _shell.varSet([key], _shell.toLiteral(value ?? '')),
+          _shell.envSetStr([key], value ?? ''),
         )
       }
 

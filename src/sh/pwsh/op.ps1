@@ -1,15 +1,15 @@
 function opPrint {
-  if ($SUCCINCT) {
+  if ($env:SUCCINCT) {
     return
   }
   [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
 }
 
 function opPrintErr {
-  if ($SUCCINCT) {
+  if ($env:SUCCINCT) {
     return
   }
-  if ($GRAYSCALE) {
+  if ($env:GRAYSCALE) {
     [Console]::Error.WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
@@ -19,10 +19,10 @@ function opPrintErr {
 }
 
 function opPrintSucc {
-  if ($SUCCINCT) {
+  if ($env:SUCCINCT) {
     return
   }
-  if ($GRAYSCALE) {
+  if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
@@ -32,10 +32,10 @@ function opPrintSucc {
 }
 
 function opPrintWarn {
-  if ($SUCCINCT) {
+  if ($env:SUCCINCT) {
     return
   }
-  if ($GRAYSCALE) {
+  if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
@@ -45,10 +45,10 @@ function opPrintWarn {
 }
 
 function opPrintInfo {
-  if ($SUCCINCT) {
+  if ($env:SUCCINCT) {
     return
   }
-  if ($GRAYSCALE) {
+  if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
@@ -58,10 +58,10 @@ function opPrintInfo {
 }
 
 function opPrintCmd {
-  if ($SUCCINCT) {
+  if ($env:SUCCINCT) {
     return
   }
-  if ($GRAYSCALE) {
+  if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
   }
@@ -80,7 +80,7 @@ function opPrintCmd {
 }
 
 function opMaybePrintCmd {
-  if (-not $NOOP) {
+  if (-not $env:NOOP) {
     opPrintCmd @args
   }
 }
@@ -96,7 +96,7 @@ function opRunSilentCmd {
 # a yes/no question: empty, y or yes is yes, and YES answers yes without asking
 function opAsk {
   param([string] $question)
-  if ($YES) {
+  if ($env:YES) {
     return $true
   }
   $yn = Read-Host "${question} [y,[n]]"
@@ -104,13 +104,13 @@ function opAsk {
 }
 
 function opMaybeRunCmd {
-  if (-not $NOOP) {
+  if (-not $env:NOOP) {
     opRunCmd @args
   }
 }
 
 function opMaybeRunSilentCmd {
-  if (-not $NOOP) {
+  if (-not $env:NOOP) {
     opRunSilentCmd @args
   }
 }

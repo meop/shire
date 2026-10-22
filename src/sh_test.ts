@@ -40,6 +40,12 @@ Deno.test('NuSh - varSetStr applies toLiteral internally', () => {
   assertEquals(nu.varSetStr(['TEST', 'KEY'], "it's"), "$env.TEST_KEY = r#'it's'#")
 })
 
+Deno.test('NuSh - envSet and envSetStr', () => {
+  const nu = new NuSh()
+  assertEquals(nu.envSet(['TEST', 'KEY'], 'value'), '$env.TEST_KEY = value')
+  assertEquals(nu.envSetStr(['KEY'], 'value'), "$env.KEY = r#'value'#")
+})
+
 Deno.test('NuSh - varSet and varUnSet', () => {
   const nu = new NuSh()
   assertEquals(nu.varSet(['TEST', 'KEY'], 'value'), '$env.TEST_KEY = value')
@@ -64,6 +70,12 @@ Deno.test('PowerSh - varSetStr applies toLiteral internally', () => {
   const pwsh = new PowerSh()
   assertEquals(pwsh.varSetStr(['KEY'], 'value'), "$KEY = 'value'")
   assertEquals(pwsh.varSetStr(['TEST', 'KEY'], "'value'"), "$TEST_KEY = '''value'''")
+})
+
+Deno.test('PowerSh - envSet and envSetStr', () => {
+  const pwsh = new PowerSh()
+  assertEquals(pwsh.envSet(['TEST', 'KEY'], "'value'"), "$env:TEST_KEY = 'value'")
+  assertEquals(pwsh.envSetStr(['KEY'], "it's"), "$env:KEY = 'it''s'")
 })
 
 Deno.test('PowerSh - varSet and varUnSet', () => {
@@ -91,6 +103,12 @@ Deno.test('ZSh - varSetStr applies toLiteral internally', () => {
   const zsh = new ZSh()
   assertEquals(zsh.varSetStr(['KEY'], 'value'), "KEY='value'")
   assertEquals(zsh.varSetStr(['TEST', 'KEY'], "'value'"), "TEST_KEY=''\\''value'\\'''")
+})
+
+Deno.test('ZSh - envSet and envSetStr', () => {
+  const zsh = new ZSh()
+  assertEquals(zsh.envSet(['TEST', 'KEY'], "'value'"), "export TEST_KEY='value'")
+  assertEquals(zsh.envSetStr(['KEY'], 'value'), "export KEY='value'")
 })
 
 Deno.test('ZSh - varSet and varUnSet', () => {
