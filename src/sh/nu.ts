@@ -64,28 +64,6 @@ export class NuSh extends ShBase implements Sh {
   }
 
   /**
-   * Creates a gated function that prompts the user for confirmation before executing lines
-   * @param name - The name of the operation
-   * @param lines - Array of command lines to execute if confirmed
-   * @returns Array of strings representing the gated function
-   */
-  override gatedFunc(name: string, lines: Array<string>): Array<string> {
-    return [
-      'do --env {',
-      `  mut yn = ''`,
-      `  if 'YES' in $env {`,
-      `    $yn = 'y'`,
-      '  } else {',
-      `    $yn = input r#'${name} [y,[n]]: '#`,
-      '  }',
-      `  if $yn != 'n' {`,
-      ...lines,
-      '  }',
-      '}',
-    ]
-  }
-
-  /**
    * Converts a value to a literal string for NuSh using adaptive raw string depth
    * @param value - The value to convert
    * @returns Raw string literal with sufficient hash depth to avoid conflicts

@@ -28,28 +28,6 @@ export class ZSh extends ShBase implements Sh {
   }
 
   /**
-   * Creates a gated function that prompts the user for confirmation before executing lines
-   * @param name - The name of the operation
-   * @param lines - Array of command lines to execute if confirmed
-   * @returns Array of strings representing the gated function
-   */
-  override gatedFunc(name: string, lines: Array<string>): Array<string> {
-    return [
-      'function () {',
-      `  local yn=''`,
-      '  if [[ $YES ]]; then',
-      `    yn='y'`,
-      '  else',
-      `    read "yn?${name} [y,[n]]: "`,
-      '  fi',
-      `  if [[ $yn != 'n' ]]; then`,
-      ...lines,
-      '  fi',
-      '}',
-    ]
-  }
-
-  /**
    * Converts a value to a literal string for ZSh
    * @param value - The value to convert
    * @returns Single-quoted string with escaped quotes; zsh reads everything else in single quotes as it is

@@ -58,14 +58,6 @@ export interface Sh {
     urlResolverBase?: Array<string>,
   ): Promise<string>
   /**
-   * Generates gated function content based on name and lines
-   * @param name - Name of the gated function
-   * @param lines - Lines to process for gated function
-   * @returns Array of processed lines
-   */
-  gatedFunc(name: string, lines: Array<string>): Array<string>
-
-  /**
    * Prints lines using standard output
    * @param lines - Lines to print
    * @returns Array of formatted lines
@@ -242,16 +234,6 @@ export class ShBase implements Sh {
    */
   quietInterrupt(body: string): string {
     return body
-  }
-
-  /**
-   * Abstract method for generating gated function content
-   * @param _name - Name of the gated function
-   * @param _lines - Lines to gate
-   * @returns Array of gated lines
-   */
-  gatedFunc(_name: string, _lines: Array<string>): Array<string> {
-    throw new Error('abstract')
   }
 
   /**

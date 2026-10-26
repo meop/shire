@@ -93,13 +93,18 @@ function opRunSilentCmd {
   Invoke-Expression "$(($args | ForEach-Object { $_ }) -join ' ') 6>&1 5>&1 4>&1 3>&1 2>&1 | Out-Null"
 }
 
-# a yes/no question: empty, y or yes is yes, and YES answers yes without asking
+# a yes/no question: empty, y or yes is yes, and YES answers yes without asking. with no terminal to answer from,
+# as under cron or a pipe, it is no: Read-Host would return null there, which is nobody's answer
 function opAsk {
   param([string] $question)
   if ($env:YES) {
     return $true
   }
-  $yn = Read-Host "${question} [y,[n]]"
+  if ([Console]::IsInputRedirected) {
+    opPrintWarn "${question}: no terminal to answer from, so no; YES answers yes"
+    return $false
+  }
+  $yn = Read-Host "${question} [[y]/n]"
   return ($yn -eq '') -or ($yn.ToLower() -eq 'y') -or ($yn.ToLower() -eq 'yes')
 }
 

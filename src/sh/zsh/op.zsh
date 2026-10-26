@@ -92,13 +92,18 @@ function opRunSilentCmd {
   eval "$*" &> /dev/null
 }
 
-# a yes/no question: empty, y or yes is yes, and YES answers yes without asking
+# a yes/no question: empty, y or yes is yes, and YES answers yes without asking. with no terminal to answer from,
+# as under cron or a pipe, it is no: an empty read there is nobody's answer, not an enter
 function opAsk {
   if [[ $YES ]]; then
     return 0
   fi
+  if [[ ! -t 0 ]]; then
+    opPrintWarn "${1}: no terminal to answer from, so no; YES answers yes"
+    return 1
+  fi
   local yn=''
-  read "yn?${1} [y,[n]]: "
+  read "yn?${1} [[y]/n]: "
   [[ -z $yn || ${(L)yn} == y || ${(L)yn} == yes ]]
 }
 

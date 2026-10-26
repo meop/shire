@@ -84,7 +84,10 @@ cut short, and zsh's `PROMPT_SP` starts the prompt on a fresh line already.
 ### Questions (opAsk)
 
 `opAsk` is the one yes/no question in every shell's op file: empty, `y` or `yes` is yes, and `YES` answers yes without
-asking. nu's `input` reads only from a terminal, so `op_test.ts` cannot pipe an answer to it.
+asking. With no terminal to answer from (cron, a pipe, a redirect) it prints why and answers no: an empty read there is
+nobody's answer, and `YES` is how a script says yes. The prompt is `[[y]/n]`, the brackets marking what an empty answer
+picks. `op_test.ts` types answers through util-linux's `script`; nu's `input` waits past one written there, so nu's
+answers are not tested.
 
 ### File Loading
 

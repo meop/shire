@@ -103,12 +103,17 @@ def opRunSilentCmd --wrapped [...args] {
   ^($nu.current-exe) --no-config-file -c (opQuietInterrupt $"($args | flatten | str join ' ') o+e> | silent")
 }
 
-# a yes/no question: empty, y or yes is yes, and YES answers yes without asking
+# a yes/no question: empty, y or yes is yes, and YES answers yes without asking. with no terminal to answer from,
+# as under cron or a pipe, it is no: input would fail there with an i/o error
 def opAsk [question: string] {
   if 'YES' in $env {
     return true
   }
-  let yn = (input $"($question) [y,[n]]: " | str lowercase)
+  if not (is-terminal --stdin) {
+    opPrintWarn $"($question): no terminal to answer from, so no; YES answers yes"
+    return false
+  }
+  let yn = (input $"($question) [[y]/n]: " | str lowercase)
   $yn in ['' 'y' 'yes']
 }
 

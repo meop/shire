@@ -10,22 +10,22 @@ const SHELLS = {
     args: (op: string, body: string) => ['-c', `source ${op}\n${body}`],
     ask: 'opAsk q && print yes || print no',
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
-    piped: true,
+    pty: true,
   },
   pwsh: {
     op: new URL('./pwsh/op.ps1', import.meta.url).pathname,
     args: (op: string, body: string) => ['-NoProfile', '-Command', `. ${op}\n${body}`],
     ask: `if (opAsk 'q') { 'yes' } else { 'no' }`,
     cmds: `opPrintCmd hostname; 'next'; opPrintCmd git status; 'next'`,
-    piped: true,
+    pty: true,
   },
   nu: {
     op: new URL('./nu/op.nu', import.meta.url).pathname,
     args: (op: string, body: string) => ['--no-config-file', '-c', `source ${op}\n${body}`],
     ask: `print (if (opAsk q) { 'yes' } else { 'no' })`,
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
-    // nu's input reads only from a terminal, so a piped answer cannot reach it
-    piped: false,
+    // nu's input, given a terminal by script, waits on it past the answer written there
+    pty: false,
   },
 }
 
@@ -57,6 +57,35 @@ async function run(
   }
 }
 
+// the answer typed at a terminal: util-linux's script gives the shell one, and the answer is written to it. the
+// timeout ends a shell that waits past it, so a test fails rather than hangs
+async function runPty(shell: keyof typeof SHELLS, body: string, answer: string): Promise<Run | null> {
+  const s = SHELLS[shell]
+  const quote = (a: string) => `'${a.replaceAll("'", `'\\''`)}'`
+  try {
+    const child = new Deno.Command('script', {
+      args: ['-qec', [shell, ...s.args(s.op, body)].map(quote).join(' '), '/dev/null'],
+      env: { SHELL: '/bin/sh' },
+      stdin: 'piped',
+      stdout: 'piped',
+      stderr: 'null',
+      signal: AbortSignal.timeout(20_000),
+    }).spawn()
+    const writer = child.stdin.getWriter()
+    await writer.write(new TextEncoder().encode(`${answer}\n`))
+    await writer.close()
+    const out = await child.output()
+    // deno-lint-ignore no-control-regex
+    const stdout = new TextDecoder().decode(out.stdout).replace(/\x1b\[[0-9;?]*[a-zA-Z]/g, '').replaceAll('\r', '')
+    return { code: out.code, stdout: stdout.trim() }
+  } catch (e) {
+    if (e instanceof Deno.errors.NotFound) {
+      return null
+    }
+    throw e
+  }
+}
+
 for (const shell of Object.keys(SHELLS) as Array<keyof typeof SHELLS>) {
   Deno.test(`op ${shell} - under YES a question is yes without asking`, async () => {
     const out = await run(shell, SHELLS[shell].ask, { YES: '1' })
@@ -73,12 +102,23 @@ for (const shell of Object.keys(SHELLS) as Array<keyof typeof SHELLS>) {
     }
   })
 
+  Deno.test(`op ${shell} - with no terminal to answer from, a question is no`, async () => {
+    const out = await run(shell, SHELLS[shell].ask, {}, 'y\n')
+    if (out != null) {
+      assertEquals(out.stdout.includes('no terminal to answer from'), true)
+      assertEquals(out.stdout.endsWith('no'), true)
+    }
+  })
+
   Deno.test({
     name: `op ${shell} - an answer is yes when empty, y or yes, in any case`,
-    ignore: !SHELLS[shell].piped,
+    ignore: !SHELLS[shell].pty || Deno.build.os != 'linux',
     fn: async () => {
-      for (const [answer, want] of [['', 'yes'], ['y', 'yes'], ['YES', 'yes'], ['n', 'no'], ['x', 'no']]) {
-        const out = await run(shell, SHELLS[shell].ask, {}, `${answer}\n`)
+      // side by side: pwsh at a terminal waits on cursor reports no one sends, for seconds each run
+      const cases = [['', 'yes'], ['y', 'yes'], ['YES', 'yes'], ['n', 'no'], ['x', 'no']]
+      const outs = await Promise.all(cases.map(([answer]) => runPty(shell, SHELLS[shell].ask, answer)))
+      for (const [i, [answer, want]] of cases.entries()) {
+        const out = outs[i]
         if (out == null) {
           return
         }

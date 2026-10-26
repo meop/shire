@@ -28,28 +28,6 @@ export class PowerSh extends ShBase implements Sh {
   }
 
   /**
-   * Creates a gated function that prompts the user for confirmation before executing lines
-   * @param name - The name of the operation
-   * @param lines - Array of command lines to execute if confirmed
-   * @returns Array of strings representing the gated function
-   */
-  override gatedFunc(name: string, lines: Array<string>): Array<string> {
-    return [
-      '& {',
-      `  $yn = ''`,
-      '  if ($env:YES) {',
-      `    $yn = 'y'`,
-      '  } else {',
-      `    $yn = Read-Host "${name} [y,[n]]"`,
-      '  }',
-      `  if ($yn -ne 'n') {`,
-      ...lines,
-      '  }',
-      '}',
-    ]
-  }
-
-  /**
    * Converts a value to a literal string for PowerSh
    * @param value - The value to convert
    * @returns Single-quoted string with escaped quotes
