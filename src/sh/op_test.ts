@@ -58,6 +58,17 @@ async function run(
 // waits past it, so a test fails rather than hangs
 async function runPty(shell: keyof typeof SHELLS, body: string, answer: string): Promise<Run | null> {
   const s = SHELLS[shell]
+  // script itself is found either way, so a shell that is not installed is looked for here
+  const onPath = (Deno.env.get('PATH') ?? '').split(':').some((dir) => {
+    try {
+      return Deno.statSync(`${dir}/${shell}`).isFile
+    } catch {
+      return false
+    }
+  })
+  if (!onPath) {
+    return null
+  }
   const quote = (a: string) => `'${a.replaceAll("'", `'\\''`)}'`
   let child: Deno.ChildProcess
   try {
