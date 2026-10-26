@@ -10,22 +10,18 @@ const SHELLS = {
     args: (op: string, body: string) => ['-c', `source ${op}\n${body}`],
     ask: 'opAsk q && print yes || print no',
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
-    pty: true,
   },
   pwsh: {
     op: new URL('./pwsh/op.ps1', import.meta.url).pathname,
     args: (op: string, body: string) => ['-NoProfile', '-Command', `. ${op}\n${body}`],
     ask: `if (opAsk 'q') { 'yes' } else { 'no' }`,
     cmds: `opPrintCmd hostname; 'next'; opPrintCmd git status; 'next'`,
-    pty: true,
   },
   nu: {
     op: new URL('./nu/op.nu', import.meta.url).pathname,
     args: (op: string, body: string) => ['--no-config-file', '-c', `source ${op}\n${body}`],
     ask: `print (if (opAsk q) { 'yes' } else { 'no' })`,
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
-    // nu's input, given a terminal by script, waits on it past the answer written there
-    pty: false,
   },
 }
 
@@ -57,13 +53,15 @@ async function run(
   }
 }
 
-// the answer typed at a terminal: util-linux's script gives the shell one, and the answer is written to it. the
-// timeout ends a shell that waits past it, so a test fails rather than hangs
+// the answer typed at a terminal: util-linux's script gives the shell one, and the answer is typed once the prompt is
+// up, as a person would, since a shell may read or discard what arrived before it asked. the timeout ends a shell that
+// waits past it, so a test fails rather than hangs
 async function runPty(shell: keyof typeof SHELLS, body: string, answer: string): Promise<Run | null> {
   const s = SHELLS[shell]
   const quote = (a: string) => `'${a.replaceAll("'", `'\\''`)}'`
+  let child: Deno.ChildProcess
   try {
-    const child = new Deno.Command('script', {
+    child = new Deno.Command('script', {
       args: ['-qec', [shell, ...s.args(s.op, body)].map(quote).join(' '), '/dev/null'],
       env: { SHELL: '/bin/sh' },
       stdin: 'piped',
@@ -71,19 +69,31 @@ async function runPty(shell: keyof typeof SHELLS, body: string, answer: string):
       stderr: 'null',
       signal: AbortSignal.timeout(20_000),
     }).spawn()
-    const writer = child.stdin.getWriter()
-    await writer.write(new TextEncoder().encode(`${answer}\n`))
-    await writer.close()
-    const out = await child.output()
-    // deno-lint-ignore no-control-regex
-    const stdout = new TextDecoder().decode(out.stdout).replace(/\x1b\[[0-9;?]*[a-zA-Z]/g, '').replaceAll('\r', '')
-    return { code: out.code, stdout: stdout.trim() }
   } catch (e) {
     if (e instanceof Deno.errors.NotFound) {
       return null
     }
     throw e
   }
+  const writer = child.stdin.getWriter()
+  const decoder = new TextDecoder()
+  let stdout = ''
+  let typed = false
+  for await (const chunk of child.stdout) {
+    stdout += decoder.decode(chunk, { stream: true })
+    if (!typed && stdout.includes('[[y]/n]')) {
+      typed = true
+      await writer.write(new TextEncoder().encode(`${answer}\r`))
+      await writer.close()
+    }
+  }
+  if (!typed) {
+    await writer.close()
+  }
+  const { code } = await child.status
+  // deno-lint-ignore no-control-regex
+  stdout = stdout.replace(/\x1b\[[0-9;?]*[a-zA-Z]/g, '').replace(/\x1b\][^\x07]*\x07/g, '').replaceAll('\r', '')
+  return { code, stdout: stdout.trim() }
 }
 
 for (const shell of Object.keys(SHELLS) as Array<keyof typeof SHELLS>) {
@@ -112,7 +122,7 @@ for (const shell of Object.keys(SHELLS) as Array<keyof typeof SHELLS>) {
 
   Deno.test({
     name: `op ${shell} - an answer is yes when empty, y or yes, in any case`,
-    ignore: !SHELLS[shell].pty || Deno.build.os != 'linux',
+    ignore: Deno.build.os != 'linux',
     fn: async () => {
       // side by side: pwsh at a terminal waits on cursor reports no one sends, for seconds each run
       const cases = [['', 'yes'], ['y', 'yes'], ['YES', 'yes'], ['n', 'no'], ['x', 'no']]
