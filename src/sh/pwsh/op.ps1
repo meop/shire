@@ -1,14 +1,8 @@
 function opPrint {
-  if ($env:SUCCINCT) {
-    return
-  }
   [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
 }
 
 function opPrintErr {
-  if ($env:SUCCINCT) {
-    return
-  }
   if ($env:GRAYSCALE) {
     [Console]::Error.WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
@@ -19,9 +13,6 @@ function opPrintErr {
 }
 
 function opPrintSucc {
-  if ($env:SUCCINCT) {
-    return
-  }
   if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
@@ -32,9 +23,6 @@ function opPrintSucc {
 }
 
 function opPrintWarn {
-  if ($env:SUCCINCT) {
-    return
-  }
   if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
@@ -45,9 +33,6 @@ function opPrintWarn {
 }
 
 function opPrintInfo {
-  if ($env:SUCCINCT) {
-    return
-  }
   if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return
@@ -57,10 +42,14 @@ function opPrintInfo {
   [Console]::ResetColor()
 }
 
-function opPrintCmd {
-  if ($env:SUCCINCT) {
+function opPrintVerbose {
+  if (-not $env:VERBOSE) {
     return
   }
+  [Console]::Error.WriteLine((($args | ForEach-Object { $_ }) -join ' '))
+}
+
+function opPrintCmd {
   if ($env:GRAYSCALE) {
     [Console]::WriteLine((($args | ForEach-Object { $_ }) -join ' '))
     return

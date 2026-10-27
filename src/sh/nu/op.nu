@@ -1,14 +1,8 @@
 def opPrint --wrapped [...args] {
-  if SUCCINCT in $env {
-    return
-  }
   $"($args | flatten | str join ' ')" | print
 }
 
 def opPrintErr --wrapped [...args] {
-  if SUCCINCT in $env {
-    return
-  }
   if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print --stderr
     return
@@ -17,9 +11,6 @@ def opPrintErr --wrapped [...args] {
 }
 
 def opPrintSucc --wrapped [...args] {
-  if SUCCINCT in $env {
-    return
-  }
   if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
@@ -28,9 +19,6 @@ def opPrintSucc --wrapped [...args] {
 }
 
 def opPrintWarn --wrapped [...args] {
-  if SUCCINCT in $env {
-    return
-  }
   if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
@@ -39,9 +27,6 @@ def opPrintWarn --wrapped [...args] {
 }
 
 def opPrintInfo --wrapped [...args] {
-  if SUCCINCT in $env {
-    return
-  }
   if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return
@@ -49,10 +34,14 @@ def opPrintInfo --wrapped [...args] {
   $"(ansi blue)($args | flatten | str join ' ')(ansi reset)" | print
 }
 
-def opPrintCmd --wrapped [...args] {
-  if SUCCINCT in $env {
+def opPrintVerbose --wrapped [...args] {
+  if VERBOSE not-in $env {
     return
   }
+  $"($args | flatten | str join ' ')" | print --stderr
+}
+
+def opPrintCmd --wrapped [...args] {
   if GRAYSCALE in $env {
     $"($args | flatten | str join ' ')" | print
     return

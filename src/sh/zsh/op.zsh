@@ -1,14 +1,8 @@
 function opPrint {
-  if [[ $SUCCINCT ]]; then
-    return
-  fi
   print -r -- "$*"
 }
 
 function opPrintErr {
-  if [[ $SUCCINCT ]]; then
-    return
-  fi
   if [[ $GRAYSCALE ]]; then
     print -r -- "$*" >&2
     return
@@ -19,9 +13,6 @@ function opPrintErr {
 }
 
 function opPrintSucc {
-  if [[ $SUCCINCT ]]; then
-    return
-  fi
   if [[ $GRAYSCALE ]]; then
     print -r -- "$*"
     return
@@ -32,9 +23,6 @@ function opPrintSucc {
 }
 
 function opPrintWarn {
-  if [[ $SUCCINCT ]]; then
-    return
-  fi
   if [[ $GRAYSCALE ]]; then
     print -r -- "$*"
     return
@@ -45,9 +33,6 @@ function opPrintWarn {
 }
 
 function opPrintInfo {
-  if [[ $SUCCINCT ]]; then
-    return
-  fi
   if [[ $GRAYSCALE ]]; then
     print -r -- "$*"
     return
@@ -57,10 +42,14 @@ function opPrintInfo {
   print "\033[0m"
 }
 
-function opPrintCmd {
-  if [[ $SUCCINCT ]]; then
+function opPrintVerbose {
+  if [[ -z $VERBOSE ]]; then
     return
   fi
+  print -r -- "$*" >&2
+}
+
+function opPrintCmd {
   if [[ $GRAYSCALE ]]; then
     print -r -- "$*"
     return
