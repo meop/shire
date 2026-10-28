@@ -52,6 +52,7 @@ export interface Cmd {
    * @param shell - Shell instance
    * @param context - Execution context
    * @param environment - Environment configuration
+   * @param inherited - The levels above this command, outermost first, whose switches and options it also accepts
    * @returns Promise resolving to command output
    */
   process(
@@ -59,7 +60,49 @@ export interface Cmd {
     shell: Sh,
     context: Ctx,
     environment?: Env,
+    inherited?: Array<CmdLevel>,
   ): Promise<string>
+}
+
+/**
+ * A command's switches and options, with the scope its values are stored under, as the commands below it see them
+ */
+export type CmdLevel = {
+  /**
+   * Scope path of the command these belong to, its own name included
+   */
+  scopes: Array<string>
+  /**
+   * List of options the command accepts
+   */
+  options: Array<{ keys: Array<string>; description: string }>
+  /**
+   * List of switches the command accepts
+   */
+  switches: Array<{ keys: Array<string>; description: string }>
+}
+
+function toLevel(command: Pick<Cmd, 'name' | 'scopes' | 'options' | 'switches'>): CmdLevel {
+  return { scopes: [...command.scopes, command.name], options: command.options, switches: command.switches }
+}
+
+function toLongKey(keys: Array<string>, part: string): string {
+  return keys.find((k) => k.startsWith('--')) ?? part
+}
+
+// a flag belongs to the nearest level that defines it: the command's own, then each level above it, innermost first
+function findFlag(levels: Array<CmdLevel>, part: string) {
+  for (const level of levels.toReversed()) {
+    const _switch = level.switches.find((s) => s.keys.includes(part))
+    if (_switch) {
+      return { level, keys: _switch.keys, isOption: false }
+    }
+    const _option = level.options.find((o) => o.keys.includes(part))
+    if (_option) {
+      return { level, keys: _option.keys, isOption: true }
+    }
+  }
+  return null
 }
 
 /**
@@ -85,49 +128,70 @@ export function toExpandedParts(parts: Array<string>): Array<string> {
 /**
  * Resolves command parts to their canonical form: expands combined flags,
  * replaces aliases with canonical command names, and preserves recognized
- * switches/options with their long-form keys.
+ * switches/options with their long-form keys. A flag a command does not define
+ * but a command above it does is that command's, and moves to follow it. A part
+ * nothing recognizes is kept as typed, for the command to make of it what it
+ * will, and everything after `--` is kept as typed.
  * @param cmd - The command to resolve against
  * @param parts - Raw command line parts
  * @returns Canonical parts array
  */
 export function resolveCanonicalParts(cmd: Cmd, parts: Array<string>): Array<string> {
-  const _parts = toExpandedParts(parts)
-  const canonical: Array<string> = []
+  const chain = resolveLevel(cmd, toExpandedParts(parts), [])
+  return chain.flatMap((l, i) => i === 0 ? l.out : [l.cmd.name, ...l.out])
+}
+
+function resolveLevel(
+  cmd: Cmd,
+  parts: Array<string>,
+  above: Array<{ cmd: Cmd; level: CmdLevel; out: Array<string> }>,
+): Array<{ cmd: Cmd; level: CmdLevel; out: Array<string> }> {
+  const chain = [...above, { cmd, level: toLevel(cmd), out: [] as Array<string> }]
+  const out = chain[chain.length - 1].out
   let i = 0
 
-  while (i < _parts.length) {
-    const part = _parts[i]
+  while (i < parts.length) {
+    const part = parts[i]
 
-    if (part.startsWith('-') && part !== '--') {
-      const isSwitch = cmd.switches.find((s) => s.keys.includes(part))
-      if (isSwitch) {
-        canonical.push(isSwitch.keys.find((k) => k.startsWith('--')) ?? part)
+    if (part === '--') {
+      out.push(...parts.slice(i))
+      break
+    }
+
+    // help is for the command it follows, as process has it
+    if (part === '-h' || part === '--help') {
+      out.push('--help')
+      i += 1
+      continue
+    }
+
+    if (part.startsWith('-')) {
+      const flag = findFlag(chain.map((l) => l.level), part)
+      const owner = chain.find((l) => l.level === flag?.level)
+      if (flag && owner && !flag.isOption) {
+        owner.out.push(toLongKey(flag.keys, part))
         i += 1
         continue
       }
-      const isOption = cmd.options.find((o) => o.keys.includes(part))
-      if (isOption && i + 1 < _parts.length && !_parts[i + 1].startsWith('-')) {
-        canonical.push(isOption.keys.find((k) => k.startsWith('--')) ?? part, _parts[i + 1])
+      if (flag && owner && i + 1 < parts.length && !parts[i + 1].startsWith('-')) {
+        owner.out.push(toLongKey(flag.keys, part), parts[i + 1])
         i += 2
-      } else {
-        i += 1
+        continue
       }
-      continue
     }
 
     if (cmd.commands.length) {
       const sub = cmd.commands.find((c) => c.name === part || c.aliases.includes(part))
       if (sub) {
-        canonical.push(sub.name)
-        return canonical.concat(resolveCanonicalParts(sub, _parts.slice(i + 1)))
+        return resolveLevel(sub, parts.slice(i + 1), chain)
       }
     }
 
-    canonical.push(part)
+    out.push(part)
     i += 1
   }
 
-  return canonical
+  return chain
 }
 
 function toSerializable(command: Cmd) {
@@ -258,6 +322,7 @@ export class CmdBase {
    * @param shell - Shell instance
    * @param context - Execution context
    * @param environment - Environment configuration
+   * @param inherited - The levels above this command, outermost first, whose switches and options it also accepts
    * @returns Promise resolving to command output
    */
   process(
@@ -265,6 +330,7 @@ export class CmdBase {
     shell: Sh,
     context: Ctx,
     environment?: Env,
+    inherited: Array<CmdLevel> = [],
   ): Promise<string> {
     const _parts = toExpandedParts(parts)
     let _shell = shell
@@ -314,34 +380,22 @@ export class CmdBase {
         break
       }
 
-      if (part.startsWith('-') && part !== '--') {
-        const _switch = this.switches.find((s) => s.keys.includes(part))
-        if (_switch) {
-          _environment.set(
-            toFullKey(
-              _switch.keys.find((k) => k.startsWith('--'))?.split('--')[1] ??
-                '',
-            ),
-            '1',
-          )
-          partsIndex += 1
-          continue
-        }
-        const _option = this.options.find((o) => o.keys.includes(part))
-        if (_option) {
+      if (part.startsWith('-')) {
+        const flag = findFlag([...inherited, toLevel(this)], part)
+        if (flag) {
+          const key = [...flag.level.scopes, toLongKey(flag.keys, part).split('--')[1] ?? ''].slice(1)
+          if (!flag.isOption) {
+            _environment.set(key, '1')
+            partsIndex += 1
+            continue
+          }
           if (
             partsIndex + 1 >= _parts.length ||
             _parts[partsIndex + 1].startsWith('-')
           ) {
             return loadShEnv(() => Promise.resolve(this.help(_shell, _environment)))
           }
-          _environment.set(
-            toFullKey(
-              _option.keys.find((k) => k.startsWith('--'))?.split('--')[1] ??
-                '',
-            ),
-            _parts[partsIndex + 1],
-          )
+          _environment.set(key, _parts[partsIndex + 1])
           partsIndex += 2
           continue
         }
@@ -357,6 +411,7 @@ export class CmdBase {
             _shell,
             _context,
             _environment,
+            [...inherited, toLevel(this)],
           )
         }
       }

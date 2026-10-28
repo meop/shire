@@ -67,7 +67,30 @@ class RootCmd extends CmdBase {
       { keys: ['-y', '--yes'], description: 'yes' },
     ]
     this.options = [{ keys: ['-f', '--format'], description: 'format' }]
-    this.commands = [new SubCmd(['root'])]
+    this.commands = [new SubCmd(['root']), new SnapCmd(['root'])]
+  }
+}
+
+// a level that gives -f a meaning of its own, with a level below it, so a flag has three levels to belong to
+class SnapCmd extends CmdBase {
+  constructor(scopes: string[]) {
+    super(scopes)
+    this.name = 'snap'
+    this.description = 'snap command'
+    this.switches = [{ keys: ['-f', '--full'], description: 'full' }]
+    this.commands = [new DeepCmd([...scopes, this.name])]
+  }
+}
+
+class DeepCmd extends CmdBase {
+  constructor(scopes: string[]) {
+    super(scopes)
+    this.name = 'deep'
+    this.description = 'deep command'
+    this.arguments = [{ name: 'names', description: 'names' }]
+  }
+  override work(_shell: Sh, _context: Ctx, environment: EnvBase): Promise<string> {
+    return Promise.resolve(JSON.stringify(environment.store))
   }
 }
 
@@ -99,9 +122,38 @@ Deno.test('resolveCanonicalParts - flags before and after subcommand', () => {
   assertEquals(resolveCanonicalParts(cmd, ['-dn', 's', 'foo']), ['--debug', '--noop', 'sub', 'foo'])
 })
 
-Deno.test('resolveCanonicalParts - unknown flags are dropped', () => {
+Deno.test('resolveCanonicalParts - unknown flags are kept as typed', () => {
   const cmd = new RootCmd()
-  assertEquals(resolveCanonicalParts(cmd, ['-z', 'sub']), ['sub'])
+  assertEquals(resolveCanonicalParts(cmd, ['-z', 'sub']), ['-z', 'sub'])
+  assertEquals(resolveCanonicalParts(cmd, ['sub', '-z', 'foo']), ['sub', '-z', 'foo'])
+  // an option with no value is not consumed either
+  assertEquals(resolveCanonicalParts(cmd, ['-f']), ['-f'])
+  assertEquals(resolveCanonicalParts(cmd, ['sub', '-f']), ['sub', '-f'])
+})
+
+Deno.test('resolveCanonicalParts - a flag below its level moves to follow the level that has it', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['sub', '-y', 'foo']), ['--yes', 'sub', 'foo'])
+  assertEquals(resolveCanonicalParts(cmd, ['sub', '-f', 'json', 'foo']), ['--format', 'json', 'sub', 'foo'])
+  assertEquals(resolveCanonicalParts(cmd, ['snap', 'deep', '-fy', 'x']), ['--yes', 'snap', '--full', 'deep', 'x'])
+})
+
+Deno.test('resolveCanonicalParts - the nearest level that has a flag is the one it means', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['snap', '-f']), ['snap', '--full'])
+  assertEquals(resolveCanonicalParts(cmd, ['-f', 'json', 'snap', '-f']), ['--format', 'json', 'snap', '--full'])
+})
+
+Deno.test('resolveCanonicalParts - help stays with the command it follows', () => {
+  const cmd = new RootCmd()
+  cmd.switches = [...cmd.switches, { keys: ['-h', '--help'], description: 'help' }]
+  assertEquals(resolveCanonicalParts(cmd, ['snap', 'deep', '-h']), ['snap', 'deep', '--help'])
+  assertEquals(resolveCanonicalParts(cmd, ['-h', 'snap']), ['--help', 'snap'])
+})
+
+Deno.test('resolveCanonicalParts - everything after "--" is kept as typed', () => {
+  const cmd = new RootCmd()
+  assertEquals(resolveCanonicalParts(cmd, ['sub', 'foo', '--', '-y', 's']), ['sub', 'foo', '--', '-y', 's'])
 })
 
 Deno.test('CmdBase.process - handles subcommands', async () => {
@@ -193,4 +245,34 @@ Deno.test('CmdBase.process - "--" before a required arg is filled still returns 
 
   const result = await cmd.process(['--', 'foo'], shell, context)
   assertStringIncludes(result, 'root test | test command')
+})
+
+Deno.test('CmdBase.process - a flag below its level sets the level that has it, the nearest first', async () => {
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+  const store = async (parts: Array<string>) => JSON.parse(await new RootCmd().process(parts, shell, context))
+
+  assertEquals(await store(['snap', 'deep', '-f', '-y', 'x']), { SNAP_FULL: '1', YES: '1', SNAP_DEEP_NAMES: 'x' })
+  assertEquals(await store(['-f', 'json', 'snap', 'deep', 'x']), { FORMAT: 'json', SNAP_DEEP_NAMES: 'x' })
+  // a command line and its canonical form mean the same
+  const typed = ['snap', 'deep', '-fy', 'x']
+  assertEquals(await store(typed), await store(resolveCanonicalParts(new RootCmd(), typed)))
+})
+
+Deno.test('CmdBase.process - a flag no level has is passed along, and "--" passes along the rest', async () => {
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+  const store = async (parts: Array<string>) => JSON.parse(await new RootCmd().process(parts, shell, context))
+
+  assertEquals(await store(['snap', 'deep', '-z', 'x']), { SNAP_DEEP_NAMES: '-z|x' })
+  assertEquals(await store(['snap', 'deep', 'x', '--', '-y']), { SNAP_DEEP_NAMES: 'x', SNAP_DEEP_ARGS: '-y' })
+})
+
+Deno.test('CmdBase.process - an inherited option with no value returns help', async () => {
+  const result = await new RootCmd().process(['snap', 'deep', 'x', '--format'], new NuSh(), {
+    req_orig: '',
+    req_path: '',
+    req_srch: '',
+  })
+  assertStringIncludes(result, 'root snap deep | deep command')
 })
