@@ -92,6 +92,11 @@ picks. `op_test.ts` types answers at a terminal util-linux's `script` gives each
 
 `fileLoad()` returns empty string if the file is not found — graceful degradation, no error thrown.
 
+## Comments
+
+No comment explains why code does what it does where a unit test can show it: the test is the explanation, and it
+fails when the reasoning stops holding. A comment is only for what no test can show.
+
 ## Code Formatting
 
 Deno formatting rules (deno.json):

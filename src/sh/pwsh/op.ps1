@@ -118,3 +118,18 @@ function opPrintMaybeRunCmd {
   opPrintCmd @args
   opMaybeRunCmd @args
 }
+
+function opIsElevated {
+  $IsWindows -and [Security.Principal.WindowsPrincipal]::new(
+    [Security.Principal.WindowsIdentity]::GetCurrent()
+  ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function sudo {
+  if (opIsElevated) {
+    $cmd, $rest = $args
+    & $cmd @rest
+    return
+  }
+  & (Get-Command sudo -CommandType Application | Select-Object -First 1) @args
+}

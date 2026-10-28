@@ -129,3 +129,39 @@ Deno.test('ZSh - toLiteral reads back in zsh as the value it was given', async (
     }
   }
 })
+
+async function pwshOp(script: string, env: Record<string, string> = {}): Promise<string | undefined> {
+  const op = new URL('./sh/pwsh/op.ps1', import.meta.url).pathname
+  try {
+    const out = await new Deno.Command('pwsh', { args: ['-NoProfile', '-c', `. '${op}'; ${script}`], env }).output()
+    return new TextDecoder().decode(out.stdout)
+  } catch (e) {
+    if (!(e instanceof Deno.errors.NotFound)) {
+      throw e
+    }
+  }
+}
+
+Deno.test('PowerSh - sudo runs the command as it is when already elevated', async () => {
+  const out = await pwshOp("function opIsElevated { $true }; sudo printf '%s|' a 'b c'")
+  if (out !== undefined) {
+    assertEquals(out, 'a|b c|')
+  }
+})
+
+Deno.test({
+  name: 'PowerSh - sudo is the system sudo when not elevated',
+  ignore: Deno.build.os === 'windows',
+  fn: async () => {
+    const dir = await Deno.makeTempDir()
+    try {
+      await Deno.writeTextFile(`${dir}/sudo`, '#!/bin/sh\nprintf sudo:\nprintf \'%s|\' "$@"\n', { mode: 0o755 })
+      const out = await pwshOp("sudo printf x 'y z'", { PATH: `${dir}:${Deno.env.get('PATH')}` })
+      if (out !== undefined) {
+        assertEquals(out, 'sudo:printf|x|y z|')
+      }
+    } finally {
+      await Deno.remove(dir, { recursive: true })
+    }
+  },
+})
