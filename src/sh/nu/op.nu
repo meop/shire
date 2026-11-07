@@ -102,6 +102,8 @@ def opAsk [question: string] {
     opPrintWarn $"($question): no terminal to answer from, so no; YES answers yes"
     return false
   }
+  # a question starts a step of its own: one blank line before it, and what it lets through right below the answer
+  opPrint ''
   let yn = (input $"($question) [[y]/n]: " | str lowercase)
   $yn in ['' 'y' 'yes']
 }

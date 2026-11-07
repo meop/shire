@@ -9,18 +9,21 @@ const SHELLS = {
     op: new URL('./zsh/op.zsh', import.meta.url).pathname,
     args: (op: string, body: string) => ['-c', `source ${op}\n${body}`],
     ask: 'opAsk q && print yes || print no',
+    askAfter: 'print before; opAsk q && print yes || print no',
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
   },
   pwsh: {
     op: new URL('./pwsh/op.ps1', import.meta.url).pathname,
     args: (op: string, body: string) => ['-NoProfile', '-Command', `. ${op}\n${body}`],
     ask: `if (opAsk 'q') { 'yes' } else { 'no' }`,
+    askAfter: `opPrint before; if (opAsk 'q') { 'yes' } else { 'no' }`,
     cmds: `opPrintCmd hostname; 'next'; opPrintCmd git status; 'next'`,
   },
   nu: {
     op: new URL('./nu/op.nu', import.meta.url).pathname,
     args: (op: string, body: string) => ['--no-config-file', '-c', `source ${op}\n${body}`],
     ask: `print (if (opAsk q) { 'yes' } else { 'no' })`,
+    askAfter: `print before; print (if (opAsk q) { 'yes' } else { 'no' })`,
     cmds: 'opPrintCmd hostname; print next; opPrintCmd git status; print next',
   },
 }
@@ -145,6 +148,22 @@ for (const shell of Object.keys(SHELLS) as Array<keyof typeof SHELLS>) {
         }
         assertEquals(out.stdout.endsWith(want), true, `answer '${answer}'`)
       }
+    },
+  })
+
+  Deno.test({
+    name: `op ${shell} - a question has one blank line before it, and its answer's output right below`,
+    ignore: Deno.build.os != 'linux',
+    fn: async () => {
+      const out = await runPty(shell, SHELLS[shell].askAfter, 'y')
+      if (out == null) {
+        return
+      }
+      assertEquals(out.stdout.includes('before\n\nq [[y]/n]'), true, out.stdout)
+      assertEquals(out.stdout.includes('before\n\n\n'), false, out.stdout)
+      // a terminal may echo the answer more than once (pwsh's does under load), but never a blank after it
+      assertEquals(out.stdout.endsWith('\nyes'), true, out.stdout)
+      assertEquals(out.stdout.includes('y\n\nyes'), false, out.stdout)
     },
   })
 }

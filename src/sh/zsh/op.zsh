@@ -91,6 +91,8 @@ function opAsk {
     opPrintWarn "${1}: no terminal to answer from, so no; YES answers yes"
     return 1
   fi
+  # a question starts a step of its own: one blank line before it, and what it lets through right below the answer
+  opPrint ''
   local yn=''
   read "yn?${1} [[y]/n]: "
   [[ -z $yn || ${(L)yn} == y || ${(L)yn} == yes ]]

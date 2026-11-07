@@ -86,11 +86,29 @@ cut short, and zsh's `PROMPT_SP` starts the prompt on a fresh line already.
 `opAsk` is the one yes/no question in every shell's op file: empty, `y` or `yes` is yes, and `YES` answers yes without
 asking. With no terminal to answer from (cron, a pipe, a redirect) it prints why and answers no: an empty read there is
 nobody's answer, and `YES` is how a script says yes. The prompt is `[[y]/n]`, the brackets marking what an empty answer
-picks. `op_test.ts` types answers at a terminal util-linux's `script` gives each shell, once the prompt is up.
+picks, and the one blank line before it is **Line spacing**'s. `op_test.ts` types answers at a terminal util-linux's
+`script` gives each shell, once the prompt is up.
 
 ### File Loading
 
 `fileLoad()` returns empty string if the file is not found — graceful degradation, no error thrown.
+
+## Line spacing
+
+A blank line means the run has moved to the next step of its flow. Nothing else gets one.
+
+- Exactly one blank line before every prompt: never none, never two.
+- A prompt, the answer typed to it, and the output that answer lets through are one step: the output starts on the line
+  right below the answer.
+- Lines of one kind in a row (downloads, bins found, refresh lines, a script's output) run tight: no blank between them,
+  none after them.
+- A step never ends itself with a blank line; the step after it asks for one.
+- `-y` answers a prompt without showing it; the prompt's blank line still comes, where the prompt would have been.
+
+The rule is the same, word for word, in golie, ghpm, goup, shire, wut and wut-config.
+
+Here: `opAsk` prints the one blank line before its question, in every shell, and only when it asks: not under `YES`, and
+not with no terminal to answer from. No other op helper prints a blank line.
 
 ## Comments
 

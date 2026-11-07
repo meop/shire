@@ -93,6 +93,8 @@ function opAsk {
     opPrintWarn "${question}: no terminal to answer from, so no; YES answers yes"
     return $false
   }
+  # a question starts a step of its own: one blank line before it, and what it lets through right below the answer
+  opPrint ''
   $yn = Read-Host "${question} [[y]/n]"
   return ($yn -eq '') -or ($yn.ToLower() -eq 'y') -or ($yn.ToLower() -eq 'yes')
 }
