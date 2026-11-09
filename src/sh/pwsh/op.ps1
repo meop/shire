@@ -69,7 +69,7 @@ function opPrintCmd {
 }
 
 function opMaybePrintCmd {
-  if (-not $env:NOOP) {
+  if (-not $env:DRYRUN) {
     opPrintCmd @args
   }
 }
@@ -100,13 +100,13 @@ function opAsk {
 }
 
 function opMaybeRunCmd {
-  if (-not $env:NOOP) {
+  if (-not $env:DRYRUN) {
     opRunCmd @args
   }
 }
 
 function opMaybeRunSilentCmd {
-  if (-not $env:NOOP) {
+  if (-not $env:DRYRUN) {
     opRunSilentCmd @args
   }
 }

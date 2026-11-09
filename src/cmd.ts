@@ -383,7 +383,9 @@ export class CmdBase {
       if (part.startsWith('-')) {
         const flag = findFlag([...inherited, toLevel(this)], part)
         if (flag) {
-          const key = [...flag.level.scopes, toLongKey(flag.keys, part).split('--')[1] ?? ''].slice(1)
+          // a long name's hyphens are not part of the key it sets: --dry-run sets DRYRUN, a name an env var can have
+          const key = [...flag.level.scopes, (toLongKey(flag.keys, part).split('--')[1] ?? '').replaceAll('-', '')]
+            .slice(1)
           if (!flag.isOption) {
             _environment.set(key, '1')
             partsIndex += 1

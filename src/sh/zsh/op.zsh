@@ -68,7 +68,7 @@ function opPrintCmd {
 }
 
 function opMaybePrintCmd {
-  if [[ -z $NOOP ]]; then
+  if [[ -z $DRYRUN ]]; then
     opPrintCmd "$@"
   fi
 }
@@ -99,13 +99,13 @@ function opAsk {
 }
 
 function opMaybeRunCmd {
-  if [[ -z $NOOP ]]; then
+  if [[ -z $DRYRUN ]]; then
     opRunCmd "$@"
   fi
 }
 
 function opMaybeRunSilentCmd {
-  if [[ -z $NOOP ]]; then
+  if [[ -z $DRYRUN ]]; then
     opRunSilentCmd "$@"
   fi
 }

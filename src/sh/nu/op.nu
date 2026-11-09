@@ -56,7 +56,7 @@ def opPrintCmd --wrapped [...args] {
 }
 
 def opMaybePrintCmd --wrapped [...args] {
-  if NOOP not-in $env {
+  if DRYRUN not-in $env {
     opPrintCmd ...$args
   }
 }
@@ -109,13 +109,13 @@ def opAsk [question: string] {
 }
 
 def opMaybeRunCmd --wrapped [...args] {
-  if NOOP not-in $env {
+  if DRYRUN not-in $env {
     opRunCmd ...$args
   }
 }
 
 def opMaybeRunSilentCmd --wrapped [...args] {
-  if NOOP not-in $env {
+  if DRYRUN not-in $env {
     opRunSilentCmd ...$args
   }
 }

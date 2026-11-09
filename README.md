@@ -122,7 +122,7 @@ runMyCommand() {
 
 - **sh.ts** - Shell abstraction for shell implementations (`Nushell`, `Powershell`, `Zshell`)
 - **cmd.ts** - Command system with argument parsing and subcommand support
-- **srv.ts** - Server base with standard options (`--help`, `--debug`, `--log`, `--noop`, `--trace`)
+- **srv.ts** - Server base with standard options (`--help`, `--debug`, `--log`, `--dry-run`, `--trace`)
 - **ctx.ts** - Context extraction from HTTP requests; all system properties pass through as raw strings
 - **env.ts** - Environment management for key-value storage
 - **path.ts** - Cross-platform path utilities and file system operations

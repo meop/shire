@@ -28,7 +28,7 @@ export class SrvBase extends CmdBase implements Cmd {
       { keys: ['-g', '--grayscale'], description: 'shell print skip color' },
       { keys: ['-h', '--help'], description: 'shell print help' },
       { keys: ['-l', '--log'], description: 'server print log' },
-      { keys: ['-n', '--noop'], description: 'shell run skip' },
+      { keys: ['-n', '--dry-run'], description: 'shell run skip' },
       { keys: ['-t', '--trace'], description: 'shell print trace' },
       { keys: ['-v', '--verbose'], description: 'shell print verbose' },
       { keys: ['-y', '--yes'], description: 'shell run skip prompt' },

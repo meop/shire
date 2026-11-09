@@ -43,6 +43,27 @@ Deno.test('CmdBase.process - parses arguments, options and switches', async () =
   assertEquals(result, 'arg1=myarg, option=optval, switch=1')
 })
 
+class HyphenCmd extends CmdBase {
+  constructor(scopes: string[]) {
+    super(scopes)
+    this.name = 'hyphen'
+    this.description = 'hyphen command'
+    this.switches = [{ keys: ['-n', '--dry-run'], description: 'dry run' }]
+  }
+
+  override work(_shell: Sh, _context: Ctx, environment: EnvBase): Promise<string> {
+    return Promise.resolve(`dryrun=${environment.get([...this.scopes, this.name, 'dryrun'].slice(1))}`)
+  }
+}
+
+// a long name's hyphens are left out of its key, so --dry-run sets DRYRUN, which an env var can be named
+Deno.test('CmdBase.process - a hyphenated switch sets its key without the hyphen', async () => {
+  const shell = new NuSh()
+  const context = { req_orig: '', req_path: '', req_srch: '' }
+  assertEquals(await new HyphenCmd(['root']).process(['--dry-run'], shell, context, new EnvBase()), 'dryrun=1')
+  assertEquals(await new HyphenCmd(['root']).process(['-n'], shell, context, new EnvBase()), 'dryrun=1')
+})
+
 class SubCmd extends CmdBase {
   constructor(scopes: string[]) {
     super(scopes)
@@ -63,7 +84,7 @@ class RootCmd extends CmdBase {
     this.description = 'root command'
     this.switches = [
       { keys: ['-d', '--debug'], description: 'debug' },
-      { keys: ['-n', '--noop'], description: 'noop' },
+      { keys: ['-n', '--dry-run'], description: 'dry run' },
       { keys: ['-y', '--yes'], description: 'yes' },
     ]
     this.options = [{ keys: ['-f', '--format'], description: 'format' }]
@@ -103,7 +124,7 @@ Deno.test('resolveCanonicalParts - expands aliases to canonical names', () => {
 
 Deno.test('resolveCanonicalParts - expands combined short flags to long form', () => {
   const cmd = new RootCmd()
-  assertEquals(resolveCanonicalParts(cmd, ['-dn', 'sub']), ['--debug', '--noop', 'sub'])
+  assertEquals(resolveCanonicalParts(cmd, ['-dn', 'sub']), ['--debug', '--dry-run', 'sub'])
   assertEquals(resolveCanonicalParts(cmd, ['-y', 'sub']), ['--yes', 'sub'])
 })
 
@@ -119,7 +140,7 @@ Deno.test('resolveCanonicalParts - passes through arguments unchanged', () => {
 
 Deno.test('resolveCanonicalParts - flags before and after subcommand', () => {
   const cmd = new RootCmd()
-  assertEquals(resolveCanonicalParts(cmd, ['-dn', 's', 'foo']), ['--debug', '--noop', 'sub', 'foo'])
+  assertEquals(resolveCanonicalParts(cmd, ['-dn', 's', 'foo']), ['--debug', '--dry-run', 'sub', 'foo'])
 })
 
 Deno.test('resolveCanonicalParts - unknown flags are kept as typed', () => {
